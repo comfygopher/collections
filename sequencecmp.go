@@ -176,7 +176,7 @@ func (c *comfyCmpSeq[V]) IndexOf(v V) (int, error) {
 }
 
 func (c *comfyCmpSeq[V]) InsertAt(i int, v V) error {
-	if i < 0 || i >= len(c.s) {
+	if i < 0 || i > len(c.s) {
 		return ErrOutOfBounds
 	}
 	c.s = slices.Insert(c.s, i, v)

@@ -1,0 +1,33 @@
+version: '3'
+
+tasks:
+  test:
+    desc: Run tests
+    cmds:
+      - go test -race ./...
+
+  coverage:
+    desc: Generate coverage report and display summary
+    cmds:
+      - mkdir -p var
+      - go test -race -coverprofile=var/coverage.txt -covermode=atomic ./...
+      - go tool cover -func=var/coverage.txt
+
+  coverage:html:
+    desc: Generate HTML coverage report
+    deps: [coverage]
+    cmds:
+      - go tool cover -html=var/coverage.txt -o var/coverage.html
+      - echo "Coverage report generated at var/coverage.html"
+
+  clean:
+    desc: Clean up generated files
+    cmds:
+      - rm -rf var/
+
+  ci:
+    desc: Run all CI checks
+    cmds:
+      - task: test
+      - task: coverage
+      - golangci-lint run
