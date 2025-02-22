@@ -1,0 +1,15 @@
+= Comfy Gopher
+
+*A Set of general-purpose Tools, Utilities, and Data Structures for Comfortable Development*
+
+These tools prioritize speed and ease of development over strict efficiency or full compliance with Go philosophy.
+They accelerate development and enhance the experience, by reducing the cognitive load,
+making them well suited for rapid prototyping.
+
+== Alternatives
+
+There is a very nice library https://github.com/charbz/gophers[github.com/charbz/gophers].
+Its API is a mix of mutable and immutable operations, which can be confusing.
+Most of the methods there do return a new collection instance though. This has its applications,
+but at the same time it presents some inconveniences when working with extensive amount of
+other libraries that expect mutable elements.
