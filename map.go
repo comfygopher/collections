@@ -12,6 +12,7 @@ type comfyMap[K comparable, V any] struct {
 }
 
 // NewMap creates a new Map instance.
+// Note that there is no NewMapFrom constructor, because it would create collection in random order.
 func NewMap[K comparable, V any]() Map[K, V] {
 	return &comfyMap[K, V]{
 		s: make([]Pair[K, V], 0),
@@ -19,26 +20,12 @@ func NewMap[K comparable, V any]() Map[K, V] {
 	}
 }
 
-// NewMapFrom creates a new Map instance and copies elemnts from given map.
-func NewMapFrom[K comparable, V any](m map[K]V) Map[K, V] {
-	cm := &comfyMap[K, V]{
-		m: make(map[K]Pair[K, V]),
-	}
-	for k, v := range m {
-		pair := NewPair(k, v)
-		cm.m[k] = pair
-		cm.s = append(cm.s, pair)
-	}
-
-	return cm
-}
-
-func (c *comfyMap[K, V]) At(i int) (Pair[K, V], bool) {
+func (c *comfyMap[K, V]) At(i int) (p Pair[K, V], found bool) {
 	if i < 0 || i >= len(c.s) {
-		return NilPair[K, V](), true
+		return nil, false
 	}
 
-	return c.s[i], false
+	return c.s[i], true
 }
 
 func (c *comfyMap[K, V]) AtOrDefault(i int, defaultValue Pair[K, V]) Pair[K, V] {
@@ -50,8 +37,8 @@ func (c *comfyMap[K, V]) AtOrDefault(i int, defaultValue Pair[K, V]) Pair[K, V] 
 }
 
 func (c *comfyMap[K, V]) Clear() {
-	c.m = make(map[K]Pair[K, V])
 	c.s = make([]Pair[K, V], 0)
+	c.m = make(map[K]Pair[K, V])
 }
 
 func (c *comfyMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {
@@ -59,8 +46,7 @@ func (c *comfyMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {
 }
 
 func (c *comfyMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
-	panic("not implemented")
-	//return comfyCount[Indexed[Pair[K, V]], V](c, predicate)
+	return comfyCount[Indexed[Pair[K, V]], Pair[K, V]](c, predicate)
 }
 
 func (c *comfyMap[K, V]) Each(f Visitor[Pair[K, V]]) {
@@ -92,18 +78,15 @@ func (c *comfyMap[K, V]) EachUntil(f Predicate[Pair[K, V]]) {
 }
 
 func (c *comfyMap[K, V]) Find(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	panic("not implemented")
-	//return comfyFind[Indexed[V], V](c, predicate, defaultValue)
+	return comfyFind[Indexed[Pair[K, V]]](c, predicate, defaultValue)
 }
 
 func (c *comfyMap[K, V]) FindLast(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	panic("not implemented")
-	//return comfyFindLast[Indexed[V], V](c, predicate, defaultValue)
+	return comfyFindLast[Indexed[Pair[K, V]]](c, predicate, defaultValue)
 }
 
 func (c *comfyMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
-	panic("not implemented")
-	//return comfyFold(c, reducer, initial)
+	return comfyFold(c, reducer, initial)
 }
 
 func (c *comfyMap[K, V]) Get(k K) (V, bool) {
@@ -116,18 +99,18 @@ func (c *comfyMap[K, V]) Get(k K) (V, bool) {
 	return pair.Val(), true
 }
 
-func (c *comfyMap[K, V]) GetOrDefault(k K, defaultValue V) (V, bool) {
+func (c *comfyMap[K, V]) GetOrDefault(k K, defaultValue V) V {
 	pair, ok := c.m[k]
 	if !ok {
-		return defaultValue, false
+		return defaultValue
 	}
 
-	return pair.Val(), true
+	return pair.Val()
 }
 
 func (c *comfyMap[K, V]) Head() (Pair[K, V], bool) {
 	if len(c.s) == 0 {
-		return NilPair[K, V](), false
+		return nil, false
 	}
 
 	return c.s[0], true
@@ -159,10 +142,6 @@ func (c *comfyMap[K, V]) KeysToSlice() []K {
 	return slices.Collect(c.Keys())
 }
 
-func (c *comfyMap[K, V]) Len() int {
-	return len(c.s)
-}
-
 func (c *comfyMap[K, V]) KeyValues() iter.Seq2[K, V] {
 	return func(yield func(K, V) bool) {
 		for _, pair := range c.s {
@@ -173,20 +152,21 @@ func (c *comfyMap[K, V]) KeyValues() iter.Seq2[K, V] {
 	}
 }
 
-func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
-	panic("not implemented")
-	//return comfyReduce(c, reducer)
+func (c *comfyMap[K, V]) Len() int {
+	return len(c.s)
 }
 
-func (c *comfyMap[K, V]) RemoveAt(idx int) error {
-	if idx < 0 || idx >= len(c.s) {
-		return ErrOutOfBounds
+func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
+	return comfyReduce(c, reducer)
+}
+
+func (c *comfyMap[K, V]) RemoveAt(idx int) (removed Pair[K, V], err error) {
+	if removed, c.s, err = sliceRemoveAt(c.s, idx); err != nil {
+		return removed, err
 	}
+	delete(c.m, removed.Key())
 
-	c.s = append(c.s[:idx], c.s[idx+1:]...)
-	delete(c.m, c.s[idx].Key())
-
-	return nil
+	return removed, nil
 }
 
 func (c *comfyMap[K, V]) Reverse() {
@@ -207,7 +187,7 @@ func (c *comfyMap[K, V]) Search(predicate Predicate[Pair[K, V]]) (Pair[K, V], bo
 		}
 	}
 
-	return NilPair[K, V](), false
+	return nil, false
 }
 
 func (c *comfyMap[K, V]) SearchRev(predicate Predicate[Pair[K, V]]) (Pair[K, V], bool) {
@@ -217,12 +197,12 @@ func (c *comfyMap[K, V]) SearchRev(predicate Predicate[Pair[K, V]]) (Pair[K, V],
 		}
 	}
 
-	return NilPair[K, V](), false
+	return nil, false
 }
 
 func (c *comfyMap[K, V]) Tail() (Pair[K, V], bool) {
 	if len(c.s) == 0 {
-		return NilPair[K, V](), false
+		return nil, false
 	}
 
 	return c.s[len(c.s)-1], true
@@ -291,9 +271,9 @@ func (c *comfyMap[K, V]) SetAll(im map[K]V) {
 	}
 }
 
-func (c *comfyMap[K, V]) Sort(cmp func(a, b V) int) {
+func (c *comfyMap[K, V]) Sort(cmp PairComparator[K, V]) {
 	slices.SortFunc(c.s, func(a, b Pair[K, V]) int {
-		return cmp(a.Val(), b.Val())
+		return cmp(a, b)
 	})
 }
 

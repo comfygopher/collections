@@ -1,17 +1,20 @@
 package coll
 
 type testArgs[C any, V any] struct {
-	index        int
-	value        V
-	values       []V
-	defaultValue V
-	visit        Visitor[V]
-	predicate    Predicate[V]
-	reducer      Reducer[V]
-	mapper       Mapper[V]
-	comparer     func(a, b V) int
-	initial      V
-	coll         C
+	index           int
+	key             int
+	value           V
+	values          []V
+	defaultValue    V
+	defaultRawValue any
+	visit           Visitor[V]
+	predicate       Predicate[V]
+	intPredicate    func(i int) bool
+	reducer         Reducer[V]
+	mapper          Mapper[V]
+	comparer        func(a, b V) int
+	initial         V
+	coll            C
 }
 
 type testCase[C any, V any] struct {

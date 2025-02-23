@@ -222,12 +222,14 @@ func comfySum[C Base[V], V cmp.Ordered](coll C) V {
 	}, initial)
 }
 
-func sliceRemoveAt[V any](s []V, i int) ([]V, error) {
+func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
 	if i < 0 || i >= len(s) {
-		return nil, ErrOutOfBounds
+		var v V
+		return v, s, ErrOutOfBounds
 	}
+	removed = s[i]
 
-	return append(s[:i], s[i+1:]...), nil
+	return removed, append(s[:i], s[i+1:]...), nil
 }
 
 func sliceRemoveMatching[V any](s []V, predicate Predicate[V]) []V {

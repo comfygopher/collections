@@ -210,12 +210,12 @@ func (c *comfyCmpSeq[V]) Reduce(reducer Reducer[V]) (V, error) {
 	return comfyReduce(c, reducer)
 }
 
-func (c *comfyCmpSeq[V]) RemoveAt(i int) error {
-	if i < 0 || i >= len(c.s) {
-		return ErrOutOfBounds
+func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
+	if removed, c.s, err = sliceRemoveAt(c.s, i); err != nil {
+		return removed, err
 	}
-	c.s = append(c.s[:i], c.s[i+1:]...)
-	return nil
+
+	return removed, nil
 }
 
 func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) {

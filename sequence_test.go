@@ -59,41 +59,45 @@ func (lcb *comfySeqPairBuilder[C]) make(items []Pair[int, int]) Base[Pair[int, i
 }
 
 func TestNewSequence(t *testing.T) {
-	intSeq := NewSequence[int]()
-	if intSeq == nil {
-		t.Error("NewSequence[int]() returned nil")
-	}
-	if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: make([]int, 0)}) {
-		t.Error("NewSequence[int]() did not return a comfySeq[int]")
-	}
+	t.Run("NewSequence[int]()", func(t *testing.T) {
+		intSeq := NewSequence[int]()
+		if intSeq == nil {
+			t.Error("NewSequence[int]() returned nil")
+		}
+		if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: make([]int, 0)}) {
+			t.Error("NewSequence[int]() did not return a comfySeq[int]")
+		}
 
-	stringSeq := NewSequence[string]()
-	if stringSeq == nil {
-		t.Error("NewSequence[string]() returned nil")
-	}
-	if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: make([]string, 0)}) {
-		t.Error("NewSequence[int]() did not return a comfySeq[int]")
-	}
+		stringSeq := NewSequence[string]()
+		if stringSeq == nil {
+			t.Error("NewSequence[string]() returned nil")
+		}
+		if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: make([]string, 0)}) {
+			t.Error("NewSequence[int]() did not return a comfySeq[int]")
+		}
+	})
 }
 
 func TestNewSequenceFrom(t *testing.T) {
-	intSlice := []int{1, 2, 3}
-	intSeq := NewSequenceFrom(intSlice)
-	if intSeq == nil {
-		t.Error("NewSequence[int]() returned nil")
-	}
-	if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: intSlice}) {
-		t.Error("NewSequence[int]() did not return a comfySeq[int]")
-	}
+	t.Run("NewSequenceFrom[int]()", func(t *testing.T) {
+		intSlice := []int{1, 2, 3}
+		intSeq := NewSequenceFrom(intSlice)
+		if intSeq == nil {
+			t.Error("NewSequence[int]() returned nil")
+		}
+		if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: intSlice}) {
+			t.Error("NewSequence[int]() did not return a comfySeq[int]")
+		}
 
-	stringSlice := []string{"a", "b", "c"}
-	stringSeq := NewSequenceFrom[string](stringSlice)
-	if stringSeq == nil {
-		t.Error("NewSequence[string]() returned nil")
-	}
-	if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: stringSlice}) {
-		t.Error("NewSequence[int]() did not return a comfySeq[int]")
-	}
+		stringSlice := []string{"a", "b", "c"}
+		stringSeq := NewSequenceFrom[string](stringSlice)
+		if stringSeq == nil {
+			t.Error("NewSequence[string]() returned nil")
+		}
+		if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: stringSlice}) {
+			t.Error("NewSequence[int]() did not return a comfySeq[int]")
+		}
+	})
 }
 
 func Test_comfySeq_Append(t *testing.T) {
@@ -147,10 +151,12 @@ func Test_comfySeq_EachUntil(t *testing.T) {
 
 func Test_comfySeq_Find(t *testing.T) {
 	testFind(t, &comfySeqIntBuilder[Base[int]]{})
+	testFindWithDupes(t, &comfySeqPairBuilder[Base[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_FindLast(t *testing.T) {
 	testFindLast(t, &comfySeqIntBuilder[Base[int]]{})
+	testFindLastWithDupes(t, &comfySeqPairBuilder[Base[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_Fold(t *testing.T) {

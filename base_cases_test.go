@@ -598,6 +598,50 @@ func testFind(t *testing.T, builder baseCollIntBuilder) {
 	}
 }
 
+func getFindCasesWithDupes(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
+	return []*baseIntPairTestCase{
+		{
+			name: "Find() on six-item collection, first one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return true },
+				defaultValue: nil,
+			},
+			want1: NewPair(1, 111),
+		},
+		{
+			name: "Find() on six-item collection, second one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 222 },
+				defaultValue: nil,
+			},
+			want1: NewPair(2, 222),
+		},
+		{
+			name: "Find() on six-item collection, not found",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 999 },
+				defaultValue: nil,
+			},
+			want1: nil,
+		},
+	}
+}
+
+func testFindWithDupes(t *testing.T, builder baseCollIntPairBuilder) {
+	cases := getFindCasesWithDupes(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.Find(tt.args.predicate, tt.args.defaultValue)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Find() = %v, want1 %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getFindLastCases(builder baseCollIntBuilder) []*baseTestCase {
 	return []*baseTestCase{
 		{
@@ -656,6 +700,50 @@ func getFindLastCases(builder baseCollIntBuilder) []*baseTestCase {
 			}},
 			want1: 333,
 		},
+	}
+}
+
+func getFindLastCasesWithDupes(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
+	return []*baseIntPairTestCase{
+		{
+			name: "FindLast() on six-item collection, first one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return true },
+				defaultValue: nil,
+			},
+			want1: NewPair(6, 333),
+		},
+		{
+			name: "FindLast() on six-item collection, second one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 222 },
+				defaultValue: nil,
+			},
+			want1: NewPair(5, 222),
+		},
+		{
+			name: "FindLast() on six-item collection, not found",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 999 },
+				defaultValue: nil,
+			},
+			want1: nil,
+		},
+	}
+}
+
+func testFindLastWithDupes(t *testing.T, builder baseCollIntPairBuilder) {
+	cases := getFindLastCasesWithDupes(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.FindLast(tt.args.predicate, tt.args.defaultValue)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("FindLast() = %v, want1 %v", got, tt.want1)
+			}
+		})
 	}
 }
 

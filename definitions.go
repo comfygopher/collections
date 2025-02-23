@@ -29,6 +29,12 @@ type Reducer[V any] = func(acc V, i int, current V) V
 // Mapper is used to map an element of a collection to a new value.
 type Mapper[V any] = func(i int, v V) V
 
+// Comparator is a comparator function.
+type Comparator[V any] = func(a, b V) int
+
+// PairComparator is a comparator function for key-value pairs.
+type PairComparator[K comparable, V any] = Comparator[Pair[K, V]]
+
 // KKVistor is a visitor function for key-value pairs.
 type KVVistor[K comparable, V any] = func(i int, k K, v V)
 
@@ -104,8 +110,8 @@ type Mutable[V any] interface {
 type IndexedMutable[V any] interface {
 	Indexed[V]
 	Mutable[V]
-	RemoveAt(idx int) error
-	Sort(cmp func(a, b V) int)
+	RemoveAt(idx int) (removed V, err error)
+	Sort(cmp Comparator[V])
 }
 
 // Cmp is a colection of elements of type cmp.Ordered
@@ -174,18 +180,19 @@ type CmpLinear[V cmp.Ordered] interface {
 
 // Map is a collection of key-value pairs.
 type Map[K comparable, V any] interface {
-	Mutable[Pair[K, V]]
-	Indexed[Pair[K, V]]
+	IndexedMutable[Pair[K, V]]
 	// GetE(k K) (P, error) // TODO?
 
 	Get(k K) (v V, ok bool)
-	GetOrDefault(k K, defaultValue V) (v V, ok bool)
+	GetOrDefault(k K, defaultValue V) V
 	Has(k K) bool
 	Keys() iter.Seq[K]
 	KeysToSlice() []K
 	KeyValues() iter.Seq2[K, V]
 	Remove(k K)
 	RemoveMany(keys []K)
+	//Sort(cmp Comparator[Pair[K, V]]) int
+	Sort(cmp PairComparator[K, V])
 	ToMap() map[K]V
 	// Values returns values iterator.
 	// Use KeyValues for key-value iterator.

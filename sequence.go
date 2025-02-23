@@ -177,14 +177,12 @@ func (c *comfySeq[V]) Reduce(reducer Reducer[V]) (V, error) {
 	return comfyReduce(c, reducer)
 }
 
-func (c *comfySeq[V]) RemoveAt(i int) error {
-	s, err := sliceRemoveAt(c.s, i)
-	if err != nil {
-		return err
+func (c *comfySeq[V]) RemoveAt(i int) (removed V, err error) {
+	if removed, c.s, err = sliceRemoveAt(c.s, i); err != nil {
+		return removed, err
 	}
 
-	c.s = s
-	return nil
+	return removed, nil
 }
 
 func (c *comfySeq[V]) RemoveMatching(predicate Predicate[V]) {
