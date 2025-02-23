@@ -166,13 +166,13 @@ func (c *comfyCmpSeq[V]) HeadOrDefault(defaultValue V) V {
 	return c.s[0]
 }
 
-func (c *comfyCmpSeq[V]) IndexOf(v V) (int, error) {
+func (c *comfyCmpSeq[V]) IndexOf(v V) (i int, found bool) {
 	for i, current := range c.s {
 		if current == v {
-			return i, nil
+			return i, true
 		}
 	}
-	return -1, ErrValueNotFound
+	return -1, false
 }
 
 func (c *comfyCmpSeq[V]) InsertAt(i int, v V) error {
@@ -187,13 +187,13 @@ func (c *comfyCmpSeq[V]) IsEmpty() bool {
 	return len(c.s) == 0
 }
 
-func (c *comfyCmpSeq[V]) LastIndexOf(v V) (int, error) {
+func (c *comfyCmpSeq[V]) LastIndexOf(v V) (i int, found bool) {
 	for i := len(c.s) - 1; i >= 0; i-- {
 		if c.s[i] == v {
-			return i, nil
+			return i, true
 		}
 	}
-	return -1, ErrValueNotFound
+	return -1, false
 }
 
 func (c *comfyCmpSeq[V]) Len() int {

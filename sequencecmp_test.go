@@ -1,12 +1,11 @@
 package coll
 
 import (
-	"cmp"
 	"reflect"
 	"testing"
 )
 
-type comfyCmpSeqIntBuilder[C Base[int]] struct {
+type comfyCmpSeqIntBuilder[C any] struct {
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) Empty() C {
@@ -105,42 +104,7 @@ func Test_comfyCmpSeq_Contains(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_ContainsValue(t *testing.T) {
-	type args[V cmp.Ordered] struct {
-		val V
-	}
-	type testCase[V cmp.Ordered] struct {
-		name string
-		c    comfyCmpSeq[V]
-		args args[V]
-		want bool
-	}
-	tests := []testCase[int]{
-		{
-			name: "Contains() on empty seq",
-			c:    comfyCmpSeq[int]{s: []int{}},
-			args: args[int]{val: 1},
-			want: false,
-		},
-		{
-			name: "Contains() on one-item",
-			c:    comfyCmpSeq[int]{s: []int{123}},
-			args: args[int]{val: 123},
-			want: true,
-		},
-		{
-			name: "Contains() on three item",
-			c:    comfyCmpSeq[int]{s: []int{123, 234, 345}},
-			args: args[int]{val: 234},
-			want: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.ContainsValue(tt.args.val); got != tt.want {
-				t.Errorf("ContainsValue() = %v, want1 %v", got, tt.want)
-			}
-		})
-	}
+	testContainsValue(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
 }
 
 func Test_comfyCmpSeq_Count(t *testing.T) {
@@ -148,72 +112,7 @@ func Test_comfyCmpSeq_Count(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_CountValues(t *testing.T) {
-	type args[V cmp.Ordered] struct {
-		val V
-	}
-	type testCase[V cmp.Ordered] struct {
-		name string
-		c    comfyCmpSeq[V]
-		args args[V]
-		want int
-	}
-	tests := []testCase[int]{
-		{
-			name: "Count() on empty seq",
-			c:    comfyCmpSeq[int]{s: []int{}},
-			args: args[int]{val: 1},
-			want: 0,
-		},
-		{
-			name: "Count() on one-item",
-			c:    comfyCmpSeq[int]{s: []int{123}},
-			args: args[int]{val: 123},
-			want: 1,
-		},
-		{
-			name: "Count() on three item",
-			c:    comfyCmpSeq[int]{s: []int{123, 234, 345}},
-			args: args[int]{val: 234},
-			want: 1,
-		},
-		{
-			name: "Count() on three item, not found",
-			c:    comfyCmpSeq[int]{s: []int{123, 234, 345}},
-			args: args[int]{val: 1},
-			want: 0,
-		},
-		{
-			name: "Count() on three item, all found",
-			c:    comfyCmpSeq[int]{s: []int{123, 123, 123}},
-			args: args[int]{val: 123},
-			want: 3,
-		},
-		{
-			name: "Count() on three item, none found",
-			c:    comfyCmpSeq[int]{s: []int{123, 234, 345}},
-			args: args[int]{val: -1},
-			want: 0,
-		},
-		{
-			name: "Count() on three item, 2 found",
-			c:    comfyCmpSeq[int]{s: []int{123, 123, 345}},
-			args: args[int]{val: 123},
-			want: 2,
-		},
-		{
-			name: "Count() on three item, some not mod 2 found",
-			c:    comfyCmpSeq[int]{s: []int{1, 123, 123}},
-			args: args[int]{val: 123},
-			want: 2,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.CountValues(tt.args.val); got != tt.want {
-				t.Errorf("CountValues() = %v, want1 %v", got, tt.want)
-			}
-		})
-	}
+	testCountValues(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
 }
 
 func Test_comfyCmpSeq_Each(t *testing.T) {
@@ -248,6 +147,10 @@ func Test_comfyCmpSeq_HeadOrDefault(t *testing.T) {
 	testHeadOrDefault(t, &comfyCmpSeqIntBuilder[Linear[int]]{})
 }
 
+func Test_comfyCmpSeq_IndexOf(t *testing.T) {
+	testIndexOf(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
+}
+
 func Test_comfyCmpSeq_InsertAt(t *testing.T) {
 	testInsertAt(t, &comfyCmpSeqIntBuilder[List[int]]{})
 }
@@ -256,8 +159,20 @@ func Test_comfyCmpSeq_IsEmpty(t *testing.T) {
 	testIsEmpty(t, &comfyCmpSeqIntBuilder[Base[int]]{})
 }
 
+func Test_comfyCmpSeq_LastIndexOf(t *testing.T) {
+	testLastIndexOf(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
+}
+
 func Test_comfyCmpSeq_Len(t *testing.T) {
 	testLen(t, &comfyCmpSeqIntBuilder[Base[int]]{})
+}
+
+func Test_comfyCmpSeq_Max(t *testing.T) {
+	testMax(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
+}
+
+func Test_comfyCmpSeq_Min(t *testing.T) {
+	testMin(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
 }
 
 func Test_comfyCmpSeq_Prepend(t *testing.T) {
@@ -292,6 +207,10 @@ func Test_comfyCmpSeq_SearchRev(t *testing.T) {
 
 func Test_comfyCmpSeq_Sort(t *testing.T) {
 	testSort(t, &comfyCmpSeqIntBuilder[IndexedMutable[int]]{})
+}
+
+func Test_comfyCmpSeq_Sum(t *testing.T) {
+	testSum(t, &comfyCmpSeqIntBuilder[Ordered[int]]{})
 }
 
 func Test_comfyCmpSeq_Tail(t *testing.T) {
@@ -336,121 +255,6 @@ func Test_comfyCmpSeq_copy_pointer(t *testing.T) {
 	})
 }
 
-//func Test_comfyCmpSeq_IndexOf(t *testing.T) {
-//	type testArgs[V cmp.Ordered] struct {
-//		v V
-//	}
-//	type testCase[V cmp.Ordered] struct {
-//		name    string
-//		c       comfyCmpSeq[V]
-//		testArgs    testArgs[V]
-//		want    int
-//		wantErr bool
-//	}
-//	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			got, err := tt.c.IndexOf(tt.testArgs.v)
-//			if (err != nil) != tt.wantErr {
-//				t.Errorf("IndexOf() error = %v, wantErr %v", err, tt.wantErr)
-//				return
-//			}
-//			if got != tt.want {
-//				t.Errorf("IndexOf() got = %v, want %v", got, tt.want)
-//			}
-//		})
-//	}
-//}
-//
-//func Test_comfyCmpSeq_InsertAt(t *testing.T) {
-//	type testArgs[V cmp.Ordered] struct {
-//		coll int
-//		v V
-//	}
-//	type testCase[V cmp.Ordered] struct {
-//		name    string
-//		c       comfyCmpSeq[V]
-//		testArgs    testArgs[V]
-//		wantErr bool
-//	}
-//	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			if err := tt.c.InsertAt(tt.testArgs.coll, tt.testArgs.v); (err != nil) != tt.wantErr {
-//				t.Errorf("InsertAt() error = %v, wantErr %v", err, tt.wantErr)
-//			}
-//		})
-//	}
-//}
-//
-//func Test_comfyCmpSeq_IsEmpty(t *testing.T) {
-//	type testCase[V cmp.Ordered] struct {
-//		name string
-//		c    comfyCmpSeq[V]
-//		want bool
-//	}
-//	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			if got := tt.c.IsEmpty(); got != tt.want {
-//				t.Errorf("IsEmpty() = %v, want %v", got, tt.want)
-//			}
-//		})
-//	}
-//}
-//
-//func Test_comfyCmpSeq_LastIndexOf(t *testing.T) {
-//	type testArgs[V cmp.Ordered] struct {
-//		v V
-//	}
-//	type testCase[V cmp.Ordered] struct {
-//		name    string
-//		c       comfyCmpSeq[V]
-//		testArgs    testArgs[V]
-//		want    int
-//		wantErr bool
-//	}
-//	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			got, err := tt.c.LastIndexOf(tt.testArgs.v)
-//			if (err != nil) != tt.wantErr {
-//				t.Errorf("LastIndexOf() error = %v, wantErr %v", err, tt.wantErr)
-//				return
-//			}
-//			if got != tt.want {
-//				t.Errorf("LastIndexOf() got = %v, want %v", got, tt.want)
-//			}
-//		})
-//	}
-//}
-//
-//func Test_comfyCmpSeq_Len(t *testing.T) {
-//	type testCase[V cmp.Ordered] struct {
-//		name string
-//		c    comfyCmpSeq[V]
-//		want int
-//	}
-//	tests := []testCase[ /* TODO: Insert concrete types here */ ]{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			if got := tt.c.Len(); got != tt.want {
-//				t.Errorf("Len() = %v, want %v", got, tt.want)
-//			}
-//		})
-//	}
-//}
-//
 //func Test_comfyCmpSeq_Max(t *testing.T) {
 //	type testCase[V cmp.Ordered] struct {
 //		name    string

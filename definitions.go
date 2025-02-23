@@ -107,7 +107,6 @@ type IndexedMutable[V any] interface {
 
 // Ordered is a colection of elements of type cmp.Ordered
 type Ordered[V cmp.Ordered] interface {
-	//Indexed[V]
 	// ContainsValue returns true if the collection contains the given value.
 	// Alias: HasValue
 	ContainsValue(v V) bool
@@ -115,8 +114,8 @@ type Ordered[V cmp.Ordered] interface {
 	// HasValue is an alias for ContainsValue.
 	// Deprecated: use ContainsValue instead.
 	// HasValue(v V) bool // TODO
-	IndexOf(v V) (int, error)
-	LastIndexOf(v V) (int, error)
+	IndexOf(v V) (i int, found bool)
+	LastIndexOf(v V) (i int, found bool)
 	Max() (v V, err error)
 	Min() (v V, err error)
 	Sum() (v V)

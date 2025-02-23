@@ -1,6 +1,6 @@
 package coll
 
-type testArgs[C Base[V], V any] struct {
+type testArgs[C any, V any] struct {
 	index        int
 	value        V
 	values       []V
@@ -14,7 +14,7 @@ type testArgs[C Base[V], V any] struct {
 	coll         C
 }
 
-type testCase[C Base[V], V any] struct {
+type testCase[C any, V any] struct {
 	name    string
 	coll    C
 	args    testArgs[C, V]
@@ -28,7 +28,7 @@ type testCase[C Base[V], V any] struct {
 	wantErr bool
 }
 
-type testCollectionBuilder[C Base[V], V any] interface {
+type testCollectionBuilder[C any, V any] interface {
 	Empty() C
 	One() C
 	Two() C
