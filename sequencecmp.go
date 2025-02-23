@@ -288,10 +288,6 @@ func (c *comfyCmpSeq[V]) SortDesc() {
 	})
 }
 
-func (c *comfyCmpSeq[V]) SortMut(cmp func(a, b V) int) {
-	slices.SortFunc(c.s, cmp)
-}
-
 func (c *comfyCmpSeq[V]) Sum() V {
 	return comfySum[CmpSequence[V], V](c)
 }

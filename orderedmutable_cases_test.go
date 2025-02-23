@@ -82,27 +82,52 @@ func testRemoveValues(t *testing.T, builder orderedMutableCollIntBuilder) {
 }
 
 func getSortAscCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+
+	sortOnEmptyCollectionCase := orderedMutableTestCase{
+		name:  "SortAsc() on empty collection",
+		coll:  builder.Empty(),
+		want1: []int{},
+	}
+
+	sortOnOneItemCollectionCase := orderedMutableTestCase{
+		name:  "SortAsc() on one-item collection",
+		coll:  builder.One(),
+		want1: []int{111},
+	}
+
+	sortOnThreeItemCollectionCase := orderedMutableTestCase{
+		name:  "SortAsc() on three-item collection",
+		coll:  builder.Three(),
+		want1: []int{111, 222, 333},
+	}
+
+	sortOnSixItemCollectionCase := orderedMutableTestCase{
+		name:  "SortAsc() on six-item collection",
+		coll:  builder.SixWithDuplicates(),
+		want1: []int{111, 111, 222, 222, 333, 333},
+	}
+
+	sortOnThreeItemCollectionReversedCase := orderedMutableTestCase{
+		name:  "SortAsc() on three-item collection reversed",
+		coll:  builder.Three(),
+		want1: []int{111, 222, 333},
+	}
+	sortOnThreeItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
+
+	sortOnSixItemCollectionReversedCase := orderedMutableTestCase{
+		name:  "SortAsc() on six-item collection reversed",
+		coll:  builder.SixWithDuplicates(),
+		want1: []int{111, 111, 222, 222, 333, 333},
+	}
+	sortOnSixItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
+
 	return []orderedMutableTestCase{
-		{
-			name:  "SortAsc() on empty collection",
-			coll:  builder.Empty(),
-			want1: []int{},
-		},
-		{
-			name:  "SortAsc() on one-item collection",
-			coll:  builder.One(),
-			want1: []int{111},
-		},
-		{
-			name:  "SortAsc() on three-item collection",
-			coll:  builder.Three(),
-			want1: []int{111, 222, 333},
-		},
-		{
-			name:  "SortAsc() on six-item collection",
-			coll:  builder.SixWithDuplicates(),
-			want1: []int{111, 111, 222, 222, 333, 333},
-		},
+		sortOnEmptyCollectionCase,
+		sortOnOneItemCollectionCase,
+		sortOnThreeItemCollectionCase,
+		sortOnSixItemCollectionCase,
+		sortOnThreeItemCollectionReversedCase,
+		sortOnSixItemCollectionReversedCase,
 	}
 }
 
@@ -120,27 +145,51 @@ func testSortAsc(t *testing.T, builder orderedMutableCollIntBuilder) {
 }
 
 func getSortDescCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	sortOnEmptyCollectionCase := orderedMutableTestCase{
+		name:  "SortDesc() on empty collection",
+		coll:  builder.Empty(),
+		want1: []int{},
+	}
+
+	sortOnOneItemCollectionCase := orderedMutableTestCase{
+		name:  "SortDesc() on one-item collection",
+		coll:  builder.One(),
+		want1: []int{111},
+	}
+
+	sortOnThreeItemCollectionCase := orderedMutableTestCase{
+		name:  "SortDesc() on three-item collection",
+		coll:  builder.Three(),
+		want1: []int{333, 222, 111},
+	}
+
+	sortOnSixItemCollectionCase := orderedMutableTestCase{
+		name:  "SortDesc() on six-item collection",
+		coll:  builder.SixWithDuplicates(),
+		want1: []int{333, 333, 222, 222, 111, 111},
+	}
+
+	sortOnThreeItemCollectionReversedCase := orderedMutableTestCase{
+		name:  "SortDesc() on three-item collection reversed",
+		coll:  builder.Three(),
+		want1: []int{333, 222, 111},
+	}
+	sortOnThreeItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
+
+	sortOnSixItemCollectionReversedCase := orderedMutableTestCase{
+		name:  "SortDesc() on six-item collection reversed",
+		coll:  builder.SixWithDuplicates(),
+		want1: []int{333, 333, 222, 222, 111, 111},
+	}
+	sortOnSixItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
+
 	return []orderedMutableTestCase{
-		{
-			name:  "SortDesc() on empty collection",
-			coll:  builder.Empty(),
-			want1: []int{},
-		},
-		{
-			name:  "SortDesc() on one-item collection",
-			coll:  builder.One(),
-			want1: []int{111},
-		},
-		{
-			name:  "SortDesc() on three-item collection",
-			coll:  builder.Three(),
-			want1: []int{333, 222, 111},
-		},
-		{
-			name:  "SortDesc() on six-item collection",
-			coll:  builder.SixWithDuplicates(),
-			want1: []int{333, 333, 222, 222, 111, 111},
-		},
+		sortOnEmptyCollectionCase,
+		sortOnOneItemCollectionCase,
+		sortOnThreeItemCollectionCase,
+		sortOnSixItemCollectionCase,
+		sortOnThreeItemCollectionReversedCase,
+		sortOnSixItemCollectionReversedCase,
 	}
 }
 
