@@ -124,7 +124,7 @@ type Ordered[V cmp.Ordered] interface {
 // OrderedMutable is a mutable collection of elements of type cmp.Ordered
 type OrderedMutable[V cmp.Ordered] interface {
 	Ordered[V]
-	RemoveValues(rawValue V) // TODO: needed????
+	RemoveValues(v V) // TODO: needed????
 	SortAsc()
 	SortDesc()
 }
