@@ -1,5 +1,7 @@
 package coll
 
+//lint:file-ignore U1000
+
 import (
 	"cmp"
 	"iter"
@@ -7,7 +9,7 @@ import (
 )
 
 // NewCmpMap creates a new CmpMap instance.
-//func NewCmpMap[K comparable, V cmp.Ordered]() CmpMap[Pair[K, V], K, V] {
+//func NewCmpMap[K comparable, V cmp.Cmp]() CmpMap[Pair[K, V], K, V] {
 //	return &comfyCmpMap[K, V]{
 //		m:         make(map[K]*kvPair[K, V]),
 //		valsCount: make(map[V]int),
@@ -15,7 +17,7 @@ import (
 //}
 
 // NewCmpMapFrom creates a new CmpMap instance from a map.
-//func NewCmpMapFrom[K comparable, V cmp.Ordered](m map[K]V) CmpMap[K, V] {
+//func NewCmpMapFrom[K comparable, V cmp.Cmp](m map[K]V) CmpMap[K, V] {
 //	cm := NewCmpMap[K, V]()
 //	for k, v := range m {
 //		cm.Set(k, v)
@@ -321,7 +323,7 @@ func (c *comfyCmpMap[K, V]) RemoveMany(keys []K) {
 	c.m = newM
 }
 
-// Ordered[V] interface implementation:
+// Cmp[V] interface implementation:
 
 func (c *comfyCmpMap[K, V]) ContainsValue(v V) bool {
 	_, ok := c.valsCount[v]
@@ -360,15 +362,15 @@ func (c *comfyCmpMap[K, V]) LastIndexOf(v V) (int, error) {
 
 // TODO
 //func (c *comfyCmpMap[K, V]) Max() (V, error) {
-//	return comfyMax[Ordered[V], V](c)
+//	return comfyMax[Cmp[V], V](c)
 //}
 //
 //func (c *comfyCmpMap[K, V]) Min() (V, error) {
-//	return comfyMin[Ordered[V], V](c)
+//	return comfyMin[Cmp[V], V](c)
 //}
 //
 //func (c *comfyCmpMap[K, V]) Sum() V {
-//	return comfySum[Ordered[V], V](c)
+//	return comfySum[Cmp[V], V](c)
 //}
 
 // Private:

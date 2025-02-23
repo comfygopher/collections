@@ -1,3 +1,3 @@
-module github.com/oxio-gophers/comfy-collections
+module github.com/comfygopher/collections
 
 go 1.24

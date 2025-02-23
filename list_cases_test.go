@@ -91,8 +91,13 @@ func testInsertAt(t *testing.T, builder listCollIntBuilder) {
 				if !errors.Is(err, tt.err) {
 					t.Errorf("InsertAt() returned wrong error: %v, want error: %v", err, tt.err)
 				}
-			} else if !reflect.DeepEqual(tt.coll.ToSlice(), tt.want1) {
-				t.Errorf("InsertAt() resulted in: %v, but wanted %v", tt.coll.ToSlice(), tt.want1)
+			} else {
+				if err != nil {
+					t.Errorf("InsertAt() returned error: %v", err)
+				}
+				if !reflect.DeepEqual(tt.coll.ToSlice(), tt.want1) {
+					t.Errorf("InsertAt() resulted in: %v, but wanted %v", tt.coll.ToSlice(), tt.want1)
+				}
 			}
 		})
 	}

@@ -855,74 +855,120 @@ func testReduce(t *testing.T, builder baseCollIntBuilder) {
 func getSearchCases(builder baseCollIntBuilder) []*baseTestCase {
 
 	searchOnEmptyCollectionCase := &baseTestCase{
-		name: "Search() on empty collection",
-		coll: builder.Empty(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 1
-		}},
+		name:  "Search() on empty collection",
+		coll:  builder.Empty(),
 		want1: 0,
 		want2: false,
+		want3: nil,
+		got3:  nil,
 	}
+
+	searchOnEmptyCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 1 {
+			searchOnEmptyCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchOnOneItemCollectionCase := &baseTestCase{
-		name: "Search() on one-item collection",
-		coll: builder.One(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111
-		}},
+		name:  "Search() on one-item collection",
+		coll:  builder.One(),
 		want1: 111,
 		want2: true,
+		want3: 0,
+		got3:  nil,
 	}
+
+	searchOnOneItemCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 {
+			searchOnOneItemCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchOnThreeItemCollectionCase := &baseTestCase{
-		name: "Search() on three-item collection",
-		coll: builder.Three(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 222
-		}},
+		name:  "Search() on three-item collection",
+		coll:  builder.Three(),
 		want1: 222,
 		want2: true,
+		want3: 1,
+		got3:  nil,
 	}
+
+	searchOnThreeItemCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 222 {
+			searchOnThreeItemCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchOnOneItemCollectionCaseNotFound := &baseTestCase{
-		name: "Search() on one-item collection, not found",
-		coll: builder.One(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 999
-		}},
+		name:  "Search() on one-item collection, not found",
+		coll:  builder.One(),
 		want1: 0,
 		want2: false,
+		want3: nil,
+		got3:  nil,
 	}
+
+	searchOnOneItemCollectionCaseNotFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 999 {
+			searchOnOneItemCollectionCaseNotFound.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchOnThreeItemCollectionCaseAllFound := &baseTestCase{
-		name: "Search() on three-item collection, all found",
-		coll: builder.Three(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return true
-		}},
+		name:  "Search() on three-item collection, all found",
+		coll:  builder.Three(),
 		want1: 111,
 		want2: true,
+		want3: 0,
+		got3:  nil,
 	}
+
+	searchOnThreeItemCollectionCaseAllFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		searchOnThreeItemCollectionCaseAllFound.got3 = i
+		return true
+	}}
 
 	searchOnSixItemCollectionCaseFirstFound := &baseTestCase{
-		name: "Search() on six-item collection, found first occurrence",
-		coll: builder.SixWithDuplicates(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111 && i == 0
-		}},
+		name:  "Search() on six-item collection, found first occurrence",
+		coll:  builder.SixWithDuplicates(),
 		want1: 111,
 		want2: true,
+		want3: 0,
+		got3:  nil,
 	}
 
+	searchOnSixItemCollectionCaseFirstFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 && i == 0 {
+			searchOnSixItemCollectionCaseFirstFound.got3 = i
+			return true
+		}
+		return false
+	}}
+
 	searchOnSixItemCollectionCaseLastFound := &baseTestCase{
-		name: "Search() on six-item collection, found second occurrence",
-		coll: builder.SixWithDuplicates(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111 && i == 3
-		}},
+		name:  "Search() on six-item collection, found second occurrence",
+		coll:  builder.SixWithDuplicates(),
 		want1: 111,
 		want2: true,
+		want3: 3,
+		got3:  nil,
 	}
+
+	searchOnSixItemCollectionCaseLastFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 && i == 3 {
+			searchOnSixItemCollectionCaseLastFound.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	return []*baseTestCase{
 		searchOnEmptyCollectionCase,
@@ -943,8 +989,11 @@ func testSearch(t *testing.T, builder baseCollIntBuilder) {
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Search() got1 = %v, want1 %v", got1, tt.want1)
 			}
-			if got2 != tt.want2 {
-				t.Errorf("Search() got2 = %v, want1 %v", got2, tt.want2)
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("Search() got2 = %v, want2 %v", got2, tt.want2)
+			}
+			if !reflect.DeepEqual(tt.got3, tt.want3) {
+				t.Errorf("Search() got3 = %v, want3 %v", tt.got3, tt.want3)
 			}
 		})
 	}
@@ -953,7 +1002,7 @@ func testSearch(t *testing.T, builder baseCollIntBuilder) {
 func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 	return []*baseIntPairTestCase{
 		{
-			name: "Search() on six-item collection, found first occurrence",
+			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Value() == 111
@@ -962,7 +1011,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			want2: true,
 		},
 		{
-			name: "Search() on six-item collection, found first occurrence",
+			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Value() == 222
@@ -971,7 +1020,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			want2: true,
 		},
 		{
-			name: "Search() on six-item collection, found first occurrence",
+			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Value() == 333
@@ -1000,74 +1049,120 @@ func testSearchPair(t *testing.T, builder baseCollIntPairBuilder) {
 func getSearchRevCases(builder baseCollIntBuilder) []*baseTestCase {
 
 	searchRevOnEmptyCollectionCase := &baseTestCase{
-		name: "SearchRev() on empty collection",
-		coll: builder.Empty(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 1
-		}},
+		name:  "SearchRev() on empty collection",
+		coll:  builder.Empty(),
 		want1: 0,
 		want2: false,
+		want3: nil,
+		got3:  nil,
 	}
+
+	searchRevOnEmptyCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 {
+			searchRevOnEmptyCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchRevOnOneItemCollectionCase := &baseTestCase{
-		name: "SearchRev() on one-item collection",
-		coll: builder.One(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111
-		}},
+		name:  "SearchRev() on one-item collection",
+		coll:  builder.One(),
 		want1: 111,
 		want2: true,
+		want3: 0,
+		got3:  nil,
 	}
+
+	searchRevOnOneItemCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 {
+			searchRevOnOneItemCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchRevOnThreeItemCollectionCase := &baseTestCase{
-		name: "SearchRev() on three-item collection",
-		coll: builder.Three(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 222
-		}},
+		name:  "SearchRev() on three-item collection",
+		coll:  builder.Three(),
 		want1: 222,
 		want2: true,
+		want3: 1,
+		got3:  nil,
 	}
+
+	searchRevOnThreeItemCollectionCase.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 222 {
+			searchRevOnThreeItemCollectionCase.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchRevOnOneItemCollectionCaseNotFound := &baseTestCase{
-		name: "SearchRev() on one-item collection, not found",
-		coll: builder.One(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 999
-		}},
+		name:  "SearchRev() on one-item collection, not found",
+		coll:  builder.One(),
 		want1: 0,
 		want2: false,
+		want3: nil,
+		got3:  nil,
 	}
+
+	searchRevOnOneItemCollectionCaseNotFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 999 {
+			searchRevOnOneItemCollectionCaseNotFound.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	searchRevOnThreeItemCollectionCaseAllFound := &baseTestCase{
-		name: "SearchRev() on three-item collection, all found",
-		coll: builder.Three(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return true
-		}},
+		name:  "SearchRev() on three-item collection, all found",
+		coll:  builder.Three(),
 		want1: 333,
 		want2: true,
+		want3: 2,
+		got3:  nil,
 	}
+
+	searchRevOnThreeItemCollectionCaseAllFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		searchRevOnThreeItemCollectionCaseAllFound.got3 = i
+		return true
+	}}
 
 	searchRevOnSixItemCollectionCaseFirstFound := &baseTestCase{
-		name: "SearchRev() on six-item collection, found first occurrence",
-		coll: builder.SixWithDuplicates(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111 && i == 0
-		}},
+		name:  "SearchRev() on six-item collection, found first occurrence",
+		coll:  builder.SixWithDuplicates(),
 		want1: 111,
 		want2: true,
+		want3: 3,
+		got3:  nil,
 	}
 
+	searchRevOnSixItemCollectionCaseFirstFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 && i == 3 {
+			searchRevOnSixItemCollectionCaseFirstFound.got3 = i
+			return true
+		}
+		return false
+	}}
+
 	searchRevOnSixItemCollectionCaseLastFound := &baseTestCase{
-		name: "SearchRev() on six-item collection, found second occurrence",
-		coll: builder.SixWithDuplicates(),
-		args: baseIntArgs{predicate: func(i int, v int) bool {
-			return v == 111 && i == 3
-		}},
+		name:  "SearchRev() on six-item collection, found second occurrence",
+		coll:  builder.SixWithDuplicates(),
 		want1: 111,
 		want2: true,
+		want3: 0,
+		got3:  nil,
 	}
+
+	searchRevOnSixItemCollectionCaseLastFound.args = baseIntArgs{predicate: func(i int, v int) bool {
+		if v == 111 && i == 0 {
+			searchRevOnSixItemCollectionCaseLastFound.got3 = i
+			return true
+		}
+		return false
+	}}
 
 	return []*baseTestCase{
 		searchRevOnEmptyCollectionCase,
@@ -1088,8 +1183,11 @@ func testSearchRev(t *testing.T, builder baseCollIntBuilder) {
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("SearchRev() got1 = %v, want1 %v", got1, tt.want1)
 			}
-			if got2 != tt.want2 {
-				t.Errorf("SearchRev() got2 = %v, want1 %v", got2, tt.want2)
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("SearchRev() got2 = %v, want2 %v", got2, tt.want2)
+			}
+			if !reflect.DeepEqual(tt.got3, tt.want3) {
+				t.Errorf("Search() got3 = %v, want3 %v", tt.got3, tt.want3)
 			}
 		})
 	}
@@ -1199,6 +1297,49 @@ func testValues(t *testing.T, builder baseCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got := slices.Collect(tt.coll.Values())
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Values() = %v, want1 %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getValuesBreakCases(builder baseCollIntBuilder) []*baseTestCase {
+	return []*baseTestCase{
+		{
+			name: "Values() on three-item collection, break",
+			coll: builder.Three(),
+			args: baseIntArgs{
+				predicate: func(i int, v int) bool {
+					return v < 222
+				},
+			},
+			want1: []int{111},
+		},
+		{
+			name: "Values() on three-item collection, break",
+			coll: builder.Three(),
+			args: baseIntArgs{
+				predicate: func(i int, v int) bool {
+					return v <= 222
+				},
+			},
+			want1: []int{111, 222},
+		},
+	}
+}
+
+func testValuesBreak(t *testing.T, builder baseCollIntBuilder) {
+	cases := getValuesBreakCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := []int{}
+			for v := range tt.coll.Values() {
+				if !tt.args.predicate(-1, v) {
+					break
+				}
+				got = append(got, v)
+			}
 			if !reflect.DeepEqual(got, tt.want1) {
 				t.Errorf("Values() = %v, want1 %v", got, tt.want1)
 			}

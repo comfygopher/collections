@@ -38,6 +38,7 @@ type KVPredicate[K comparable, V any] = func(i int, k K, v V) (valid bool)
 // KVReducer is a reducer function for key-value pairs.
 type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, currentValue V) (K, V)
 
+// Base is the base interface for all collections.
 type Base[V any] interface {
 	Contains(predicate Predicate[V]) bool
 	Count(predicate Predicate[V]) int
@@ -66,6 +67,7 @@ type Base[V any] interface {
 	copy() Base[V]
 }
 
+// Linear interface indicates that given collection preserves the order of elements.
 type Linear[V any] interface {
 	Base[V]
 	Head() (head V, ok bool)
@@ -74,7 +76,7 @@ type Linear[V any] interface {
 	TailOrDefault(defaultValue V) (tail V)
 }
 
-// Indexed interface
+// Indexed interface indicates that given collection can be accessed by index.
 // There is no need for separate OrderedCollection interface, as all Comfy collections are ordered.
 type Indexed[V any] interface {
 	Linear[V]
@@ -90,7 +92,7 @@ type Indexed[V any] interface {
 //	Unlock()
 //}
 
-// Mutable is a mutable collection.
+// Mutable is a collection with methods that modify its contents.
 type Mutable[V any] interface {
 	Base[V]
 	Apply(f Mapper[V])
@@ -98,6 +100,7 @@ type Mutable[V any] interface {
 	RemoveMatching(predicate Predicate[V]) // TODO: return count of removed items
 }
 
+// IndexedMutable is a mutable collection that can be modified based on the indexes.
 type IndexedMutable[V any] interface {
 	Indexed[V]
 	Mutable[V]
@@ -105,9 +108,10 @@ type IndexedMutable[V any] interface {
 	Sort(cmp func(a, b V) int)
 }
 
-// Ordered is a colection of elements of type cmp.Ordered
-type Ordered[V cmp.Ordered] interface {
-	//Indexed[V]
+// Cmp is a colection of elements of type cmp.Ordered
+// It is called `cmp` (from `comparable`) instead of `ordered` to avoid confusion with collections
+// that are not preserving order of elements (like the Go's native map).
+type Cmp[V cmp.Ordered] interface {
 	// ContainsValue returns true if the collection contains the given value.
 	// Alias: HasValue
 	ContainsValue(v V) bool
@@ -115,17 +119,19 @@ type Ordered[V cmp.Ordered] interface {
 	// HasValue is an alias for ContainsValue.
 	// Deprecated: use ContainsValue instead.
 	// HasValue(v V) bool // TODO
-	IndexOf(v V) (int, error)
-	LastIndexOf(v V) (int, error)
+	IndexOf(v V) (i int, found bool)
+	LastIndexOf(v V) (i int, found bool)
 	Max() (v V, err error)
 	Min() (v V, err error)
 	Sum() (v V)
 }
 
-// OrderedMutable is a mutable collection of elements of type cmp.Ordered
-type OrderedMutable[V cmp.Ordered] interface {
-	Ordered[V]
-	RemoveValues(rawValue V) // TODO: needed????
+// CmpMutable is a mutable collection of elements of type cmp.Ordered
+// It is called `cmp` (from `comparable`) instead of `ordered` to avoid confusion with collections
+// that are not preserving order of elements (like the Go's native map).
+type CmpMutable[V cmp.Ordered] interface {
+	Cmp[V]
+	RemoveValues(v V) // TODO: needed????
 	SortAsc()
 	SortDesc()
 }
@@ -148,15 +154,22 @@ type Sequence[V any] interface {
 	LinearMutable[V]
 }
 
+// CmpSequence is a ordered collection of elements that can be compared.
+type CmpSequence[V cmp.Ordered] interface {
+	Sequence[V]
+	CmpMutable[V]
+}
+
+// List is a mutable collection of elements.
 type List[V any] interface {
 	LinearMutable[V]
 	InsertAt(i int, v V) error
 }
 
-// OrderedLinear is a list of elements of type cmp.Ordered
-type OrderedLinear[V cmp.Ordered] interface {
+// CmpLinear is a list of elements of type cmp.Ordered
+type CmpLinear[V cmp.Ordered] interface {
 	LinearMutable[V]
-	OrderedMutable[V]
+	CmpMutable[V]
 }
 
 // Map is a collection of key-value pairs.
@@ -179,7 +192,7 @@ type Map[P Pair[K, V], K comparable, V any] interface {
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
 type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
 	Map[P, K, V]
-	OrderedMutable[V]
+	CmpMutable[V]
 }
 
 // Pair holds a key-value set of elements. It is used as the underlying value type for Map and similar collections.

@@ -96,11 +96,8 @@ func TestNewSequenceFrom(t *testing.T) {
 	}
 }
 
-func Test_comfySeq_Append_one(t *testing.T) {
+func Test_comfySeq_Append(t *testing.T) {
 	testAppendOne(t, &comfySeqIntBuilder[LinearMutable[int]]{})
-}
-
-func Test_comfySeq_Append_many(t *testing.T) {
 	testAppendMany(t, &comfySeqIntBuilder[LinearMutable[int]]{})
 }
 
@@ -180,11 +177,8 @@ func Test_comfySeq_Len(t *testing.T) {
 	testLen(t, &comfySeqIntBuilder[Base[int]]{})
 }
 
-func Test_comfySeq_Prepend_One(t *testing.T) {
+func Test_comfySeq_Prepend(t *testing.T) {
 	testPrependOne(t, &comfySeqIntBuilder[LinearMutable[int]]{})
-}
-
-func Test_comfySeq_Prepend_Many(t *testing.T) {
 	testPrependMany(t, &comfySeqIntBuilder[LinearMutable[int]]{})
 }
 
@@ -233,6 +227,7 @@ func Test_comfySeq_ToSlice(t *testing.T) {
 
 func Test_comfySeq_Values(t *testing.T) {
 	testValues(t, &comfySeqIntBuilder[Base[int]]{})
+	testValuesBreak(t, &comfySeqIntBuilder[Base[int]]{})
 }
 
 func Test_comfySeq_copy(t *testing.T) {

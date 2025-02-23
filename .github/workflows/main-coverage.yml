@@ -1,13 +1,19 @@
-name: Pull Request Checks
+name: Master Test Coverage
 
 on:
-  pull_request:
-    branches: [ main ]
+  schedule:
+    - cron: 0 8 * * *
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs: {}
 
 jobs:
-  test-and-lint:
+  report-coverage:
     runs-on: ubuntu-latest
+
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Go

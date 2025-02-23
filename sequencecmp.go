@@ -6,12 +6,6 @@ import (
 	"slices"
 )
 
-// CmpSequence is a ordered collection of elements that can be compared.
-type CmpSequence[V cmp.Ordered] interface {
-	Sequence[V]
-	OrderedMutable[V]
-}
-
 // NewCmpSequence creates a new CmpSequence instance.
 func NewCmpSequence[V cmp.Ordered]() CmpSequence[V] {
 	return &comfyCmpSeq[V]{
@@ -166,17 +160,17 @@ func (c *comfyCmpSeq[V]) HeadOrDefault(defaultValue V) V {
 	return c.s[0]
 }
 
-func (c *comfyCmpSeq[V]) IndexOf(v V) (int, error) {
+func (c *comfyCmpSeq[V]) IndexOf(v V) (i int, found bool) {
 	for i, current := range c.s {
 		if current == v {
-			return i, nil
+			return i, true
 		}
 	}
-	return -1, ErrValueNotFound
+	return -1, false
 }
 
 func (c *comfyCmpSeq[V]) InsertAt(i int, v V) error {
-	if i < 0 || i >= len(c.s) {
+	if i < 0 || i > len(c.s) {
 		return ErrOutOfBounds
 	}
 	c.s = slices.Insert(c.s, i, v)
@@ -187,13 +181,13 @@ func (c *comfyCmpSeq[V]) IsEmpty() bool {
 	return len(c.s) == 0
 }
 
-func (c *comfyCmpSeq[V]) LastIndexOf(v V) (int, error) {
+func (c *comfyCmpSeq[V]) LastIndexOf(v V) (i int, found bool) {
 	for i := len(c.s) - 1; i >= 0; i-- {
 		if c.s[i] == v {
-			return i, nil
+			return i, true
 		}
 	}
-	return -1, ErrValueNotFound
+	return -1, false
 }
 
 func (c *comfyCmpSeq[V]) Len() int {
@@ -292,10 +286,6 @@ func (c *comfyCmpSeq[V]) SortDesc() {
 		}
 		return 0
 	})
-}
-
-func (c *comfyCmpSeq[V]) SortMut(cmp func(a, b V) int) {
-	slices.SortFunc(c.s, cmp)
 }
 
 func (c *comfyCmpSeq[V]) Sum() V {
