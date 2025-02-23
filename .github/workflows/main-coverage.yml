@@ -38,4 +38,3 @@ jobs:
 
       - name: Run linter
         uses: golangci/golangci-lint-action@v6
-        run: golangci-lint run
