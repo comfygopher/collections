@@ -1,5 +1,7 @@
 package coll
 
+//lint:file-ignore U1000
+
 import (
 	"cmp"
 	"iter"

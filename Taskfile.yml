@@ -20,6 +20,11 @@ tasks:
       - go tool cover -html=var/coverage.txt -o var/coverage.html
       - echo "Coverage report generated at var/coverage.html"
 
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
+
   clean:
     desc: Clean up generated files
     cmds:

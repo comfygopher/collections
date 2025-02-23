@@ -38,6 +38,7 @@ type KVPredicate[K comparable, V any] = func(i int, k K, v V) (valid bool)
 // KVReducer is a reducer function for key-value pairs.
 type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, currentValue V) (K, V)
 
+// Base is the base interface for all collections.
 type Base[V any] interface {
 	Contains(predicate Predicate[V]) bool
 	Count(predicate Predicate[V]) int
@@ -66,6 +67,7 @@ type Base[V any] interface {
 	copy() Base[V]
 }
 
+// Linear interface indicates that given collection preserves the order of elements.
 type Linear[V any] interface {
 	Base[V]
 	Head() (head V, ok bool)
@@ -74,7 +76,7 @@ type Linear[V any] interface {
 	TailOrDefault(defaultValue V) (tail V)
 }
 
-// Indexed interface
+// Indexed interface indicates that given collection can be accessed by index.
 // There is no need for separate OrderedCollection interface, as all Comfy collections are ordered.
 type Indexed[V any] interface {
 	Linear[V]
@@ -90,7 +92,7 @@ type Indexed[V any] interface {
 //	Unlock()
 //}
 
-// Mutable is a mutable collection.
+// Mutable is a collection with methods that modify its contents.
 type Mutable[V any] interface {
 	Base[V]
 	Apply(f Mapper[V])
@@ -98,6 +100,7 @@ type Mutable[V any] interface {
 	RemoveMatching(predicate Predicate[V]) // TODO: return count of removed items
 }
 
+// IndexedMutable is a mutable collection that can be modified based on the indexes.
 type IndexedMutable[V any] interface {
 	Indexed[V]
 	Mutable[V]
@@ -157,6 +160,7 @@ type CmpSequence[V cmp.Ordered] interface {
 	CmpMutable[V]
 }
 
+// List is a mutable collection of elements.
 type List[V any] interface {
 	LinearMutable[V]
 	InsertAt(i int, v V) error
