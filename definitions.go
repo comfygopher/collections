@@ -173,9 +173,9 @@ type CmpLinear[V cmp.Ordered] interface {
 }
 
 // Map is a collection of key-value pairs.
-type Map[P Pair[K, V], K comparable, V any] interface {
-	Mutable[P]
-	Indexed[P]
+type Map[K comparable, V any] interface {
+	Mutable[Pair[K, V]]
+	Indexed[Pair[K, V]]
 	// GetE(k K) (P, error) // TODO?
 
 	Get(k K) (v V, ok bool)
@@ -183,15 +183,18 @@ type Map[P Pair[K, V], K comparable, V any] interface {
 	Has(k K) bool
 	Keys() iter.Seq[K]
 	KeysToSlice() []K
-	RawValues() iter.Seq[V]
+	KeyValues() iter.Seq2[K, V]
 	Remove(k K)
 	RemoveMany(keys []K)
 	ToMap() map[K]V
+	// Values returns values iterator.
+	// Use KeyValues for key-value iterator.
+	Values() iter.Seq[Pair[K, V]]
 }
 
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
-type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
-	Map[P, K, V]
+type CmpMap[K comparable, V cmp.Ordered] interface {
+	Map[K, V]
 	CmpMutable[V]
 }
 
@@ -200,7 +203,7 @@ type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
 // the key. Tampering with the keys would most likely result in breaking the internal consistency of the collection.
 type Pair[K comparable, V any] interface {
 	Key() K
-	Value() V
+	Val() V
 	copy() Pair[K, V]
 }
 
@@ -217,11 +220,15 @@ func NewPair[K comparable, V any](k K, v V) Pair[K, V] {
 	}
 }
 
+func NilPair[K comparable, V any]() Pair[K, V] {
+	return &comfyPair[K, V]{}
+}
+
 func (p *comfyPair[K, V]) Key() K {
 	return p.k
 }
 
-func (p *comfyPair[K, V]) Value() V {
+func (p *comfyPair[K, V]) Val() V {
 	return p.v
 }
 

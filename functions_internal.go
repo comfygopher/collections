@@ -18,10 +18,10 @@ func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
 	return found
 }
 
-func comfyContainsKV[M Map[*comfyPair[K, V], K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
+func comfyContainsKV[M Map[K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
 	found := false
-	m.EachUntil(func(i int, p *comfyPair[K, V]) bool {
-		if predicate(i, p.Key(), p.Value()) {
+	m.EachUntil(func(i int, p Pair[K, V]) bool {
+		if predicate(i, p.Key(), p.Val()) {
 			found = true
 			return false
 		}
@@ -199,11 +199,11 @@ func comfyReduceRev[C Base[V], V any](coll C, reducer Reducer[V]) (V, error) {
 	return acc, nil
 }
 
-func comfyReduceKV[M Map[*comfyPair[K, V], K, V], K comparable, V any](coll M, reducer KVReducer[K, V], initialKey K, initialValue V) (K, V) {
+func comfyReduceKV[M Map[K, V], K comparable, V any](coll M, reducer KVReducer[K, V], initialKey K, initialValue V) (K, V) {
 	kAcc := initialKey
 	vAcc := initialValue
-	coll.Each(func(_ int, pair *comfyPair[K, V]) {
-		kAcc, vAcc = reducer(kAcc, vAcc, pair.Key(), pair.Value())
+	coll.Each(func(_ int, pair Pair[K, V]) {
+		kAcc, vAcc = reducer(kAcc, vAcc, pair.Key(), pair.Val())
 	})
 
 	return kAcc, vAcc

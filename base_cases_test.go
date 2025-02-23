@@ -1005,7 +1005,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 111
+				return v.Val() == 111
 			}},
 			want1: NewPair(1, 111),
 			want2: true,
@@ -1014,7 +1014,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 222
+				return v.Val() == 222
 			}},
 			want1: NewPair(2, 222),
 			want2: true,
@@ -1023,7 +1023,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 333
+				return v.Val() == 333
 			}},
 			want1: NewPair(3, 333),
 			want2: true,
@@ -1199,7 +1199,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 111
+				return v.Val() == 111
 			}},
 			want1: NewPair(4, 111),
 			want2: true,
@@ -1208,7 +1208,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 222
+				return v.Val() == 222
 			}},
 			want1: NewPair(5, 222),
 			want2: true,
@@ -1217,7 +1217,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 333
+				return v.Val() == 333
 			}},
 			want1: NewPair(6, 333),
 			want2: true,
