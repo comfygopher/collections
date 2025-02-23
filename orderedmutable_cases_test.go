@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type orderedMutableIntArgs = testArgs[OrderedMutable[int], int]
-type orderedMutableTestCase = testCase[OrderedMutable[int], int]
-type orderedMutableCollIntBuilder = testCollectionBuilder[OrderedMutable[int], int]
+type orderedMutableIntArgs = testArgs[CmpMutable[int], int]
+type orderedMutableTestCase = testCase[CmpMutable[int], int]
+type orderedMutableCollIntBuilder = testCollectionBuilder[CmpMutable[int], int]
 
 func getRemoveValuesCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
 	return []orderedMutableTestCase{

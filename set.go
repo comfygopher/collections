@@ -9,14 +9,14 @@ type Set[K comparable, V cmp.Ordered] interface {
 	CmpMap[*comfyPair[K, V], K, V]
 }
 
-//type comfySet[K comparable, V cmp.Ordered] struct {
+//type comfySet[K comparable, V cmp.Cmp] struct {
 //	m       map[K]*kvPair[K, V]
 //	l       []*kvPair[K, V]
 //	revVals map[V]bool
 //	mutex   sync.Mutex
 //}
 
-//func NewSet[K comparable, V cmp.Ordered]() Set[K, V] {
+//func NewSet[K comparable, V cmp.Cmp]() Set[K, V] {
 //	return &Set[K, V]{
 //		m:       make(map[K]*kvPair[K, V]),
 //		l:       make([]*kvPair[K, V], 0),
@@ -24,7 +24,7 @@ type Set[K comparable, V cmp.Ordered] interface {
 //	}
 //}
 //
-//func NewSetFrom[K comparable, V cmp.Ordered](m map[K]V) Set[K, V] {
+//func NewSetFrom[K comparable, V cmp.Cmp](m map[K]V) Set[K, V] {
 //	s := NewSet[K, V]()
 //	for k, v := range m {
 //		s.set(k, v)

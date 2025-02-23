@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type orderedIntArgs = testArgs[Ordered[int], int]
-type orderedTestCase = testCase[Ordered[int], int]
-type orderedCollIntBuilder = testCollectionBuilder[Ordered[int], int]
+type orderedIntArgs = testArgs[Cmp[int], int]
+type orderedTestCase = testCase[Cmp[int], int]
+type orderedCollIntBuilder = testCollectionBuilder[Cmp[int], int]
 
 func getContainsValueCases(builder orderedCollIntBuilder) []orderedTestCase {
 	return []orderedTestCase{

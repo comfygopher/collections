@@ -8,7 +8,7 @@ import "cmp"
 func Copy[C Base[V], V any](c C) C {
 	//var it V
 	//
-	//if _, ok := interface{}(it).(cmp.Ordered); ok {
+	//if _, ok := interface{}(it).(cmp.Cmp); ok {
 	//	// c is of type CmpSequence[V]
 	//}
 
@@ -140,7 +140,7 @@ func comfyFindLast[C Base[V], V any](coll C, predicate Predicate[V], defaultValu
 	return defaultValue
 }
 
-//func comfyIndexOf[C Base[V], V cmp.Ordered](coll C, value V) (int, error) {
+//func comfyIndexOf[C Base[V], V cmp.Cmp](coll C, value V) (int, error) {
 //	if coll.IsEmpty() {
 //		return -1, ErrEmptyCollection
 //	}

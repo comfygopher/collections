@@ -6,12 +6,6 @@ import (
 	"slices"
 )
 
-// CmpSequence is a ordered collection of elements that can be compared.
-type CmpSequence[V cmp.Ordered] interface {
-	Sequence[V]
-	OrderedMutable[V]
-}
-
 // NewCmpSequence creates a new CmpSequence instance.
 func NewCmpSequence[V cmp.Ordered]() CmpSequence[V] {
 	return &comfyCmpSeq[V]{

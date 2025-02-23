@@ -105,8 +105,10 @@ type IndexedMutable[V any] interface {
 	Sort(cmp func(a, b V) int)
 }
 
-// Ordered is a colection of elements of type cmp.Ordered
-type Ordered[V cmp.Ordered] interface {
+// Cmp is a colection of elements of type cmp.Ordered
+// It is called `cmp` (from `comparable`) instead of `ordered` to avoid confusion with collections
+// that are not preserving order of elements (like the Go's native map).
+type Cmp[V cmp.Ordered] interface {
 	// ContainsValue returns true if the collection contains the given value.
 	// Alias: HasValue
 	ContainsValue(v V) bool
@@ -121,9 +123,11 @@ type Ordered[V cmp.Ordered] interface {
 	Sum() (v V)
 }
 
-// OrderedMutable is a mutable collection of elements of type cmp.Ordered
-type OrderedMutable[V cmp.Ordered] interface {
-	Ordered[V]
+// CmpMutable is a mutable collection of elements of type cmp.Ordered
+// It is called `cmp` (from `comparable`) instead of `ordered` to avoid confusion with collections
+// that are not preserving order of elements (like the Go's native map).
+type CmpMutable[V cmp.Ordered] interface {
+	Cmp[V]
 	RemoveValues(v V) // TODO: needed????
 	SortAsc()
 	SortDesc()
@@ -147,15 +151,21 @@ type Sequence[V any] interface {
 	LinearMutable[V]
 }
 
+// CmpSequence is a ordered collection of elements that can be compared.
+type CmpSequence[V cmp.Ordered] interface {
+	Sequence[V]
+	CmpMutable[V]
+}
+
 type List[V any] interface {
 	LinearMutable[V]
 	InsertAt(i int, v V) error
 }
 
-// OrderedLinear is a list of elements of type cmp.Ordered
-type OrderedLinear[V cmp.Ordered] interface {
+// CmpLinear is a list of elements of type cmp.Ordered
+type CmpLinear[V cmp.Ordered] interface {
 	LinearMutable[V]
-	OrderedMutable[V]
+	CmpMutable[V]
 }
 
 // Map is a collection of key-value pairs.
@@ -178,7 +188,7 @@ type Map[P Pair[K, V], K comparable, V any] interface {
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
 type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
 	Map[P, K, V]
-	OrderedMutable[V]
+	CmpMutable[V]
 }
 
 // Pair holds a key-value set of elements. It is used as the underlying value type for Map and similar collections.
