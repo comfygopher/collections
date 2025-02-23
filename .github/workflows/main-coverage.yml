@@ -32,7 +32,7 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
-          file: ./var/coverage.txt
+          files: ./var/coverage.txt
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
