@@ -7,16 +7,28 @@ import (
 )
 
 type comfyMap[K comparable, V any] struct {
-	s []Pair[K, V]
-	m map[K]Pair[K, V]
+	s  []Pair[K, V]
+	m  map[K]Pair[K, V]
+	kp map[K]int
 }
 
 // NewMap creates a new Map instance.
 // Note that there is no NewMapFrom constructor, because it would create collection in random order.
 func NewMap[K comparable, V any]() Map[K, V] {
 	return &comfyMap[K, V]{
-		s: make([]Pair[K, V], 0),
-		m: make(map[K]Pair[K, V]),
+		s:  []Pair[K, V](nil),
+		m:  make(map[K]Pair[K, V]),
+		kp: make(map[K]int),
+	}
+}
+
+// Public functions:
+
+func (c *comfyMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
+	for i, pair := range c.s {
+		mapped := f(i, pair)
+		c.s[i] = mapped
+		c.m[pair.Key()] = mapped
 	}
 }
 
@@ -24,7 +36,6 @@ func (c *comfyMap[K, V]) At(i int) (p Pair[K, V], found bool) {
 	if i < 0 || i >= len(c.s) {
 		return nil, false
 	}
-
 	return c.s[i], true
 }
 
@@ -32,7 +43,6 @@ func (c *comfyMap[K, V]) AtOrDefault(i int, defaultValue Pair[K, V]) Pair[K, V] 
 	if i < 0 || i >= len(c.s) {
 		return defaultValue
 	}
-
 	return c.s[i]
 }
 
@@ -95,7 +105,6 @@ func (c *comfyMap[K, V]) Get(k K) (V, bool) {
 		var v V
 		return v, false
 	}
-
 	return pair.Val(), true
 }
 
@@ -104,15 +113,18 @@ func (c *comfyMap[K, V]) GetOrDefault(k K, defaultValue V) V {
 	if !ok {
 		return defaultValue
 	}
-
 	return pair.Val()
+}
+
+func (c *comfyMap[K, V]) Has(k K) bool {
+	_, ok := c.m[k]
+	return ok
 }
 
 func (c *comfyMap[K, V]) Head() (Pair[K, V], bool) {
 	if len(c.s) == 0 {
 		return nil, false
 	}
-
 	return c.s[0], true
 }
 
@@ -120,7 +132,6 @@ func (c *comfyMap[K, V]) HeadOrDefault(defaultValue Pair[K, V]) Pair[K, V] {
 	if len(c.s) == 0 {
 		return defaultValue
 	}
-
 	return c.s[0]
 }
 
@@ -160,13 +171,61 @@ func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error)
 	return comfyReduce(c, reducer)
 }
 
+func (c *comfyMap[K, V]) Remove(k K) {
+	c.remove(k)
+}
+
 func (c *comfyMap[K, V]) RemoveAt(idx int) (removed Pair[K, V], err error) {
 	if removed, c.s, err = sliceRemoveAt(c.s, idx); err != nil {
 		return removed, err
 	}
 	delete(c.m, removed.Key())
-
+	delete(c.kp, removed.Key())
 	return removed, nil
+}
+
+func (c *comfyMap[K, V]) RemoveMany(keys []K) {
+	if len(keys) == 0 {
+		return
+	}
+	if len(keys) == 1 {
+		c.remove(keys[0])
+		return
+	}
+
+	newS := make([]Pair[K, V], 0)
+	newM := make(map[K]Pair[K, V])
+	newKP := make(map[K]int)
+
+	keysToRemove := comfyMakeKeyPosMap(keys)
+
+	idx := 0
+	for _, pair := range c.s {
+		if _, ok := keysToRemove[pair.Key()]; ok {
+			continue
+		}
+		newS = append(newS, pair)
+		newM[pair.Key()] = pair
+		newKP[pair.Key()] = idx
+		idx++
+	}
+
+	c.s = newS
+	c.m = newM
+	c.kp = newKP
+}
+
+func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
+	newS := make([]Pair[K, V], 0)
+	newM := make(map[K]Pair[K, V])
+	for i, pair := range c.s {
+		if !predicate(i, pair) {
+			newS = append(newS, pair)
+			newM[pair.Key()] = pair
+		}
+	}
+	c.s = newS
+	c.m = newM
 }
 
 func (c *comfyMap[K, V]) Reverse() {
@@ -186,7 +245,6 @@ func (c *comfyMap[K, V]) Search(predicate Predicate[Pair[K, V]]) (Pair[K, V], bo
 			return pair, true
 		}
 	}
-
 	return nil, false
 }
 
@@ -196,15 +254,29 @@ func (c *comfyMap[K, V]) SearchRev(predicate Predicate[Pair[K, V]]) (Pair[K, V],
 			return c.s[i], true
 		}
 	}
-
 	return nil, false
+}
+
+func (c *comfyMap[K, V]) Set(k K, v V) {
+	c.set(NewPair(k, v))
+}
+
+func (c *comfyMap[K, V]) SetAll(im map[K]V) {
+	for k, v := range im {
+		c.set(NewPair(k, v))
+	}
+}
+
+func (c *comfyMap[K, V]) Sort(cmp PairComparator[K, V]) {
+	slices.SortFunc(c.s, func(a, b Pair[K, V]) int {
+		return cmp(a, b)
+	})
 }
 
 func (c *comfyMap[K, V]) Tail() (Pair[K, V], bool) {
 	if len(c.s) == 0 {
 		return nil, false
 	}
-
 	return c.s[len(c.s)-1], true
 }
 
@@ -212,7 +284,6 @@ func (c *comfyMap[K, V]) TailOrDefault(defaultValue Pair[K, V]) Pair[K, V] {
 	if len(c.s) == 0 {
 		return defaultValue
 	}
-
 	return c.s[len(c.s)-1]
 }
 
@@ -234,120 +305,56 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 	}
 }
 
-// Mutable[V any] interface implementation:
-
-func (c *comfyMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
-	for i, pair := range c.s {
-		mapped := f(i, pair)
-		c.s[i] = mapped
-		c.m[pair.Key()] = mapped
-	}
-}
-
-func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
-	newS := make([]Pair[K, V], 0)
-	newM := make(map[K]Pair[K, V])
-	for i, pair := range c.s {
-		if !predicate(i, pair) {
-			newS = append(newS, pair)
-			newM[pair.Key()] = pair
-		}
-	}
-
-	c.s = newS
-	c.m = newM
-}
-
-// Map[K comparable, V any] interface implementation:
-
-func (c *comfyMap[K, V]) Has(k K) bool {
-	_, ok := c.m[k]
-	return ok
-}
-
-func (c *comfyMap[K, V]) SetAll(im map[K]V) {
-	for k, v := range im {
-		c.set(NewPair(k, v))
-	}
-}
-
-func (c *comfyMap[K, V]) Sort(cmp PairComparator[K, V]) {
-	slices.SortFunc(c.s, func(a, b Pair[K, V]) int {
-		return cmp(a, b)
-	})
-}
-
-func (c *comfyMap[K, V]) Remove(k K) {
-	c.remove(k)
-}
-
-func (c *comfyMap[K, V]) RemoveMany(keys []K) {
-	if len(keys) == 0 {
-		return
-	}
-	if len(keys) == 1 {
-		c.remove(keys[0])
-		return
-	}
-
-	newS := make([]Pair[K, V], 0)
-	newM := make(map[K]Pair[K, V])
-
-	for _, pair := range c.s {
-		for _, k := range keys {
-			if pair.Key() != k {
-				newS = append(newS, pair)
-				newM[pair.Key()] = pair
-			}
-		}
-	}
-
-	c.s = newS
-	c.m = newM
-}
-
-// Private:
+// Private functions:
 
 func (c *comfyMap[K, V]) set(pair Pair[K, V]) {
-	if _, ok := c.m[pair.Key()]; !ok {
+	pos, exists := c.kp[pair.Key()]
+	if !exists {
+		pos = len(c.s)
 		c.s = append(c.s, pair)
 		c.m[pair.Key()] = pair
+		c.kp[pair.Key()] = pos
 		return
 	}
 
-	// TODO: remove iteration when structure contains key => position map
-	for i, current := range c.s {
-		if current.Key() == pair.Key() {
-			c.m[pair.Key()] = pair
-			c.s[i] = pair
-			return
-		}
-	}
+	c.s[pos] = pair
+	c.m[pair.Key()] = pair
+	return
 }
 
 func (c *comfyMap[K, V]) remove(k K) {
-	if _, ok := c.m[k]; !ok {
+	pos, exists := c.kp[k]
+	if !exists {
 		return
 	}
 
-	// TODO: remove iteration when structure contains key => position map
-	for i, current := range c.s {
-		if current.Key() == k {
-			c.s = append(c.s[:i], c.s[i+1:]...)
-			delete(c.m, k)
-			return
-		}
+	removed, newSlice, err := sliceRemoveAt(c.s, pos)
+	if err != nil {
+		return
 	}
+
+	newKp := make(map[K]int)
+	for i, pair := range newSlice {
+		newKp[pair.Key()] = i
+	}
+
+	c.s = newSlice
+	delete(c.m, removed.Key())
+	c.kp = newKp
 }
 
 //nolint:unused
 func (c *comfyMap[K, V]) copy() Base[Pair[K, V]] {
 	newCm := &comfyMap[K, V]{
-		s: make([]Pair[K, V], 0),
-		m: make(map[K]Pair[K, V]),
+		s:  []Pair[K, V](nil),
+		m:  make(map[K]Pair[K, V]),
+		kp: make(map[K]int),
 	}
-	for _, pair := range c.s {
-		newCm.set(pair)
+	for i, pair := range c.s {
+		p := pair.copy()
+		newCm.s = append(newCm.s, p)
+		newCm.m[pair.Key()] = p
+		newCm.kp[pair.Key()] = i
 	}
 
 	return newCm

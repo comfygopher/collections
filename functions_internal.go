@@ -105,6 +105,15 @@ func comfyFindLast[C Base[V], V any](coll C, predicate Predicate[V], defaultValu
 //	return foundIdx, nil
 //}
 
+func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
+	kp := make(map[K]int)
+	for i, k := range s {
+		kp[k] = i
+	}
+
+	return kp
+}
+
 func comfyMax[C Base[V], V cmp.Ordered](coll C) (V, error) {
 	first := true
 	var foundVal V

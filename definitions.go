@@ -18,16 +18,16 @@ var (
 )
 
 // Predicate is used to verify collection element against implemented conditions.
-type Predicate[V any] = func(i int, v V) (valid bool)
+type Predicate[V any] = func(i int, val V) (valid bool)
 
 // Visitor is used to visit each element of a collection.
-type Visitor[V any] = func(i int, v V)
+type Visitor[V any] = func(i int, val V)
 
 // Reducer is used to reducer fold a collection into a single value.
 type Reducer[V any] = func(acc V, i int, current V) V
 
 // Mapper is used to map an element of a collection to a new value.
-type Mapper[V any] = func(i int, v V) V
+type Mapper[V any] = func(i int, val V) V
 
 // Comparator is a comparator function.
 type Comparator[V any] = func(a, b V) int
@@ -36,10 +36,10 @@ type Comparator[V any] = func(a, b V) int
 type PairComparator[K comparable, V any] = Comparator[Pair[K, V]]
 
 // KKVistor is a visitor function for key-value pairs.
-type KVVistor[K comparable, V any] = func(i int, k K, v V)
+type KVVistor[K comparable, V any] = func(i int, k K, val V)
 
 // KVPredicate is a predicate function for key-value pairs.
-type KVPredicate[K comparable, V any] = func(i int, k K, v V) (valid bool)
+type KVPredicate[K comparable, V any] = func(i int, k K, val V) (valid bool)
 
 // KVReducer is a reducer function for key-value pairs.
 type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, currentValue V) (K, V)
@@ -62,10 +62,10 @@ type Base[V any] interface {
 	// FoldRev(reducer Reducer[V], initial V) (result V) // TODO
 	IsEmpty() bool
 	Len() int
-	Search(predicate Predicate[V]) (v V, found bool)
-	// SearchLastPos(predicate Predicate[V]) (v V, found bool) // TODO
-	// SearchPos(predicate Predicate[V]) (v V, found bool) // TODO
-	SearchRev(predicate Predicate[V]) (v V, found bool)
+	Search(predicate Predicate[V]) (val V, found bool)
+	// SearchLastPos(predicate Predicate[V]) (val V, found bool) // TODO
+	// SearchPos(predicate Predicate[V]) (val V, found bool) // TODO
+	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Reduce(reducer Reducer[V]) (result V, err error)
 	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
 	ToSlice() []V
@@ -125,8 +125,8 @@ type Cmp[V cmp.Ordered] interface {
 	// HasValue is an alias for ContainsValue.
 	// Deprecated: use ContainsValue instead.
 	// HasValue(v V) bool // TODO
-	IndexOf(v V) (i int, found bool)
-	LastIndexOf(v V) (i int, found bool)
+	IndexOf(val V) (i int, found bool)
+	LastIndexOf(val V) (i int, found bool)
 	Max() (v V, err error)
 	Min() (v V, err error)
 	Sum() (v V)
@@ -169,7 +169,7 @@ type CmpSequence[V cmp.Ordered] interface {
 // List is a mutable collection of elements.
 type List[V any] interface {
 	LinearMutable[V]
-	InsertAt(i int, v V) error
+	InsertAt(i int, val V) error
 }
 
 // CmpLinear is a list of elements of type cmp.Ordered
@@ -183,14 +183,15 @@ type Map[K comparable, V any] interface {
 	IndexedMutable[Pair[K, V]]
 	// GetE(k K) (P, error) // TODO?
 
-	Get(k K) (v V, ok bool)
+	Get(key K) (val V, ok bool)
 	GetOrDefault(k K, defaultValue V) V
-	Has(k K) bool
+	Has(key K) bool
 	Keys() iter.Seq[K]
 	KeysToSlice() []K
 	KeyValues() iter.Seq2[K, V]
-	Remove(k K)
+	Remove(key K)
 	RemoveMany(keys []K)
+	Set(key K, val V)
 	//Sort(cmp Comparator[Pair[K, V]]) int
 	Sort(cmp PairComparator[K, V])
 	ToMap() map[K]V
@@ -220,10 +221,10 @@ type comfyPair[K comparable, V any] struct {
 }
 
 // NewPair creates a new Pair instance.
-func NewPair[K comparable, V any](k K, v V) Pair[K, V] {
+func NewPair[K comparable, V any](key K, val V) Pair[K, V] {
 	return &comfyPair[K, V]{
-		k: k,
-		v: v,
+		k: key,
+		v: val,
 	}
 }
 

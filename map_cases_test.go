@@ -11,6 +11,49 @@ type baseMapIntArgs = testArgs[Map[int, int], Pair[int, int]]
 type baseMapTestCase = testCase[Map[int, int], Pair[int, int]]
 type baseMapCollIntBuilder = testCollectionBuilder[Map[int, int], Pair[int, int]]
 
+func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Apply() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+		},
+		{
+			name:  "Apply() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			want1: []Pair[int, int]{NewPair(11, 112)},
+			want2: map[int]int{11: 112},
+		},
+		{
+			name:  "Apply() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			want1: []Pair[int, int]{NewPair(11, 112), NewPair(12, 223), NewPair(13, 334)},
+			want2: map[int]int{11: 112, 12: 223, 13: 334},
+		},
+	}
+}
+
+func testMapApply(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapApplyCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.Apply(tt.args.mapper)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Apply() did not apply correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Apply() did not apply correctly to map")
+			}
+		})
+	}
+}
+
 func getMapAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1013,6 +1056,47 @@ func testMapGetOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapHasCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Has() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{key: 1},
+			want1: false,
+		},
+		{
+			name:  "Has() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{key: 1},
+			want1: true,
+		},
+		{
+			name:  "Has() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 2},
+			want1: true,
+		},
+		{
+			name:  "Has() on three-item collection, not found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 999},
+			want1: false,
+		},
+	}
+}
+
+func testMapHas(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapHasCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.Has(tt.args.key)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Has() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getMapHeadCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1370,6 +1454,88 @@ func testMapReduce(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Remove() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{key: 1},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "Remove() on one-item collection - found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{key: 1},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "Remove() on one-item collection - not found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{key: 2},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "Remove() on three-item collection - first item",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 1},
+			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{2: 222, 3: 333},
+			want3: map[int]int{2: 0, 3: 1},
+		},
+		{
+			name:  "Remove() on three-item collection - middle item",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 2},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 3: 333},
+			want3: map[int]int{1: 0, 3: 1},
+		},
+		{
+			name:  "Remove() on three-item collection - last item",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 3},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222},
+			want3: map[int]int{1: 0, 2: 1},
+		},
+		{
+			name:  "Remove() on three-item collection - not found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{key: 999},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+	}
+}
+
+func testMapRemove(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapRemoveCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.Remove(tt.args.key)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Remove() did not remove correctly from slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Remove() did not remove correctly from map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Remove() did not remove correctly from kp")
+			}
+		})
+	}
+}
+
 func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1455,6 +1621,72 @@ func testMapRemoveAt(t *testing.T, builder baseMapCollIntBuilder) {
 				if !errors.Is(err, tt.err) {
 					t.Errorf("RemoveAt() returned wrong error: %v, want error: %v", err, tt.err)
 				}
+			}
+		})
+	}
+}
+
+func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Set() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{value: NewPair(1, 111)},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "Set() on one-item collection - replace",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{value: NewPair(1, 999)},
+			want1: []Pair[int, int]{NewPair(1, 999)},
+			want2: map[int]int{1: 999},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "Set() on one item collection - add",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{value: NewPair(2, 222)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222},
+			want3: map[int]int{1: 0, 2: 1},
+		},
+		{
+			name:  "Set() on three-item collection - replace",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(2, 999)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 999, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+		{
+			name:  "Set() on three-item collection - add",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(4, 444)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+		},
+	}
+}
+
+func testMapSet(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapSetCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.Set(tt.args.value.Key(), tt.args.value.Val())
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Set() did not set correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Set() did not set correctly to map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Set() did not set correctly to kp")
 			}
 		})
 	}

@@ -47,12 +47,14 @@ func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 
 func (lcb *comfyMapIntBuilder[C]) make(items []Pair[int, int]) Base[Pair[int, int]] {
 	coll := &comfyMap[int, int]{
-		s: items,
-		m: make(map[int]Pair[int, int]),
+		s:  items,
+		m:  make(map[int]Pair[int, int]),
+		kp: make(map[int]int),
 	}
 
-	for _, pair := range items {
+	for i, pair := range items {
 		coll.m[pair.Key()] = pair
+		coll.kp[pair.Key()] = i
 	}
 
 	return coll
@@ -65,12 +67,17 @@ func TestNewMap(t *testing.T) {
 			t.Error("NewMap[int, int]() returned nil")
 		}
 		if !reflect.DeepEqual(intMap, &comfyMap[int, int]{
-			s: make([]Pair[int, int], 0),
-			m: make(map[int]Pair[int, int]),
+			s:  []Pair[int, int](nil),
+			m:  make(map[int]Pair[int, int]),
+			kp: make(map[int]int),
 		}) {
 			t.Error("NewMap[int, int]() did not return a comfyMap[int, int]")
 		}
 	})
+}
+
+func Test_comfyMap_Apply(t *testing.T) {
+	testMapApply(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
 func Test_comfyMap_At(t *testing.T) {
@@ -129,6 +136,10 @@ func Test_comfyMap_GetOrDefault(t *testing.T) {
 	testMapGetOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
+func Test_comfyMap_Has(t *testing.T) {
+	testMapHas(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_Head(t *testing.T) {
 	testMapHead(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
@@ -162,6 +173,14 @@ func Test_comfyMap_Reduce(t *testing.T) {
 	testMapReduce(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
+func Test_comfyMap_Remove(t *testing.T) {
+	testMapRemove(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_RemoveAt(t *testing.T) {
 	testMapRemoveAt(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_Set(t *testing.T) {
+	testMapSet(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
