@@ -24,6 +24,16 @@ func NewMap[K comparable, V any]() Map[K, V] {
 
 // Public functions:
 
+func (c *comfyMap[K, V]) Append(p ...Pair[K, V]) {
+	for _, pair := range p {
+		c.set(pair)
+	}
+}
+
+func (c *comfyMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
+	c.Append(coll.ToSlice()...)
+}
+
 func (c *comfyMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
 	for i, pair := range c.s {
 		mapped := f(i, pair)
@@ -167,6 +177,10 @@ func (c *comfyMap[K, V]) Len() int {
 	return len(c.s)
 }
 
+func (c *comfyMap[K, V]) Prepend(p ...Pair[K, V]) {
+	c.prependAll(p)
+}
+
 func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
 	return comfyReduce(c, reducer)
 }
@@ -218,25 +232,35 @@ func (c *comfyMap[K, V]) RemoveMany(keys []K) {
 func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 	newS := make([]Pair[K, V], 0)
 	newM := make(map[K]Pair[K, V])
+	newKP := make(map[K]int)
+
+	idx := 0
 	for i, pair := range c.s {
 		if !predicate(i, pair) {
 			newS = append(newS, pair)
 			newM[pair.Key()] = pair
+			newKP[pair.Key()] = idx
+			idx++
 		}
 	}
+
 	c.s = newS
 	c.m = newM
+	c.kp = newKP
 }
 
 func (c *comfyMap[K, V]) Reverse() {
 	newS := make([]Pair[K, V], 0)
 	newM := make(map[K]Pair[K, V])
+	newKP := make(map[K]int)
 	for i := len(c.s) - 1; i >= 0; i-- {
 		newS = append(newS, c.s[i])
 		newM[c.s[i].Key()] = c.s[i]
+		newKP[c.s[i].Key()] = len(c.s) - i - 1
 	}
 	c.s = newS
 	c.m = newM
+	c.kp = newKP
 }
 
 func (c *comfyMap[K, V]) Search(predicate Predicate[Pair[K, V]]) (Pair[K, V], bool) {
@@ -320,6 +344,34 @@ func (c *comfyMap[K, V]) set(pair Pair[K, V]) {
 	c.s[pos] = pair
 	c.m[pair.Key()] = pair
 	return
+}
+
+func (c *comfyMap[K, V]) prependAll(pairs []Pair[K, V]) {
+	newS := []Pair[K, V](nil)
+	newM := make(map[K]Pair[K, V])
+	newKp := make(map[K]int)
+
+	idx := 0
+	for _, pair := range pairs {
+		newS = append(newS, pair)
+		newM[pair.Key()] = pair
+		newKp[pair.Key()] = idx
+		idx++
+	}
+
+	for _, pair := range c.s {
+		if _, ok := newM[pair.Key()]; ok {
+			continue
+		}
+		newS = append(newS, pair)
+		newM[pair.Key()] = pair
+		newKp[pair.Key()] = idx
+		idx++
+	}
+
+	c.s = newS
+	c.m = newM
+	c.kp = newKp
 }
 
 func (c *comfyMap[K, V]) remove(k K) {

@@ -1626,6 +1626,302 @@ func testMapRemoveAt(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "RemoveMany() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 3}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on empty collection - empty keys",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{keys: []int{}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on one-item collection - empty keys",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{keys: []int{}},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "RemoveMany() on one-item collection - all found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{keys: []int{1}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on one-item collection - not found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{keys: []int{2}},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "RemoveMany() on one-item collection - some found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{keys: []int{1, 2}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - all found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 3}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - not found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{4, 5, 6}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - some found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 4}},
+			want1: []Pair[int, int]{NewPair(3, 333)},
+			want2: map[int]int{3: 333},
+			want3: map[int]int{3: 0},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - some found, some not",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 4, 5}},
+			want1: []Pair[int, int]{NewPair(3, 333)},
+			want2: map[int]int{3: 333},
+			want3: map[int]int{3: 0},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - some found, some not, some duplicate",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 4, 5, 1}},
+			want1: []Pair[int, int]{NewPair(3, 333)},
+			want2: map[int]int{3: 333},
+			want3: map[int]int{3: 0},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - all found, some duplicate",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 3, 1}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on three-item collection - all found, some duplicate, some not",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 3, 1, 4}},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMany() on six-item collection with duplicates - some found at the beginning",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{keys: []int{1, 2, 3}},
+			want1: []Pair[int, int]{NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
+			want2: map[int]int{4: 111, 5: 222, 6: 333},
+			want3: map[int]int{4: 0, 5: 1, 6: 2},
+		},
+		{
+			name:  "RemoveMany() on six-item collection with duplicates - some found at the end",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{keys: []int{4, 5, 6}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+	}
+}
+
+func testMapRemoveMany(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapRemoveManyCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.RemoveMany(tt.args.keys)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("RemoveMany() did not remove correctly from slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("RemoveMany() did not remove correctly from map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("RemoveMany() did not remove correctly from kp")
+			}
+		})
+	}
+}
+
+func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "RemoveMatching() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMatching() on one-item collection, found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMatching() on one-item collection, not found",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found all",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found none",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found first",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{2: 222, 3: 333},
+			want3: map[int]int{2: 0, 3: 1},
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found middle",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 3: 333},
+			want3: map[int]int{1: 0, 3: 1},
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found last",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 333 }},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222},
+			want3: map[int]int{1: 0, 2: 1},
+		},
+	}
+}
+
+func testMapRemoveMatching(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapRemoveMatchingCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.RemoveMatching(tt.args.predicate)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("RemoveMatching() did not remove correctly from slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("RemoveMatching() did not remove correctly from map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("RemoveMatching() did not remove correctly from kp")
+			}
+		})
+	}
+}
+
+func getMapReverseCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:     "Reverse() on empty collection",
+			coll:     builder.Empty(),
+			want1:    []Pair[int, int](nil),
+			want2:    map[int]int{},
+			want3:    map[int]int{},
+			metaInt1: 1,
+		},
+		{
+			name:     "Reverse() on one-item collection",
+			coll:     builder.One(),
+			want1:    []Pair[int, int]{NewPair(1, 111)},
+			want2:    map[int]int{1: 111},
+			want3:    map[int]int{1: 0},
+			metaInt1: 1,
+		},
+		{
+			name:     "Reverse() on three-item collection",
+			coll:     builder.Three(),
+			want1:    []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2:    map[int]int{3: 333, 2: 222, 1: 111},
+			want3:    map[int]int{1: 2, 2: 1, 3: 0},
+			metaInt1: 1,
+		},
+		{
+			name:     "Reverse() twice on three-item collection",
+			coll:     builder.Three(),
+			want1:    []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2:    map[int]int{1: 111, 2: 222, 3: 333},
+			want3:    map[int]int{1: 0, 2: 1, 3: 2},
+			metaInt1: 2,
+		},
+	}
+}
+
+func testMapReverse(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapReverseCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			for i := 0; i < tt.metaInt1; i++ {
+				tt.coll.Reverse()
+			}
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Reverse() did not reverse correctly from slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Reverse() did not reverse correctly from map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Reverse() did not reverse correctly from kp")
+			}
+		})
+	}
+}
+
 func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{

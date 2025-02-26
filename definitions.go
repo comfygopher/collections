@@ -181,6 +181,7 @@ type CmpLinear[V cmp.Ordered] interface {
 // Map is a collection of key-value pairs.
 type Map[K comparable, V any] interface {
 	IndexedMutable[Pair[K, V]]
+	LinearMutable[Pair[K, V]]
 	// GetE(k K) (P, error) // TODO?
 
 	Get(key K) (val V, ok bool)

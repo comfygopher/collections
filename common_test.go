@@ -3,6 +3,7 @@ package coll
 type testArgs[C any, V any] struct {
 	index           int
 	key             int
+	keys            []int
 	value           V
 	values          []V
 	defaultValue    V
@@ -18,17 +19,18 @@ type testArgs[C any, V any] struct {
 }
 
 type testCase[C any, V any] struct {
-	name    string
-	coll    C
-	args    testArgs[C, V]
-	want1   any
-	want2   any
-	want3   any
-	got1    any
-	got2    any
-	got3    any
-	err     error
-	wantErr bool
+	name     string
+	coll     C
+	args     testArgs[C, V]
+	want1    any
+	want2    any
+	want3    any
+	got1     any
+	got2     any
+	got3     any
+	err      error
+	wantErr  bool
+	metaInt1 int
 }
 
 type testCollectionBuilder[C any, V any] interface {

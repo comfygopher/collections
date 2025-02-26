@@ -181,6 +181,18 @@ func Test_comfyMap_RemoveAt(t *testing.T) {
 	testMapRemoveAt(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
+func Test_comfyMap_RemoveMany(t *testing.T) {
+	testMapRemoveMany(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_RemoveMatching(t *testing.T) {
+	testMapRemoveMatching(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_Reverse(t *testing.T) {
+	testMapReverse(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_Set(t *testing.T) {
 	testMapSet(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
