@@ -11,6 +11,145 @@ type baseMapIntArgs = testArgs[Map[int, int], Pair[int, int]]
 type baseMapTestCase = testCase[Map[int, int], Pair[int, int]]
 type baseMapCollIntBuilder = testCollectionBuilder[Map[int, int], Pair[int, int]]
 
+func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Append() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{value: NewPair(1, 111)},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+		},
+		{
+			name:  "Append() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{value: NewPair(2, 222)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222},
+		},
+		{
+			name:  "Append() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(4, 444)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
+		},
+		{
+			name:  "Append() on three-item collection - duplicate key",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(2, 999)},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333), NewPair(2, 999)},
+			want2: map[int]int{1: 111, 2: 999, 3: 333},
+		},
+		{
+			name:  "Append() many on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Append() many on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Append() many on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444), NewPair(5, 555)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444, 5: 555},
+		},
+	}
+}
+
+func testMapAppend(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getAppendCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.args.values != nil {
+				tt.coll.Append(tt.args.values...)
+			} else {
+				tt.coll.Append(tt.args.value)
+			}
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Append() did not append correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Append() did not append correctly to map")
+			}
+		})
+	}
+}
+
+func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Append() empty collection on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{coll: builder.Empty()},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+		},
+		{
+			name:  "Append() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{coll: builder.One()},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+		},
+		{
+			name:  "Append() empty collection on one item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{coll: builder.Empty()},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+		},
+		{
+			name:  "Append() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{coll: builder.One()},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+		},
+		{
+			name:  "Append() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{coll: builder.Two()},
+			want1: []Pair[int, int]{NewPair(3, 333), NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Append() empty collection on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{coll: builder.Empty()},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+	}
+}
+
+func testMapAppendColl(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapAppendCollCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.AppendColl(tt.args.coll)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Append() did not append correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Append() did not append correctly to map")
+			}
+		})
+	}
+}
+
 func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1409,6 +1548,88 @@ func testMapLen(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapPrependCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Prepend() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{value: NewPair(1, 111)},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+		},
+		{
+			name:  "Prepend() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{value: NewPair(2, 222)},
+			want1: []Pair[int, int]{NewPair(2, 222), NewPair(1, 111)},
+			want2: map[int]int{2: 222, 1: 111},
+		},
+		{
+			name:  "Prepend() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(4, 444)},
+			want1: []Pair[int, int]{NewPair(4, 444), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{4: 444, 1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Prepend() on three-item collection - duplicate key",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{value: NewPair(2, 999)},
+			want1: []Pair[int, int]{NewPair(2, 999), NewPair(1, 111), NewPair(3, 333)},
+			want2: map[int]int{2: 999, 1: 111, 3: 333},
+		},
+		{
+			name:  "Prepend() many on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Prepend() many on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)}},
+			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333), NewPair(1, 111)},
+			want2: map[int]int{2: 222, 3: 333, 1: 111},
+		},
+		{
+			name:  "Prepend() many on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555)}},
+			want1: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{4: 444, 5: 555, 1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "Prepend() many on three-item collection - duplicate key",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999)}},
+			want1: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999), NewPair(1, 111)},
+			want2: map[int]int{2: 999, 3: 999, 1: 111},
+		},
+	}
+}
+
+func testMapPrepend(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapPrependCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.args.values != nil {
+				tt.coll.Prepend(tt.args.values...)
+			} else {
+				tt.coll.Prepend(tt.args.value)
+			}
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Prepend() did not prepend correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Prepend() did not prepend correctly to map")
+			}
+		})
+	}
+}
+
 func getMapReduceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	sumReducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
 		return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
@@ -1922,6 +2143,130 @@ func testMapReverse(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapSearchCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	return []*baseMapTestCase{
+		{
+			name:  "Search() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "Search() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: NewPair(1, 111),
+			want2: true,
+		},
+		{
+			name:  "Search() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: NewPair(1, 111),
+			want2: true,
+		},
+		{
+			name:  "Search() on three-item collection, not found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "Search() on three-item collection, found middle",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			want1: NewPair(2, 222),
+			want2: true,
+		},
+		{
+			name:  "Search() on six-item collection, found first occurrence",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			want1: NewPair(1, 111),
+			want2: true,
+		},
+	}
+}
+
+func testMapSearch(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapSearchCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := tt.coll.Search(tt.args.predicate)
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Search() got1 = %v, want1 %v", got1, tt.want1)
+			}
+			if got2 != tt.want2 {
+				t.Errorf("Search() got2 = %v, want1 %v", got2, tt.want2)
+			}
+		})
+	}
+}
+
+func getMapSearchRevCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	return []*baseMapTestCase{
+		{
+			name:  "SearchRev() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "SearchRev() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: NewPair(1, 111),
+			want2: true,
+		},
+		{
+			name:  "SearchRev() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			want1: NewPair(3, 333),
+			want2: true,
+		},
+		{
+			name:  "SearchRev() on three-item collection, not found",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "SearchRev() on three-item collection, found middle",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			want1: NewPair(2, 222),
+			want2: true,
+		},
+		{
+			name:  "SearchRev() on six-item collection, found last occurrence",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			want1: NewPair(4, 111),
+			want2: true,
+		},
+	}
+}
+
+func testMapSearchRev(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapSearchRevCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := tt.coll.SearchRev(tt.args.predicate)
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("SearchRev() got1 = %v, want1 %v", got1, tt.want1)
+			}
+			if got2 != tt.want2 {
+				t.Errorf("SearchRev() got2 = %v, want1 %v", got2, tt.want2)
+			}
+		})
+	}
+}
+
 func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1983,6 +2328,80 @@ func testMapSet(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
 				t.Errorf("Set() did not set correctly to kp")
+			}
+		})
+	}
+}
+
+func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "SetAll() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111)}},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "SetAll() on one-item collection - replace",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 999)}},
+			want1: []Pair[int, int]{NewPair(1, 999)},
+			want2: map[int]int{1: 999},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "SetAll() on one item collection - add",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+			want2: map[int]int{1: 111, 2: 222},
+			want3: map[int]int{1: 0, 2: 1},
+		},
+		{
+			name:  "SetAll() on three-item collection - replace",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 999, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+		{
+			name:  "SetAll() on three-item collection - add",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+		},
+		{
+			name:  "SetAll() on three-item collection - replace and add",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999), NewPair(4, 444)}},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333), NewPair(4, 444)},
+			want2: map[int]int{1: 111, 2: 999, 3: 333, 4: 444},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+		},
+	}
+}
+
+func testMapSetMany(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapSetManyCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.SetMany(tt.args.values)
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("SetAll() did not set correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("SetAll() did not set correctly to map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("SetAll() did not set correctly to kp")
 			}
 		})
 	}

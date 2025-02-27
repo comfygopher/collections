@@ -22,9 +22,24 @@ func NewMap[K comparable, V any]() Map[K, V] {
 	}
 }
 
+func NewMapFrom[K comparable, V any](s []Pair[K, V]) Map[K, V] {
+	cm := &comfyMap[K, V]{
+		s:  []Pair[K, V](nil),
+		m:  make(map[K]Pair[K, V]),
+		kp: make(map[K]int),
+	}
+	cm.SetMany(s)
+	return cm
+}
+
 // Public functions:
 
 func (c *comfyMap[K, V]) Append(p ...Pair[K, V]) {
+	keys := []K(nil)
+	for _, pair := range p {
+		keys = append(keys, pair.Key())
+	}
+	c.RemoveMany(keys)
 	for _, pair := range p {
 		c.set(pair)
 	}
@@ -285,9 +300,9 @@ func (c *comfyMap[K, V]) Set(k K, v V) {
 	c.set(NewPair(k, v))
 }
 
-func (c *comfyMap[K, V]) SetAll(im map[K]V) {
-	for k, v := range im {
-		c.set(NewPair(k, v))
+func (c *comfyMap[K, V]) SetMany(s []Pair[K, V]) {
+	for _, pair := range s {
+		c.set(pair)
 	}
 }
 

@@ -76,6 +76,15 @@ func TestNewMap(t *testing.T) {
 	})
 }
 
+func Test_comfyMap_Append(t *testing.T) {
+	testMapAppend(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapAppendRef(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_AppendColl(t *testing.T) {
+	testMapAppendColl(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_Apply(t *testing.T) {
 	testMapApply(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
@@ -169,6 +178,10 @@ func Test_comfyMap_Len(t *testing.T) {
 	testMapLen(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
+func Test_comfyMap_Prepend(t *testing.T) {
+	testMapPrepend(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_Reduce(t *testing.T) {
 	testMapReduce(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
@@ -193,6 +206,18 @@ func Test_comfyMap_Reverse(t *testing.T) {
 	testMapReverse(t, &comfyMapIntBuilder[Map[int, int]]{})
 }
 
+func Test_comfyMap_Search(t *testing.T) {
+	testMapSearch(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_SearchRev(t *testing.T) {
+	testMapSearchRev(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
 func Test_comfyMap_Set(t *testing.T) {
 	testMapSet(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_SetMany(t *testing.T) {
+	testMapSetMany(t, &comfyMapIntBuilder[Map[int, int]]{})
 }

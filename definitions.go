@@ -193,7 +193,7 @@ type Map[K comparable, V any] interface {
 	Remove(key K)
 	RemoveMany(keys []K)
 	Set(key K, val V)
-	//Sort(cmp Comparator[Pair[K, V]]) int
+	SetMany(s []Pair[K, V])
 	Sort(cmp PairComparator[K, V])
 	ToMap() map[K]V
 	// Values returns values iterator.
@@ -213,6 +213,7 @@ type CmpMap[K comparable, V cmp.Ordered] interface {
 type Pair[K comparable, V any] interface {
 	Key() K
 	Val() V
+	SetVal(v V)
 	copy() Pair[K, V]
 }
 
@@ -239,6 +240,10 @@ func (p *comfyPair[K, V]) Key() K {
 
 func (p *comfyPair[K, V]) Val() V {
 	return p.v
+}
+
+func (p *comfyPair[K, V]) SetVal(v V) {
+	p.v = v
 }
 
 func (p *comfyPair[K, V]) copy() Pair[K, V] {

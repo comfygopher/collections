@@ -31,6 +31,7 @@ type testCase[C any, V any] struct {
 	err      error
 	wantErr  bool
 	metaInt1 int
+	modify   func()
 }
 
 type testCollectionBuilder[C any, V any] interface {
