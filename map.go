@@ -307,9 +307,18 @@ func (c *comfyMap[K, V]) SetMany(s []Pair[K, V]) {
 }
 
 func (c *comfyMap[K, V]) Sort(cmp PairComparator[K, V]) {
-	slices.SortFunc(c.s, func(a, b Pair[K, V]) int {
+	newS := slices.Clone(c.s)
+	newKP := make(map[K]int)
+
+	slices.SortFunc(newS, func(a, b Pair[K, V]) int {
 		return cmp(a, b)
 	})
+	for i, pair := range newS {
+		newKP[pair.Key()] = i
+	}
+
+	c.s = newS
+	c.kp = newKP
 }
 
 func (c *comfyMap[K, V]) Tail() (Pair[K, V], bool) {
@@ -395,10 +404,7 @@ func (c *comfyMap[K, V]) remove(k K) {
 		return
 	}
 
-	removed, newSlice, err := sliceRemoveAt(c.s, pos)
-	if err != nil {
-		return
-	}
+	removed, newSlice, _ := sliceRemoveAt(c.s, pos)
 
 	newKp := make(map[K]int)
 	for i, pair := range newSlice {

@@ -76,6 +76,38 @@ func TestNewMap(t *testing.T) {
 	})
 }
 
+func TestNewMapFrom(t *testing.T) {
+	t.Run("NewMapFrom[int, int]()", func(t *testing.T) {
+		intMap := NewMapFrom[int, int]([]Pair[int, int]{
+			NewPair(1, 111),
+			NewPair(2, 222),
+			NewPair(3, 333),
+		})
+		if intMap == nil {
+			t.Error("NewMapFrom[int, int]() returned nil")
+		}
+		if !reflect.DeepEqual(intMap, &comfyMap[int, int]{
+			s: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+			},
+			m: map[int]Pair[int, int]{
+				1: NewPair(1, 111),
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+			},
+			kp: map[int]int{
+				1: 0,
+				2: 1,
+				3: 2,
+			},
+		}) {
+			t.Error("NewMapFrom[int, int]() did not return a comfyMap[int, int]")
+		}
+	})
+}
+
 func Test_comfyMap_Append(t *testing.T) {
 	testMapAppend(t, &comfyMapIntBuilder[Map[int, int]]{})
 	testMapAppendRef(t, &comfyMapIntBuilder[Map[int, int]]{})
@@ -220,4 +252,25 @@ func Test_comfyMap_Set(t *testing.T) {
 
 func Test_comfyMap_SetMany(t *testing.T) {
 	testMapSetMany(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_Sort(t *testing.T) {
+	testMapSort(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_Tail(t *testing.T) {
+	testMapTail(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_TailOrDefault(t *testing.T) {
+	testMapTailOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_Values(t *testing.T) {
+	testMapValues(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapValuesBreak(t, &comfyMapIntBuilder[Map[int, int]]{})
+}
+
+func Test_comfyMap_copy(t *testing.T) {
+	testMapCopy(t, &comfyMapIntBuilder[Map[int, int]]{})
 }

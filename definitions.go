@@ -80,6 +80,7 @@ type Linear[V any] interface {
 	HeadOrDefault(defaultValue V) (head V)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
+	//LinearValues() iter.Seq2[int, V]  // TODO
 }
 
 // Indexed interface indicates that given collection can be accessed by index.

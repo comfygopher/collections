@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -2402,6 +2403,306 @@ func testMapSetMany(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
 				t.Errorf("SetAll() did not set correctly to kp")
+			}
+		})
+	}
+}
+
+func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Sort() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return a.Key() - b.Key() }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "Sort() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return a.Key() - b.Key() }},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "Sort() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return a.Key() - b.Key() }},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+		{
+			name:  "Sort() on three-item collection - reverse",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return b.Key() - a.Key() }},
+			want1: []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2: map[int]int{3: 333, 2: 222, 1: 111},
+			want3: map[int]int{1: 2, 2: 1, 3: 0},
+		},
+		{
+			name:     "Sort() on three-item collection - reverse twice",
+			coll:     builder.Three(),
+			args:     baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return b.Key() - a.Key() }},
+			metaInt1: 2,
+			want1:    []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2:    map[int]int{3: 333, 2: 222, 1: 111},
+			want3:    map[int]int{1: 2, 2: 1, 3: 0},
+		},
+		{
+			name:  "Sort() on six-item collection",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return a.Key() - b.Key() }},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5},
+		},
+		{
+			name:  "Sort() on six-item collection - reverse",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return b.Key() - a.Key() }},
+			want1: []Pair[int, int]{NewPair(6, 333), NewPair(5, 222), NewPair(4, 111), NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2: map[int]int{6: 333, 5: 222, 4: 111, 3: 333, 2: 222, 1: 111},
+			want3: map[int]int{1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0},
+		},
+		{
+			name:     "Sort() on six-item collection - reverse twice",
+			coll:     builder.SixWithDuplicates(),
+			args:     baseMapIntArgs{comparer: func(a, b Pair[int, int]) int { return b.Key() - a.Key() }},
+			metaInt1: 2,
+			want1:    []Pair[int, int]{NewPair(6, 333), NewPair(5, 222), NewPair(4, 111), NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2:    map[int]int{6: 333, 5: 222, 4: 111, 3: 333, 2: 222, 1: 111},
+			want3:    map[int]int{1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0},
+		},
+	}
+}
+
+func testMapSort(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapSortCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			times := 1
+			if tt.metaInt1 > 0 {
+				times = tt.metaInt1
+			}
+			for i := 0; i < times; i++ {
+				tt.coll.Sort(tt.args.comparer)
+			}
+			actualSlice := tt.coll.ToSlice()
+			actualMap := tt.coll.ToMap()
+			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Sort() did not sort correctly to slice")
+			}
+			if !reflect.DeepEqual(actualMap, tt.want2) {
+				t.Errorf("Sort() did not sort correctly to map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Sort() did not sort correctly to kp")
+			}
+		})
+	}
+}
+
+func getMapTailCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Tail() on empty collection",
+			coll:  builder.Empty(),
+			want1: nil,
+			want2: false,
+		},
+		{
+			name:  "Tail() on one-item collection",
+			coll:  builder.One(),
+			want1: NewPair(1, 111),
+			want2: true,
+		},
+		{
+			name:  "Tail() on three-item collection",
+			coll:  builder.Three(),
+			want1: NewPair(3, 333),
+			want2: true,
+		},
+	}
+}
+
+func testMapTail(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapTailCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got, ok := tt.coll.Tail()
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Tail() = %v, want1 = %v", got, tt.want1)
+			}
+			if !reflect.DeepEqual(ok, tt.want2) {
+				t.Errorf("Tail() = %v, want2 = %v", ok, tt.want2)
+			}
+		})
+	}
+}
+
+func getMapTailOrDefaultCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "TailOrDefault() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
+			want1: NewPair(999, 999),
+		},
+		{
+			name:  "TailOrDefault() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
+			want1: NewPair(1, 111),
+		},
+		{
+			name:  "TailOrDefault() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
+			want1: NewPair(3, 333),
+		},
+	}
+}
+
+func testMapTailOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapTailOrDefaultCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got1 := tt.coll.TailOrDefault(tt.args.defaultValue)
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("TailOrDefault() got1 = %v, want1 = %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapValuesCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Values() on empty collection",
+			coll:  builder.Empty(),
+			want1: []Pair[int, int](nil),
+		},
+		{
+			name:  "Values() on one-item collection",
+			coll:  builder.One(),
+			want1: []Pair[int, int]{NewPair(1, 111)},
+		},
+		{
+			name:  "Values() on three-item collection",
+			coll:  builder.Three(),
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+		},
+	}
+}
+
+func testMapValues(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapValuesCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := slices.Collect(tt.coll.Values())
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Values() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapValuesWithBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	return []*baseMapTestCase{
+		{
+			name: "Values() on three-item collection, break immediately",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return false
+				},
+			},
+			want1: []Pair[int, int](nil),
+		},
+		{
+			name: "Values() on three-item collection, break at middle",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return p.Key() < 2
+				},
+			},
+			want1: []Pair[int, int]{NewPair(1, 111)},
+		},
+		{
+			name: "Values() on three-item collection, break after middle",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return p.Key() <= 2
+				},
+			},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
+		},
+	}
+}
+
+func testMapValuesBreak(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapValuesWithBreakCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := []Pair[int, int](nil)
+			for v := range tt.coll.Values() {
+				if !tt.args.predicate(-1, v) {
+					break
+				}
+				got = append(got, v)
+			}
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Values() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapCopyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "Copy() on empty collection",
+			coll:  builder.Empty(),
+			want1: []Pair[int, int](nil),
+			want2: map[int]int{},
+			want3: map[int]int{},
+		},
+		{
+			name:  "Copy() on one-item collection",
+			coll:  builder.One(),
+			want1: []Pair[int, int]{NewPair(1, 111)},
+			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+		},
+		{
+			name:  "Copy() on three-item collection",
+			coll:  builder.Three(),
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+		},
+	}
+}
+
+func testMapCopy(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapCopyCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.copy().(Map[int, int])
+			if !reflect.DeepEqual(got.ToSlice(), tt.want1) {
+				t.Errorf("Copy() did not copy correctly to slice")
+			}
+			if !reflect.DeepEqual(got.ToMap(), tt.want2) {
+				t.Errorf("Copy() did not copy correctly to map")
+			}
+			if !reflect.DeepEqual(got.(*comfyMap[int, int]).kp, tt.want3) {
+				t.Errorf("Copy() did not copy correctly to kp")
 			}
 		})
 	}

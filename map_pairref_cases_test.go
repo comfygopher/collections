@@ -19,8 +19,21 @@ func getAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 		},
 	}
 
+	appendOneOnOneItemCaseValue := NewPair(10, 111)
+	appendOneOnOneItemCase := &baseMapTestCase{
+		name:  "Append() on one-item collection",
+		coll:  builder.One(),
+		args:  baseMapIntArgs{value: appendOneOnOneItemCaseValue},
+		want1: []Pair[int, int]{NewPair(1, 111), NewPair(10, 999)},
+		want2: map[int]int{1: 111, 10: 999},
+		modify: func() {
+			appendOneOnOneItemCaseValue.SetVal(999)
+		},
+	}
+
 	return []*baseMapTestCase{
 		appendOneOnEmptyCase,
+		appendOneOnOneItemCase,
 	}
 }
 
