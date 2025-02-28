@@ -214,34 +214,7 @@ func (c *comfyMap[K, V]) RemoveAt(idx int) (removed Pair[K, V], err error) {
 }
 
 func (c *comfyMap[K, V]) RemoveMany(keys []K) {
-	if len(keys) == 0 {
-		return
-	}
-	if len(keys) == 1 {
-		c.remove(keys[0])
-		return
-	}
-
-	newS := make([]Pair[K, V], 0)
-	newM := make(map[K]Pair[K, V])
-	newKP := make(map[K]int)
-
-	keysToRemove := comfyMakeKeyPosMap(keys)
-
-	idx := 0
-	for _, pair := range c.s {
-		if _, ok := keysToRemove[pair.Key()]; ok {
-			continue
-		}
-		newS = append(newS, pair)
-		newM[pair.Key()] = pair
-		newKP[pair.Key()] = idx
-		idx++
-	}
-
-	c.s = newS
-	c.m = newM
-	c.kp = newKP
+	c.removeMany(keys)
 }
 
 func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
@@ -416,8 +389,39 @@ func (c *comfyMap[K, V]) remove(k K) {
 	c.kp = newKp
 }
 
+func (c *comfyMap[K, V]) removeMany(keys []K) {
+	if len(keys) == 0 {
+		return
+	}
+	if len(keys) == 1 {
+		c.remove(keys[0])
+		return
+	}
+
+	newS := make([]Pair[K, V], 0)
+	newM := make(map[K]Pair[K, V])
+	newKP := make(map[K]int)
+
+	keysToRemove := comfyMakeKeyPosMap(keys)
+
+	idx := 0
+	for _, pair := range c.s {
+		if _, ok := keysToRemove[pair.Key()]; ok {
+			continue
+		}
+		newS = append(newS, pair)
+		newM[pair.Key()] = pair
+		newKP[pair.Key()] = idx
+		idx++
+	}
+
+	c.s = newS
+	c.m = newM
+	c.kp = newKP
+}
+
 //nolint:unused
-func (c *comfyMap[K, V]) copy() Base[Pair[K, V]] {
+func (c *comfyMap[K, V]) copy() mapInternal[K, V] {
 	newCm := &comfyMap[K, V]{
 		s:  []Pair[K, V](nil),
 		m:  make(map[K]Pair[K, V]),

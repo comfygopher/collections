@@ -29,10 +29,24 @@ import (
 type comfyCmpMap[K comparable, V cmp.Ordered] struct {
 	m         map[K]Pair[K, V]
 	s         []Pair[K, V]
+	kp        map[K]int
 	valsCount map[V]int
 }
 
-// Indexed[V any] interface implementation:
+func (c *comfyCmpMap[K, V]) Append(p ...Pair[K, V]) {
+	keys := []K(nil)
+	for _, pair := range p {
+		keys = append(keys, pair.Key())
+	}
+	c.RemoveMany(keys)
+	for _, pair := range p {
+		c.set(pair)
+	}
+}
+
+func (c *comfyCmpMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
+	c.Append(coll.ToSlice()...)
+}
 
 func (c *comfyCmpMap[K, V]) At(i int) (V, bool) {
 	if i < 0 || i >= len(c.s) {

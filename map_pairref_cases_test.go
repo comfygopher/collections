@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func getAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+func getMapAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 
 	appendOneOnEmptyCaseValue := NewPair(1, 111)
 	appendOneOnEmptyCase := &baseMapTestCase{
@@ -38,7 +38,7 @@ func getAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 }
 
 func testMapAppendRef(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getAppendRefCases(builder)
+	cases := getMapAppendRefCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.args.values != nil {
@@ -54,6 +54,95 @@ func testMapAppendRef(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Append() did not append correctly to map")
+			}
+		})
+	}
+}
+
+func getMapValuesRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	threeItemModifyValuesCase := &baseMapTestCase{
+		name: "Values() on three-item collection, modify values",
+		args: baseMapIntArgs{
+			values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+		},
+		want1: []Pair[int, int]{NewPair(1, 1111), NewPair(2, 1222), NewPair(3, 1333)},
+	}
+	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
+		return NewMapFrom(threeItemModifyValuesCase.args.values).(mapInternal[int, int])
+	}
+	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
+		p.SetVal(p.Val() + 1000)
+	}
+
+	return []*baseMapTestCase{
+		threeItemModifyValuesCase,
+	}
+}
+
+func testMapValuesRef(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapValuesRefCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+
+			tt.coll = tt.collBuilder()
+
+			actualSliceBeforeModification := tt.coll.ToSlice()
+			if !reflect.DeepEqual(actualSliceBeforeModification, tt.args.values) {
+				t.Errorf("Values() did not modify values correctly in slice")
+			}
+
+			for v := range tt.coll.Values() {
+				tt.args.visit(-1, v)
+			}
+
+			actualSliceAfterModification := tt.coll.ToSlice()
+			if !reflect.DeepEqual(actualSliceAfterModification, tt.want1) {
+				t.Errorf("Values() did not modify values correctly in slice")
+			}
+		})
+	}
+}
+
+func getMapCopyRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	threeItemModifyValuesCase := &baseMapTestCase{
+		name: "Values() on three-item collection, modify values",
+		args: baseMapIntArgs{
+			values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+		},
+		want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+	}
+	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
+		return NewMapFrom(threeItemModifyValuesCase.args.values).(mapInternal[int, int])
+	}
+	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
+		p.SetVal(p.Val() + 1000)
+	}
+
+	return []*baseMapTestCase{
+		threeItemModifyValuesCase,
+	}
+}
+
+func testMapCopyDontPreserveRef(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapCopyRefCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+
+			tt.coll = tt.collBuilder()
+
+			actualSliceBeforeModification := tt.coll.ToSlice()
+			if !reflect.DeepEqual(actualSliceBeforeModification, tt.args.values) {
+				t.Errorf("Values() did not modify values correctly in slice")
+			}
+
+			copy := tt.coll.copy().(Map[int, int])
+			for v := range copy.Values() {
+				tt.args.visit(-1, v)
+			}
+
+			actualSliceAfterModification := tt.coll.ToSlice()
+			if !reflect.DeepEqual(actualSliceAfterModification, tt.want1) {
+				t.Errorf("Values() want = %v, but got = %v", tt.want1, actualSliceAfterModification)
 			}
 		})
 	}

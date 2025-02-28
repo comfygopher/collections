@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-type baseIntArgs = testArgs[Base[int], int]
-type baseTestCase = testCase[Base[int], int]
-type baseCollIntBuilder = testCollectionBuilder[Base[int], int]
+type baseIntArgs = testArgs[baseInternal[int], int]
+type baseTestCase = testCase[baseInternal[int], int]
+type baseCollIntBuilder = testCollectionBuilder[baseInternal[int], int]
 
-type baseIntPairArgs = testArgs[Base[Pair[int, int]], Pair[int, int]]
-type baseIntPairTestCase = testCase[Base[Pair[int, int]], Pair[int, int]]
-type baseCollIntPairBuilder = testPairCollectionBuilder[Base[Pair[int, int]]]
+type baseIntPairArgs = testArgs[baseInternal[Pair[int, int]], Pair[int, int]]
+type baseIntPairTestCase = testCase[baseInternal[Pair[int, int]], Pair[int, int]]
+type baseCollIntPairBuilder = testPairCollectionBuilder[baseInternal[Pair[int, int]]]
 
 func getContainsCases(builder baseCollIntBuilder) []baseTestCase {
 	return []baseTestCase{

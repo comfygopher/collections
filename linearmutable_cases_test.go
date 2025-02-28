@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type linearMutableIntArgs = testArgs[LinearMutable[int], int]
-type linearMutableTestCase = testCase[LinearMutable[int], int]
-type linearMutableCollIntBuilder = testCollectionBuilder[LinearMutable[int], int]
+type linearMutableIntArgs = testArgs[linearMutableInternal[int], int]
+type linearMutableTestCase = testCase[linearMutableInternal[int], int]
+type linearMutableCollIntBuilder = testCollectionBuilder[linearMutableInternal[int], int]
 
 func getAppendOneCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
 	return []linearMutableTestCase{

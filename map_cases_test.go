@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-type baseMapIntArgs = testArgs[Map[int, int], Pair[int, int]]
-type baseMapTestCase = testCase[Map[int, int], Pair[int, int]]
-type baseMapCollIntBuilder = testCollectionBuilder[Map[int, int], Pair[int, int]]
+type baseMapIntArgs = testArgs[mapInternal[int, int], Pair[int, int]]
+type baseMapTestCase = testCase[mapInternal[int, int], Pair[int, int]]
+type baseMapCollIntBuilder = testCollectionBuilder[mapInternal[int, int], Pair[int, int]]
 
 func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{

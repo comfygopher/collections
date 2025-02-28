@@ -3,7 +3,7 @@ package coll
 // public API:
 
 // Copy creates a copy of the given collection.
-func Copy[C Base[V], V any](c C) C {
+func Copy[C baseInternal[V], V any](c C) C {
 	//var it V
 	//
 	//if _, ok := interface{}(it).(cmp.Cmp); ok {

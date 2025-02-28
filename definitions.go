@@ -70,6 +70,10 @@ type Base[V any] interface {
 	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
 	ToSlice() []V
 	Values() iter.Seq[V]
+}
+
+type baseInternal[V any] interface {
+	Base[V]
 	copy() Base[V]
 }
 
@@ -83,12 +87,22 @@ type Linear[V any] interface {
 	//LinearValues() iter.Seq2[int, V]  // TODO
 }
 
+type linearInternal[V any] interface {
+	Linear[V]
+	baseInternal[V]
+}
+
 // Indexed interface indicates that given collection can be accessed by index.
 // There is no need for separate OrderedCollection interface, as all Comfy collections are ordered.
 type Indexed[V any] interface {
 	Linear[V]
 	At(idx int) (V, bool)
 	AtOrDefault(idx int, defaultValue V) V
+}
+
+type indexedInternal[V any] interface {
+	Indexed[V]
+	baseInternal[V]
 }
 
 // Sync is a thread-safe collection.
@@ -107,12 +121,22 @@ type Mutable[V any] interface {
 	RemoveMatching(predicate Predicate[V]) // TODO: return count of removed items
 }
 
+type mutableInternal[V any] interface {
+	Mutable[V]
+	baseInternal[V]
+}
+
 // IndexedMutable is a mutable collection that can be modified based on the indexes.
 type IndexedMutable[V any] interface {
 	Indexed[V]
 	Mutable[V]
 	RemoveAt(idx int) (removed V, err error)
 	Sort(cmp Comparator[V])
+}
+
+type indexedMutableInternal[V any] interface {
+	IndexedMutable[V]
+	baseInternal[V]
 }
 
 // Cmp is a colection of elements of type cmp.Ordered
@@ -153,6 +177,11 @@ type LinearMutable[V any] interface {
 	Reverse()
 }
 
+type linearMutableInternal[V any] interface {
+	LinearMutable[V]
+	baseInternal[V]
+}
+
 // Sequence is a list-like collection that wraps an underlying Go slice.
 //
 // Compared to a List, a Sequence allows for efficient O(1) access to arbitrary elements
@@ -171,6 +200,11 @@ type CmpSequence[V cmp.Ordered] interface {
 type List[V any] interface {
 	LinearMutable[V]
 	InsertAt(i int, val V) error
+}
+
+type listInternal[V any] interface {
+	List[V]
+	baseInternal[V]
 }
 
 // CmpLinear is a list of elements of type cmp.Ordered
@@ -202,10 +236,23 @@ type Map[K comparable, V any] interface {
 	Values() iter.Seq[Pair[K, V]]
 }
 
+type mapInternal[K comparable, V any] interface {
+	Map[K, V]
+	copy() mapInternal[K, V]
+	remove(k K)
+	removeMany(keys []K)
+	set(pair Pair[K, V])
+}
+
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
 type CmpMap[K comparable, V cmp.Ordered] interface {
 	Map[K, V]
 	CmpMutable[V]
+}
+
+type cmpMapInternal[K comparable, V cmp.Ordered] interface {
+	CmpMap[K, V]
+	mapInternal[K, V]
 }
 
 // Pair holds a key-value set of elements. It is used as the underlying value type for Map and similar collections.

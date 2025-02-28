@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type mutableIntTestArgs = testArgs[Mutable[int], int]
-type mutableIntTestCase = testCase[Mutable[int], int]
-type mutableIntTestBuilder = testCollectionBuilder[Mutable[int], int]
+type mutableIntTestArgs = testArgs[mutableInternal[int], int]
+type mutableIntTestCase = testCase[mutableInternal[int], int]
+type mutableIntTestBuilder = testCollectionBuilder[mutableInternal[int], int]
 
 func getApplyCases(builder mutableIntTestBuilder) []mutableIntTestCase {
 	return []mutableIntTestCase{

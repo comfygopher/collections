@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type linearIntArgs = testArgs[Linear[int], int]
-type linearTestCase = testCase[Linear[int], int]
-type linearCollIntBuilder = testCollectionBuilder[Linear[int], int]
+type linearIntArgs = testArgs[linearInternal[int], int]
+type linearTestCase = testCase[linearInternal[int], int]
+type linearCollIntBuilder = testCollectionBuilder[linearInternal[int], int]
 
 func getHeadCases(builder linearCollIntBuilder) []linearTestCase {
 	return []linearTestCase{

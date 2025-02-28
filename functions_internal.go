@@ -4,6 +4,17 @@ package coll
 
 import "cmp"
 
+func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
+	keys := []K(nil)
+	for _, pair := range p {
+		keys = append(keys, pair.Key())
+	}
+	c.RemoveMany(keys)
+	for _, pair := range p {
+		c.set(pair)
+	}
+}
+
 func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
 	found := false
 	coll.EachUntil(func(i int, v V) bool {

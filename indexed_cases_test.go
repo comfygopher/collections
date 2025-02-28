@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type indexedIntArgs = testArgs[Indexed[int], int]
-type indexedTestCase = testCase[Indexed[int], int]
-type indexedCollIntBuilder = testCollectionBuilder[Indexed[int], int]
+type indexedIntArgs = testArgs[indexedInternal[int], int]
+type indexedTestCase = testCase[indexedInternal[int], int]
+type indexedCollIntBuilder = testCollectionBuilder[indexedInternal[int], int]
 
 func getAtCases(builder indexedCollIntBuilder) []indexedTestCase {
 	return []indexedTestCase{

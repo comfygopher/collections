@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-type indexedMutableIntArgs = testArgs[IndexedMutable[int], int]
-type indexedMutableTestCase = testCase[IndexedMutable[int], int]
-type indexedMutableCollIntBuilder = testCollectionBuilder[IndexedMutable[int], int]
+type indexedMutableIntArgs = testArgs[indexedMutableInternal[int], int]
+type indexedMutableTestCase = testCase[indexedMutableInternal[int], int]
+type indexedMutableCollIntBuilder = testCollectionBuilder[indexedMutableInternal[int], int]
 
 func getRemoveAtCases(builder indexedMutableCollIntBuilder) []indexedMutableTestCase {
 	return []indexedMutableTestCase{

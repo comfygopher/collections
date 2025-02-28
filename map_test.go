@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type comfyMapIntBuilder[C Base[Pair[int, int]]] struct {
+type comfyMapIntBuilder[C mapInternal[int, int]] struct {
 }
 
 func (lcb *comfyMapIntBuilder[C]) Empty() C {
@@ -45,7 +45,7 @@ func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
-func (lcb *comfyMapIntBuilder[C]) make(items []Pair[int, int]) Base[Pair[int, int]] {
+func (lcb *comfyMapIntBuilder[C]) make(items []Pair[int, int]) mapInternal[int, int] {
 	coll := &comfyMap[int, int]{
 		s:  items,
 		m:  make(map[int]Pair[int, int]),
@@ -109,168 +109,170 @@ func TestNewMapFrom(t *testing.T) {
 }
 
 func Test_comfyMap_Append(t *testing.T) {
-	testMapAppend(t, &comfyMapIntBuilder[Map[int, int]]{})
-	testMapAppendRef(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapAppend(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapAppendRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_AppendColl(t *testing.T) {
-	testMapAppendColl(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapAppendColl(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Apply(t *testing.T) {
-	testMapApply(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapApply(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_At(t *testing.T) {
-	testMapAt(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapAt(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_AtOrDefault(t *testing.T) {
-	testMapAtOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapAtOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Clear(t *testing.T) {
-	testMapClear(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapClear(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Contains(t *testing.T) {
-	testMapContains(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapContains(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Count(t *testing.T) {
-	testMapCount(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapCount(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Each(t *testing.T) {
-	testMapEach(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapEach(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_EachRev(t *testing.T) {
-	testMapEachRev(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapEachRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_EachRevUntil(t *testing.T) {
-	testMapEachRevUntil(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapEachRevUntil(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_EachUntil(t *testing.T) {
-	testMapEachUntil(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapEachUntil(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Find(t *testing.T) {
-	testMapFind(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapFind(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_FindLast(t *testing.T) {
-	testMapFindLast(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapFindLast(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Fold(t *testing.T) {
-	testMapFold(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapFold(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Get(t *testing.T) {
-	testMapGet(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapGet(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_GetOrDefault(t *testing.T) {
-	testMapGetOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapGetOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Has(t *testing.T) {
-	testMapHas(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapHas(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Head(t *testing.T) {
-	testMapHead(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapHead(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_HeadOrDefault(t *testing.T) {
-	testMapHeadOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapHeadOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_IsEmpty(t *testing.T) {
-	testMapIsEmpty(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapIsEmpty(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Keys(t *testing.T) {
-	testMapKeys(t, &comfyMapIntBuilder[Map[int, int]]{})
-	testMapKeysBreak(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapKeys(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapKeysBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_KeysToSlice(t *testing.T) {
-	testMapKeysToSlice(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapKeysToSlice(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_KeyValues(t *testing.T) {
-	testMapKeyValuesBreak(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapKeyValuesBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Len(t *testing.T) {
-	testMapLen(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapLen(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Prepend(t *testing.T) {
-	testMapPrepend(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapPrepend(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Reduce(t *testing.T) {
-	testMapReduce(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapReduce(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Remove(t *testing.T) {
-	testMapRemove(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapRemove(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_RemoveAt(t *testing.T) {
-	testMapRemoveAt(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapRemoveAt(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_RemoveMany(t *testing.T) {
-	testMapRemoveMany(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapRemoveMany(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_RemoveMatching(t *testing.T) {
-	testMapRemoveMatching(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapRemoveMatching(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Reverse(t *testing.T) {
-	testMapReverse(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapReverse(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Search(t *testing.T) {
-	testMapSearch(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapSearch(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_SearchRev(t *testing.T) {
-	testMapSearchRev(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapSearchRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Set(t *testing.T) {
-	testMapSet(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapSet(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_SetMany(t *testing.T) {
-	testMapSetMany(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapSetMany(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Sort(t *testing.T) {
-	testMapSort(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapSort(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Tail(t *testing.T) {
-	testMapTail(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapTail(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_TailOrDefault(t *testing.T) {
-	testMapTailOrDefault(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapTailOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Values(t *testing.T) {
-	testMapValues(t, &comfyMapIntBuilder[Map[int, int]]{})
-	testMapValuesBreak(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapValues(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapValuesBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapValuesRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_copy(t *testing.T) {
-	testMapCopy(t, &comfyMapIntBuilder[Map[int, int]]{})
+	testMapCopy(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapCopyDontPreserveRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }

@@ -19,19 +19,20 @@ type testArgs[C any, V any] struct {
 }
 
 type testCase[C any, V any] struct {
-	name     string
-	coll     C
-	args     testArgs[C, V]
-	want1    any
-	want2    any
-	want3    any
-	got1     any
-	got2     any
-	got3     any
-	err      error
-	wantErr  bool
-	metaInt1 int
-	modify   func()
+	name        string
+	coll        C
+	collBuilder func() C
+	args        testArgs[C, V]
+	want1       any
+	want2       any
+	want3       any
+	got1        any
+	got2        any
+	got3        any
+	err         error
+	wantErr     bool
+	metaInt1    int
+	modify      func()
 }
 
 type testCollectionBuilder[C any, V any] interface {
