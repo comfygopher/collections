@@ -239,6 +239,7 @@ type Map[K comparable, V any] interface {
 type mapInternal[K comparable, V any] interface {
 	Map[K, V]
 	copy() mapInternal[K, V]
+	prependAll(pairs []Pair[K, V])
 	remove(k K)
 	removeMany(keys []K)
 	set(pair Pair[K, V])
@@ -247,7 +248,7 @@ type mapInternal[K comparable, V any] interface {
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
 type CmpMap[K comparable, V cmp.Ordered] interface {
 	Map[K, V]
-	CmpMutable[V]
+	//CmpMutable[Pair[K, V]]
 }
 
 type cmpMapInternal[K comparable, V cmp.Ordered] interface {
@@ -276,10 +277,6 @@ func NewPair[K comparable, V any](key K, val V) Pair[K, V] {
 		k: key,
 		v: val,
 	}
-}
-
-func NilPair[K comparable, V any]() Pair[K, V] {
-	return &comfyPair[K, V]{}
 }
 
 func (p *comfyPair[K, V]) Key() K {

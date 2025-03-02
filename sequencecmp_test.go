@@ -28,6 +28,22 @@ func (lcb *comfyCmpSeqIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]int{111, 222, 333, 111, 222, 333}).(C)
 }
 
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingSlice(_ C) any {
+	return nil
+}
+
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingMap(_ C) any {
+	return nil
+}
+
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingKp(_ C) any {
+	return nil
+}
+
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingValsCount(_ C) any {
+	return nil
+}
+
 func (lcb *comfyCmpSeqIntBuilder[C]) make(items []int) Base[int] {
 	coll := &comfyCmpSeq[int]{
 		s: items,

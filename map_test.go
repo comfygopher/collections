@@ -45,16 +45,31 @@ func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
+func (lcb *comfyMapIntBuilder[C]) extractUnderlyingSlice(c C) any {
+	return (any(c)).(*comfyMap[int, int]).s
+}
+
+func (lcb *comfyMapIntBuilder[C]) extractUnderlyingMap(c C) any {
+	return (any(c)).(*comfyMap[int, int]).m
+}
+
+func (lcb *comfyMapIntBuilder[C]) extractUnderlyingKp(c C) any {
+	return (any(c)).(*comfyMap[int, int]).kp
+}
+
+func (lcb *comfyMapIntBuilder[C]) extractUnderlyingValsCount(_ C) any {
+	return nil
+}
+
 func (lcb *comfyMapIntBuilder[C]) make(items []Pair[int, int]) mapInternal[int, int] {
 	coll := &comfyMap[int, int]{
-		s:  items,
+		s:  []Pair[int, int](nil),
 		m:  make(map[int]Pair[int, int]),
 		kp: make(map[int]int),
 	}
 
-	for i, pair := range items {
-		coll.m[pair.Key()] = pair
-		coll.kp[pair.Key()] = i
+	for _, pair := range items {
+		coll.set(pair)
 	}
 
 	return coll

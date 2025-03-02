@@ -26,6 +26,7 @@ type testCase[C any, V any] struct {
 	want1       any
 	want2       any
 	want3       any
+	want4       any
 	got1        any
 	got2        any
 	got3        any
@@ -41,6 +42,10 @@ type testCollectionBuilder[C any, V any] interface {
 	Two() C
 	Three() C
 	SixWithDuplicates() C
+	extractUnderlyingSlice(c C) any
+	extractUnderlyingMap(c C) any
+	extractUnderlyingKp(c C) any
+	extractUnderlyingValsCount(c C) any
 }
 
 type testPairCollectionBuilder[C Base[Pair[int, int]]] interface {

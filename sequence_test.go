@@ -36,6 +36,22 @@ func (lcb *comfySeqIntBuilder[C]) make(items []int) baseInternal[int] {
 	return coll
 }
 
+func (lcb *comfySeqIntBuilder[C]) extractUnderlyingSlice(_ C) any {
+	return nil
+}
+
+func (lcb *comfySeqIntBuilder[C]) extractUnderlyingMap(_ C) any {
+	return nil
+}
+
+func (lcb *comfySeqIntBuilder[C]) extractUnderlyingKp(_ C) any {
+	return nil
+}
+
+func (lcb *comfySeqIntBuilder[C]) extractUnderlyingValsCount(_ C) any {
+	return nil
+}
+
 type comfySeqPairBuilder[C Base[Pair[int, int]]] struct {
 }
 

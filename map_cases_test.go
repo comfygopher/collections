@@ -305,16 +305,25 @@ func testMapAtOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
 func getMapClearCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
-			name: "Clear() on empty collection",
-			coll: builder.Empty(),
+			name:  "Clear() on empty collection",
+			coll:  builder.Empty(),
+			want1: []Pair[int, int](nil),
+			want2: make(map[int]Pair[int, int]),
+			want3: make(map[int]int),
 		},
 		{
-			name: "Clear() on one-item collection",
-			coll: builder.One(),
+			name:  "Clear() on one-item collection",
+			coll:  builder.One(),
+			want1: []Pair[int, int](nil),
+			want2: make(map[int]Pair[int, int]),
+			want3: make(map[int]int),
 		},
 		{
-			name: "Clear() on three-item collection",
-			coll: builder.Three(),
+			name:  "Clear() on three-item collection",
+			coll:  builder.Three(),
+			want1: []Pair[int, int](nil),
+			want2: make(map[int]Pair[int, int]),
+			want3: make(map[int]int),
 		},
 	}
 }
@@ -324,14 +333,17 @@ func testMapClear(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.Clear()
-			actualSlice := []Pair[int, int]{}
-			copy(actualSlice, tt.coll.ToSlice())
-			actualMap := tt.coll.ToMap()
-			if !reflect.DeepEqual(actualSlice, []Pair[int, int]{}) {
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Clear() did not clear slice correctly")
 			}
-			if !reflect.DeepEqual(actualMap, map[int]int{}) {
+			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Clear() did not clear map correctly")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Clear() did not clear kp correctly")
 			}
 		})
 	}
@@ -1556,56 +1568,64 @@ func getMapPrependCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			coll:  builder.Empty(),
 			args:  baseMapIntArgs{value: NewPair(1, 111)},
 			want1: []Pair[int, int]{NewPair(1, 111)},
-			want2: map[int]int{1: 111},
+			want2: map[int]Pair[int, int]{1: NewPair(1, 111)},
+			want3: map[int]int{1: 0},
 		},
 		{
 			name:  "Prepend() on one-item collection",
 			coll:  builder.One(),
 			args:  baseMapIntArgs{value: NewPair(2, 222)},
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(1, 111)},
-			want2: map[int]int{2: 222, 1: 111},
+			want2: map[int]Pair[int, int]{2: NewPair(2, 222), 1: NewPair(1, 111)},
+			want3: map[int]int{2: 0, 1: 1},
 		},
 		{
 			name:  "Prepend() on three-item collection",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{value: NewPair(4, 444)},
 			want1: []Pair[int, int]{NewPair(4, 444), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]int{4: 444, 1: 111, 2: 222, 3: 333},
+			want2: map[int]Pair[int, int]{4: NewPair(4, 444), 1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			want3: map[int]int{4: 0, 1: 1, 2: 2, 3: 3},
 		},
 		{
 			name:  "Prepend() on three-item collection - duplicate key",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{value: NewPair(2, 999)},
 			want1: []Pair[int, int]{NewPair(2, 999), NewPair(1, 111), NewPair(3, 333)},
-			want2: map[int]int{2: 999, 1: 111, 3: 333},
+			want2: map[int]Pair[int, int]{2: NewPair(2, 999), 1: NewPair(1, 111), 3: NewPair(3, 333)},
+			want3: map[int]int{2: 0, 1: 1, 3: 2},
 		},
 		{
 			name:  "Prepend() many on empty collection",
 			coll:  builder.Empty(),
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)}},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want2: map[int]Pair[int, int]{1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
 		},
 		{
 			name:  "Prepend() many on one-item collection",
 			coll:  builder.One(),
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)}},
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333), NewPair(1, 111)},
-			want2: map[int]int{2: 222, 3: 333, 1: 111},
+			want2: map[int]Pair[int, int]{2: NewPair(2, 222), 3: NewPair(3, 333), 1: NewPair(1, 111)},
+			want3: map[int]int{2: 0, 3: 1, 1: 2},
 		},
 		{
 			name:  "Prepend() many on three-item collection",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555)}},
 			want1: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]int{4: 444, 5: 555, 1: 111, 2: 222, 3: 333},
+			want2: map[int]Pair[int, int]{4: NewPair(4, 444), 5: NewPair(5, 555), 1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			want3: map[int]int{4: 0, 5: 1, 1: 2, 2: 3, 3: 4},
 		},
 		{
 			name:  "Prepend() many on three-item collection - duplicate key",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999)}},
 			want1: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999), NewPair(1, 111)},
-			want2: map[int]int{2: 999, 3: 999, 1: 111},
+			want2: map[int]Pair[int, int]{2: NewPair(2, 999), 3: NewPair(3, 999), 1: NewPair(1, 111)},
+			want3: map[int]int{2: 0, 3: 1, 1: 2},
 		},
 	}
 }
@@ -1619,13 +1639,17 @@ func testMapPrepend(t *testing.T, builder baseMapCollIntBuilder) {
 			} else {
 				tt.coll.Prepend(tt.args.value)
 			}
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Prepend() did not prepend correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Prepend() did not prepend correctly to map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Prepend() did not prepend correctly to kp")
 			}
 		})
 	}
@@ -1744,7 +1768,7 @@ func testMapRemove(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.Remove(tt.args.key)
 			actualSlice := tt.coll.ToSlice()
 			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Remove() did not remove correctly from slice")
 			}

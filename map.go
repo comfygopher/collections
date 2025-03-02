@@ -35,14 +35,7 @@ func NewMapFrom[K comparable, V any](s []Pair[K, V]) Map[K, V] {
 // Public functions:
 
 func (c *comfyMap[K, V]) Append(p ...Pair[K, V]) {
-	keys := []K(nil)
-	for _, pair := range p {
-		keys = append(keys, pair.Key())
-	}
-	c.RemoveMany(keys)
-	for _, pair := range p {
-		c.set(pair)
-	}
+	comfyAppendMap(c, p...)
 }
 
 func (c *comfyMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
@@ -72,8 +65,9 @@ func (c *comfyMap[K, V]) AtOrDefault(i int, defaultValue Pair[K, V]) Pair[K, V] 
 }
 
 func (c *comfyMap[K, V]) Clear() {
-	c.s = make([]Pair[K, V], 0)
+	c.s = []Pair[K, V](nil)
 	c.m = make(map[K]Pair[K, V])
+	c.kp = make(map[K]int)
 }
 
 func (c *comfyMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {

@@ -9,7 +9,7 @@ func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
 	for _, pair := range p {
 		keys = append(keys, pair.Key())
 	}
-	c.RemoveMany(keys)
+	c.removeMany(keys)
 	for _, pair := range p {
 		c.set(pair)
 	}
