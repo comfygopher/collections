@@ -15,7 +15,7 @@ func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
 	}
 }
 
-func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
+func comfyContains[C Base[V], V any](coll C, predicate Predicate[V]) bool {
 	found := false
 	coll.EachUntil(func(i int, v V) bool {
 		if predicate(i, v) {
@@ -27,6 +27,12 @@ func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
 	})
 
 	return found
+}
+
+func comfyContainsValue[C Base[V], V cmp.Ordered](coll C, search V) bool {
+	return comfyContains(coll, func(_ int, v V) bool {
+		return v == search
+	})
 }
 
 func comfyContainsKV[M Map[K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
@@ -163,70 +169,60 @@ func comfyMin[C Base[V], V cmp.Ordered](coll C) (V, error) {
 	return foundVal, nil
 }
 
-func comfyFold[C Base[V], V any](coll C, reducer Reducer[V], initial V) V {
+func comfyFoldSlice[V any](s []V, reducer Reducer[V], initial V) V {
 	acc := initial
-	coll.Each(func(i int, v V) {
+	for i, v := range s {
 		acc = reducer(acc, i, v)
-	})
+	}
 
 	return acc
 }
 
-func comfyFoldRev[C Base[V], V any](coll C, reducer Reducer[V], initial V) V {
+func comfyFoldSliceRev[V any](s []V, reducer Reducer[V], initial V) V {
 	acc := initial
-	coll.EachRev(func(i int, v V) {
-		acc = reducer(acc, i, v)
-	})
+	for i := len(s) - 1; i >= 0; i-- {
+		acc = reducer(acc, i, s[i])
+	}
 
 	return acc
 }
 
-func comfyReduce[C Base[V], V any](coll C, reducer Reducer[V]) (V, error) {
+func comfyReduceSlice[V any](s []V, reducer Reducer[V]) (V, error) {
 	var acc V
-	if coll.IsEmpty() {
+	if len(s) == 0 {
 		return acc, ErrEmptyCollection
 	}
 
 	first := true
-	coll.Each(func(i int, v V) {
+	for i, v := range s {
 		if first {
 			acc = v
 			first = false
 		} else {
 			acc = reducer(acc, i, v)
 		}
-	})
+	}
 
 	return acc, nil
 }
 
-func comfyReduceRev[C Base[V], V any](coll C, reducer Reducer[V]) (V, error) {
+func comfyReduceSliceRev[V any](s []V, reducer Reducer[V]) (V, error) {
 	var acc V
-	if coll.IsEmpty() {
+	if len(s) == 0 {
 		return acc, ErrEmptyCollection
 	}
 
 	first := true
-	coll.EachRev(func(i int, v V) {
+	for i := len(s) - 1; i >= 0; i-- {
 		if first {
-			acc = v
+			acc = s[i]
 			first = false
 		} else {
-			acc = reducer(acc, i, v)
+			acc = reducer(acc, i, s[i])
 		}
-	})
+	}
 
 	return acc, nil
-}
-
-func comfyReduceKV[M Map[K, V], K comparable, V any](coll M, reducer KVReducer[K, V], initialKey K, initialValue V) (K, V) {
-	kAcc := initialKey
-	vAcc := initialValue
-	coll.Each(func(_ int, pair Pair[K, V]) {
-		kAcc, vAcc = reducer(kAcc, vAcc, pair.Key(), pair.Val())
-	})
-
-	return kAcc, vAcc
 }
 
 func comfySum[C Base[V], V cmp.Ordered](coll C) V {

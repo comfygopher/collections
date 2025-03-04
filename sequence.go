@@ -132,7 +132,7 @@ func (c *comfySeq[V]) FindLast(predicate Predicate[V], defaultValue V) V {
 }
 
 func (c *comfySeq[V]) Fold(reducer Reducer[V], initial V) V {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
 }
 
 func (c *comfySeq[V]) Head() (V, bool) {
@@ -174,7 +174,7 @@ func (c *comfySeq[V]) Prepend(v ...V) {
 }
 
 func (c *comfySeq[V]) Reduce(reducer Reducer[V]) (V, error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
 func (c *comfySeq[V]) RemoveAt(i int) (removed V, err error) {

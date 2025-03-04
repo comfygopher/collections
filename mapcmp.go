@@ -91,13 +91,13 @@ func (c *comfyCmpMap[K, V]) Clear() {
 }
 
 func (c *comfyCmpMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {
-	return comfyContains[Indexed[Pair[K, V]], Pair[K, V]](c, predicate)
+	return comfyContains[Base[Pair[K, V]], Pair[K, V]](c, predicate)
 }
 
 func (c *comfyCmpMap[K, V]) ContainsValue(v V) bool {
-	panic("not implemented")
-	//_, ok := c.valsCount[v]
-	//return ok
+	return comfyContains[Base[Pair[K, V]], Pair[K, V]](c, func(_ int, pair Pair[K, V]) bool {
+		return pair.Val() == v
+	})
 }
 
 func (c *comfyCmpMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
@@ -105,8 +105,9 @@ func (c *comfyCmpMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
 }
 
 func (c *comfyCmpMap[K, V]) CountValues(v V) int {
-	panic("not implemented")
-	//return c.valsCount[v]
+	return comfyCount[Indexed[Pair[K, V]], Pair[K, V]](c, func(_ int, pair Pair[K, V]) bool {
+		return pair.Val() == v
+	})
 }
 
 func (c *comfyCmpMap[K, V]) Each(f Visitor[Pair[K, V]]) {
@@ -138,25 +139,37 @@ func (c *comfyCmpMap[K, V]) EachUntil(f Predicate[Pair[K, V]]) {
 }
 
 func (c *comfyCmpMap[K, V]) Find(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	panic("not implemented")
-	//return comfyFind[Indexed[Pair[K, V]]](c, predicate, defaultValue)
+	return comfyFind[Indexed[Pair[K, V]]](c, predicate, defaultValue)
 }
 
 func (c *comfyCmpMap[K, V]) FindLast(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	panic("not implemented")
-	//return comfyFindLast[Indexed[Pair[K, V]]](c, predicate, defaultValue)
+	return comfyFindLast[Indexed[Pair[K, V]]](c, predicate, defaultValue)
 }
 
 func (c *comfyCmpMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
 }
 
 func (c *comfyCmpMap[K, V]) Get(k K) (V, bool) {
-	panic("not implemented")
+	pair, ok := c.m[k]
+	if !ok {
+		var v V
+		return v, false
+	}
+	return pair.Val(), true
 }
 
 func (c *comfyCmpMap[K, V]) GetOrDefault(k K, defaultValue V) V {
-	panic("not implemented")
+	pair, ok := c.m[k]
+	if !ok {
+		return defaultValue
+	}
+	return pair.Val()
+}
+
+func (c *comfyCmpMap[K, V]) Has(k K) bool {
+	_, ok := c.m[k]
+	return ok
 }
 
 func (c *comfyCmpMap[K, V]) HasValue(v V) bool {
@@ -226,7 +239,7 @@ func (c *comfyCmpMap[K, V]) Prepend(p ...Pair[K, V]) {
 }
 
 func (c *comfyCmpMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
 func (c *comfyCmpMap[K, V]) RemoveAt(idx int) (removed Pair[K, V], err error) {
@@ -313,18 +326,6 @@ func (c *comfyCmpMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 	//	}
 	//}
 }
-
-// Map[K comparable, V any] interface implementation:
-
-func (c *comfyCmpMap[K, V]) Has(k K) bool {
-	_, ok := c.m[k]
-	return ok
-}
-
-// TODO
-//func (c *comfyCmpMap[K, V]) ReduceKV(reducer KVReducer[K, V], initialKey K, initialValue V) (K, V) {
-//	return comfyReduceKV(c, reducer, initialKey, initialValue)
-//}
 
 func (c *comfyCmpMap[K, V]) RemoveMatchingKV(predicate KVPredicate[K, V]) {
 	newS := make([]Pair[K, V], 0)

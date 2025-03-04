@@ -115,7 +115,7 @@ func (c *comfyMap[K, V]) FindLast(predicate Predicate[Pair[K, V]], defaultValue 
 }
 
 func (c *comfyMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
 }
 
 func (c *comfyMap[K, V]) Get(k K) (V, bool) {
@@ -191,7 +191,7 @@ func (c *comfyMap[K, V]) Prepend(p ...Pair[K, V]) {
 }
 
 func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
 func (c *comfyMap[K, V]) Remove(k K) {

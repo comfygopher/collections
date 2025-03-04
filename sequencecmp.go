@@ -58,21 +58,11 @@ func (c *comfyCmpSeq[V]) Clear() {
 }
 
 func (c *comfyCmpSeq[V]) Contains(predicate Predicate[V]) bool {
-	for i, v := range c.s {
-		if predicate(i, v) {
-			return true
-		}
-	}
-	return false
+	return comfyContains(c, predicate)
 }
 
 func (c *comfyCmpSeq[V]) ContainsValue(v V) bool {
-	for _, current := range c.s {
-		if current == v {
-			return true
-		}
-	}
-	return false
+	return comfyContainsValue(c, v)
 }
 
 func (c *comfyCmpSeq[V]) Count(predicate Predicate[V]) int {
@@ -142,7 +132,7 @@ func (c *comfyCmpSeq[V]) FindLast(predicate Predicate[V], defaultValue V) V {
 }
 
 func (c *comfyCmpSeq[V]) Fold(reducer Reducer[V], initial V) V {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
 }
 
 func (c *comfyCmpSeq[V]) Head() (V, bool) {
@@ -207,7 +197,7 @@ func (c *comfyCmpSeq[V]) Prepend(v ...V) {
 }
 
 func (c *comfyCmpSeq[V]) Reduce(reducer Reducer[V]) (V, error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
 func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
