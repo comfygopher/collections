@@ -1,15 +1,19 @@
 package coll
 
-import "cmp"
+import (
+	"cmp"
+)
 
 type baseInternal[V any] interface {
 	Base[V]
 	copy() Base[V]
+	//values() iter.Seq[V] // TODO
 }
 
 type linearInternal[V any] interface {
 	Linear[V]
 	baseInternal[V]
+	//valuesRev() iter.Seq[V] // TODO
 }
 
 type indexedInternal[V any] interface {
@@ -40,6 +44,7 @@ type listInternal[V any] interface {
 type mapInternal[K comparable, V any] interface {
 	Map[K, V]
 	copy() mapInternal[K, V]
+	//keyValues() iter.Seq2[K, V] // TODO
 	prependAll(pairs []Pair[K, V])
 	remove(k K)
 	removeMany(keys []K)

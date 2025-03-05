@@ -23,11 +23,7 @@ func NewMap[K comparable, V any]() Map[K, V] {
 }
 
 func NewMapFrom[K comparable, V any](s []Pair[K, V]) Map[K, V] {
-	cm := &comfyMap[K, V]{
-		s:  []Pair[K, V](nil),
-		m:  make(map[K]Pair[K, V]),
-		kp: make(map[K]int),
-	}
+	cm := NewMap[K, V]()
 	cm.SetMany(s)
 	return cm
 }
@@ -212,7 +208,7 @@ func (c *comfyMap[K, V]) RemoveMany(keys []K) {
 }
 
 func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
-	newS := make([]Pair[K, V], 0)
+	newS := []Pair[K, V](nil)
 	newM := make(map[K]Pair[K, V])
 	newKP := make(map[K]int)
 
@@ -232,16 +228,13 @@ func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 }
 
 func (c *comfyMap[K, V]) Reverse() {
-	newS := make([]Pair[K, V], 0)
-	newM := make(map[K]Pair[K, V])
+	newS := []Pair[K, V](nil)
 	newKP := make(map[K]int)
 	for i := len(c.s) - 1; i >= 0; i-- {
 		newS = append(newS, c.s[i])
-		newM[c.s[i].Key()] = c.s[i]
 		newKP[c.s[i].Key()] = len(c.s) - i - 1
 	}
 	c.s = newS
-	c.m = newM
 	c.kp = newKP
 }
 
@@ -273,19 +266,8 @@ func (c *comfyMap[K, V]) SetMany(s []Pair[K, V]) {
 	}
 }
 
-func (c *comfyMap[K, V]) Sort(cmp PairComparator[K, V]) {
-	newS := slices.Clone(c.s)
-	newKP := make(map[K]int)
-
-	slices.SortFunc(newS, func(a, b Pair[K, V]) int {
-		return cmp(a, b)
-	})
-	for i, pair := range newS {
-		newKP[pair.Key()] = i
-	}
-
-	c.s = newS
-	c.kp = newKP
+func (c *comfyMap[K, V]) Sort(compare PairComparator[K, V]) {
+	c.s, c.kp = comfySortSliceAndKP(c.s, compare)
 }
 
 func (c *comfyMap[K, V]) Tail() (Pair[K, V], bool) {
@@ -324,29 +306,28 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 func (c *comfyMap[K, V]) set(pair Pair[K, V]) {
 	pos, exists := c.kp[pair.Key()]
-	if !exists {
+	if exists {
+		c.s[pos] = pair
+		c.m[pair.Key()] = pair
+	} else {
 		pos = len(c.s)
 		c.s = append(c.s, pair)
 		c.m[pair.Key()] = pair
 		c.kp[pair.Key()] = pos
 		return
 	}
-
-	c.s[pos] = pair
-	c.m[pair.Key()] = pair
-	return
 }
 
 func (c *comfyMap[K, V]) prependAll(pairs []Pair[K, V]) {
 	newS := []Pair[K, V](nil)
 	newM := make(map[K]Pair[K, V])
-	newKp := make(map[K]int)
+	newKP := make(map[K]int)
 
 	idx := 0
 	for _, pair := range pairs {
 		newS = append(newS, pair)
 		newM[pair.Key()] = pair
-		newKp[pair.Key()] = idx
+		newKP[pair.Key()] = idx
 		idx++
 	}
 
@@ -356,13 +337,13 @@ func (c *comfyMap[K, V]) prependAll(pairs []Pair[K, V]) {
 		}
 		newS = append(newS, pair)
 		newM[pair.Key()] = pair
-		newKp[pair.Key()] = idx
+		newKP[pair.Key()] = idx
 		idx++
 	}
 
 	c.s = newS
 	c.m = newM
-	c.kp = newKp
+	c.kp = newKP
 }
 
 func (c *comfyMap[K, V]) remove(k K) {
@@ -373,14 +354,14 @@ func (c *comfyMap[K, V]) remove(k K) {
 
 	removed, newSlice, _ := sliceRemoveAt(c.s, pos)
 
-	newKp := make(map[K]int)
+	newKP := make(map[K]int)
 	for i, pair := range newSlice {
-		newKp[pair.Key()] = i
+		newKP[pair.Key()] = i
 	}
 
 	c.s = newSlice
 	delete(c.m, removed.Key())
-	c.kp = newKp
+	c.kp = newKP
 }
 
 func (c *comfyMap[K, V]) removeMany(keys []K) {

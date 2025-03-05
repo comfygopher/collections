@@ -53,15 +53,15 @@ func (lcb *comfyCmpMapIntBuilder[C]) extractUnderlyingKp(c C) any {
 }
 
 func (lcb *comfyCmpMapIntBuilder[C]) extractUnderlyingValsCount(c C) any {
-	return (any(c)).(*comfyCmpMap[int, int]).valsCount
+	return (any(c)).(*comfyCmpMap[int, int]).vc.counter
 }
 
 func (lcb *comfyCmpMapIntBuilder[C]) make(items []Pair[int, int]) mapInternal[int, int] {
 	coll := &comfyCmpMap[int, int]{
-		s:         items,
-		m:         make(map[int]Pair[int, int]),
-		kp:        make(map[int]int),
-		valsCount: make(map[int]int),
+		s:  items,
+		m:  make(map[int]Pair[int, int]),
+		kp: make(map[int]int),
+		vc: newValuesCounter[int](),
 	}
 
 	for i, pair := range items {

@@ -70,6 +70,11 @@ type Base[V any] interface {
 	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
 	ToSlice() []V
 	Values() iter.Seq[V]
+	//ValuesRev() iter.Seq[V] // TODO
+}
+
+type BasePairs[K comparable, V any] interface {
+	Base[Pair[K, V]]
 }
 
 // Linear interface indicates that given collection preserves the order of elements.
@@ -137,7 +142,7 @@ type Cmp[V cmp.Ordered] interface {
 // that are not preserving order of elements (like the Go's native map).
 type CmpMutable[V cmp.Ordered] interface {
 	Cmp[V]
-	RemoveValues(v V) // TODO: needed????
+	RemoveValues(v V) // TODO: replace with multiple values (v ...V)
 	SortAsc()
 	SortDesc()
 }
@@ -180,6 +185,7 @@ type CmpLinear[V cmp.Ordered] interface {
 
 // Map is a collection of key-value pairs.
 type Map[K comparable, V any] interface {
+	BasePairs[K, V]
 	IndexedMutable[Pair[K, V]]
 	LinearMutable[Pair[K, V]]
 	//FoldValues(reducer Reducer[V], initial V) V // TODO
@@ -194,7 +200,7 @@ type Map[K comparable, V any] interface {
 	RemoveMany(keys []K)
 	Set(key K, val V)
 	SetMany(s []Pair[K, V])
-	Sort(cmp PairComparator[K, V])
+	Sort(compare PairComparator[K, V])
 	ToMap() map[K]V
 	// Values returns values iterator.
 	// Use KeyValues for key-value iterator.

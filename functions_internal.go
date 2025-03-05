@@ -2,7 +2,10 @@ package coll
 
 //lint:file-ignore U1000
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
 func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
 	keys := []K(nil)
@@ -100,30 +103,8 @@ func comfyFindLast[C Base[V], V any](coll C, predicate Predicate[V], defaultValu
 	return defaultValue
 }
 
-//func comfyIndexOf[C Base[V], V cmp.Cmp](coll C, value V) (int, error) {
-//	if coll.IsEmpty() {
-//		return -1, ErrEmptyCollection
-//	}
-//
-//	foundIdx := -1
-//	coll.EachUntil(func(i int, v V) bool {
-//		if v == value {
-//			foundIdx = i
-//			return false
-//		}
-//
-//		return true
-//	})
-//
-//	if foundIdx == -1 {
-//		return -1, ErrValueNotFound
-//	}
-//
-//	return foundIdx, nil
-//}
-
 func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
-	kp := make(map[K]int)
+	kp := make(map[K]int, len(s))
 	for i, k := range s {
 		kp[k] = i
 	}
@@ -131,15 +112,24 @@ func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
 	return kp
 }
 
-func comfyMax[C Base[V], V cmp.Ordered](coll C) (V, error) {
+func comfyMax[C Base[V], V cmp.Ordered](c C) (V, error) {
+	return c.Reduce(func(max V, _ int, current V) V {
+		if current > max {
+			return current
+		}
+		return max
+	})
+}
+
+func comfyMaxOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) (V, error) {
 	first := true
 	var foundVal V
-	coll.Each(func(_ int, v V) {
+	c.Each(func(_ int, p Pair[K, V]) {
 		if first {
-			foundVal = v
+			foundVal = p.Val()
 			first = false
-		} else if v > foundVal {
-			foundVal = v
+		} else if p.Val() > foundVal {
+			foundVal = p.Val()
 		}
 	})
 
@@ -151,14 +141,23 @@ func comfyMax[C Base[V], V cmp.Ordered](coll C) (V, error) {
 }
 
 func comfyMin[C Base[V], V cmp.Ordered](coll C) (V, error) {
+	return coll.Reduce(func(min V, _ int, current V) V {
+		if current < min {
+			return current
+		}
+		return min
+	})
+}
+
+func comfyMinOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) (V, error) {
 	first := true
 	var foundVal V
-	coll.Each(func(_ int, v V) {
+	c.Each(func(_ int, p Pair[K, V]) {
 		if first {
-			foundVal = v
+			foundVal = p.Val()
 			first = false
-		} else if v < foundVal {
-			foundVal = v
+		} else if p.Val() < foundVal {
+			foundVal = p.Val()
 		}
 	})
 
@@ -225,17 +224,34 @@ func comfyReduceSliceRev[V any](s []V, reducer Reducer[V]) (V, error) {
 	return acc, nil
 }
 
-func comfySum[C Base[V], V cmp.Ordered](coll C) V {
-	if coll.IsEmpty() {
-		var v V
-		return v
+func comfySortSliceAndKP[K comparable, V any](s []Pair[K, V], compare PairComparator[K, V]) ([]Pair[K, V], map[K]int) {
+	slices.SortFunc(s, func(a, b Pair[K, V]) int {
+		return compare(a, b)
+	})
+	kp := make(map[K]int)
+	for i, pair := range s {
+		kp[pair.Key()] = i
 	}
 
-	var initial V
+	return s, kp
+}
 
-	return coll.Fold(func(sum V, _ int, current V) V {
-		return sum + current
-	}, initial)
+func comfySum[C Base[V], V cmp.Ordered](coll C) V {
+	var sum V
+	for v := range coll.Values() {
+		sum += v
+	}
+
+	return sum
+}
+
+func comfySumOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) V {
+	var initial V
+	for p := range c.Values() {
+		initial += p.Val()
+	}
+
+	return initial
 }
 
 func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
