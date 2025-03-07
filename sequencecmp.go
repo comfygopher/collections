@@ -22,6 +22,7 @@ func NewCmpSequenceFrom[V cmp.Ordered](l []V) CmpSequence[V] {
 
 type comfyCmpSeq[V cmp.Ordered] struct {
 	s []V
+	//vc *valuesCounter[V] // TODO
 }
 
 func (c *comfyCmpSeq[V]) Apply(f Mapper[V]) {

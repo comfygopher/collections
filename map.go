@@ -373,7 +373,7 @@ func (c *comfyMap[K, V]) removeMany(keys []K) {
 		return
 	}
 
-	newS := make([]Pair[K, V], 0)
+	newS := []Pair[K, V](nil)
 	newM := make(map[K]Pair[K, V])
 	newKP := make(map[K]int)
 

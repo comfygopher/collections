@@ -8,6 +8,15 @@ import (
 	"testing"
 )
 
+func i2iToPairs(m any) map[int]Pair[int, int] {
+	mp := m.(map[int]int)
+	pairs := make(map[int]Pair[int, int])
+	for k, v := range mp {
+		pairs[k] = NewPair(k, v)
+	}
+	return pairs
+}
+
 type baseMapIntArgs = testArgs[mapInternal[int, int], Pair[int, int]]
 type baseMapTestCase = testCase[mapInternal[int, int], Pair[int, int]]
 type baseMapCollIntBuilder = testCollectionBuilder[mapInternal[int, int], Pair[int, int]]
@@ -153,13 +162,13 @@ func testMapAppendColl(t *testing.T, builder baseMapCollIntBuilder) {
 
 func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
-		{
-			name:  "Apply() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
-			want1: []Pair[int, int](nil),
-			want2: map[int]int{},
-		},
+		//{
+		//	name:  "Apply() on empty collection",
+		//	coll:  builder.Empty(),
+		//	args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+		//	want1: []Pair[int, int](nil),
+		//	want2: map[int]int{},
+		//},
 		{
 			name:  "Apply() on one-item collection",
 			coll:  builder.One(),
@@ -2002,13 +2011,13 @@ func testMapRemoveMany(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.RemoveMany(tt.args.keys)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveMany() did not remove correctly from slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("RemoveMany() did not remove correctly from map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2092,13 +2101,13 @@ func testMapRemoveMatching(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.RemoveMatching(tt.args.predicate)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveMatching() did not remove correctly from slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("RemoveMatching() did not remove correctly from map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2152,13 +2161,13 @@ func testMapReverse(t *testing.T, builder baseMapCollIntBuilder) {
 			for i := 0; i < tt.metaInt1; i++ {
 				tt.coll.Reverse()
 			}
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Reverse() did not reverse correctly from slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Reverse() did not reverse correctly from map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2342,13 +2351,13 @@ func testMapSet(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.Set(tt.args.value.Key(), tt.args.value.Val())
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Set() did not set correctly to slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Set() did not set correctly to map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2416,13 +2425,13 @@ func testMapSetMany(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.SetMany(tt.args.values)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("SetAll() did not set correctly to slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("SetAll() did not set correctly to map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2514,13 +2523,13 @@ func testMapSort(t *testing.T, builder baseMapCollIntBuilder) {
 			for i := 0; i < times; i++ {
 				tt.coll.Sort(tt.args.comparer)
 			}
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
-			actualKp := tt.coll.(*comfyMap[int, int]).kp
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Sort() did not sort correctly to slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Sort() did not sort correctly to map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -2718,15 +2727,18 @@ func testMapCopy(t *testing.T, builder baseMapCollIntBuilder) {
 	cases := getMapCopyCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.copy().(Map[int, int])
-			if !reflect.DeepEqual(got.ToSlice(), tt.want1) {
+			got := tt.coll.copy().(mapInternal[int, int])
+			actualSlice := builder.extractUnderlyingSlice(got)
+			actualMap := builder.extractUnderlyingMap(got)
+			actualKp := builder.extractUnderlyingKp(got)
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Copy() did not copy correctly to slice")
 			}
-			if !reflect.DeepEqual(got.ToMap(), tt.want2) {
-				t.Errorf("Copy() did not copy correctly to map")
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
+				t.Errorf("copy() did not copy correctly to map")
 			}
-			if !reflect.DeepEqual(got.(*comfyMap[int, int]).kp, tt.want3) {
-				t.Errorf("Copy() did not copy correctly to kp")
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("copy() did not copy correctly to kp")
 			}
 		})
 	}

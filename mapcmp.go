@@ -5,6 +5,7 @@ package coll
 import (
 	"cmp"
 	"iter"
+	"maps"
 	"slices"
 )
 
@@ -41,27 +42,13 @@ func (c *comfyCmpMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
 }
 
 func (c *comfyCmpMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
-	newS := []Pair[K, V](nil)
-	newM := make(map[K]Pair[K, V])
-	newKP := make(map[K]int)
-	newVC := newValuesCounter[V]()
-
 	for i, pair := range c.s {
 		mapped := f(i, pair)
 		c.s[i] = mapped
 		c.m[pair.Key()] = mapped
-
-		if pair.Val() == mapped.Val() {
-			continue
-		}
-		newVC.Decrement(pair.Val())
-		newVC.Increment(mapped.Val())
+		c.vc.Decrement(pair.Val())
+		c.vc.Increment(mapped.Val())
 	}
-
-	c.s = newS
-	c.m = newM
-	c.kp = newKP
-	c.vc = newVC
 }
 
 func (c *comfyCmpMap[K, V]) At(i int) (p Pair[K, V], found bool) {
@@ -403,10 +390,7 @@ func (c *comfyCmpMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 //nolint:unused
 func (c *comfyCmpMap[K, V]) copy() mapInternal[K, V] {
-	newCm := &comfyCmpMap[K, V]{
-		s: make([]Pair[K, V], 0),
-		m: make(map[K]Pair[K, V]),
-	}
+	newCm := NewCmpMap[K, V]().(*comfyCmpMap[K, V])
 	for _, pair := range c.s {
 		newCm.set(pair)
 	}
@@ -419,14 +403,13 @@ func (c *comfyCmpMap[K, V]) set(pair Pair[K, V]) {
 	if exists {
 		c.s[pos] = pair
 		c.m[pair.Key()] = pair
-		c.vc.counter[pair.Val()]++
 	} else {
 		pos = len(c.s)
 		c.s = append(c.s, pair)
 		c.m[pair.Key()] = pair
 		c.kp[pair.Key()] = pos
-		c.vc.counter[pair.Val()] = 1
 	}
+	c.vc.Increment(pair.Val())
 }
 
 func (c *comfyCmpMap[K, V]) prependAll(pairs []Pair[K, V]) {

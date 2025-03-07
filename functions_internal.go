@@ -259,7 +259,12 @@ func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
 		var v V
 		return v, s, ErrOutOfBounds
 	}
+
 	removed = s[i]
+
+	if len(s) == 1 {
+		return removed, []V(nil), nil
+	}
 
 	return removed, append(s[:i], s[i+1:]...), nil
 }
