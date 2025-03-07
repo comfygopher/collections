@@ -281,6 +281,10 @@ func Test_comfyMap_TailOrDefault(t *testing.T) {
 	testMapTailOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyMap_ToSlice(t *testing.T) {
+	testMapToSlice(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyMap_Values(t *testing.T) {
 	testMapValues(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 	testMapValuesBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})

@@ -42,13 +42,25 @@ func (c *comfyCmpMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
 }
 
 func (c *comfyCmpMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
+	newS := []Pair[K, V](nil)
+	newM := make(map[K]Pair[K, V])
+	newKP := make(map[K]int)
+	newVC := newValuesCounter[V]()
+
+	idx := 0
 	for i, pair := range c.s {
 		mapped := f(i, pair)
-		c.s[i] = mapped
-		c.m[pair.Key()] = mapped
-		c.vc.Decrement(pair.Val())
-		c.vc.Increment(mapped.Val())
+		newS = append(newS, mapped)
+		newM[mapped.Key()] = mapped
+		newKP[mapped.Key()] = idx
+		newVC.Increment(mapped.Val())
+		idx++
 	}
+
+	c.s = newS
+	c.m = newM
+	c.kp = newKP
+	c.vc = newVC
 }
 
 func (c *comfyCmpMap[K, V]) At(i int) (p Pair[K, V], found bool) {

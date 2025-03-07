@@ -58,7 +58,11 @@ func (lcb *comfyCmpMapIntBuilder[C]) extractUnderlyingKp(c C) any {
 }
 
 func (lcb *comfyCmpMapIntBuilder[C]) extractUnderlyingValsCount(c C) any {
-	return (any(c)).(*comfyCmpMap[int, int]).vc.counter
+	vc := (any(c)).(*comfyCmpMap[int, int]).vc.counter
+	if vc == nil {
+		panic("Could not extract Values Counter from comfyCmpMap")
+	}
+	return vc
 }
 
 func (lcb *comfyCmpMapIntBuilder[C]) make(items []Pair[int, int]) mapInternal[int, int] {
@@ -324,6 +328,10 @@ func Test_comfyCmpMap_Tail(t *testing.T) {
 
 func Test_comfyCmpMap_TailOrDefault(t *testing.T) {
 	testMapTailOrDefault(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
+}
+
+func Test_comfyCmpMap_ToSlice(t *testing.T) {
+	testMapToSlice(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyCmpMap_Values(t *testing.T) {

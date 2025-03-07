@@ -2,7 +2,6 @@ package coll
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"slices"
 	"testing"
@@ -84,12 +83,12 @@ func testMapAppend(t *testing.T, builder baseMapCollIntBuilder) {
 			} else {
 				tt.coll.Append(tt.args.value)
 			}
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Append() did not append correctly to slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Append() did not append correctly to map")
 			}
 		})
@@ -148,12 +147,12 @@ func testMapAppendColl(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.AppendColl(tt.args.coll)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Append() did not append correctly to slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Append() did not append correctly to map")
 			}
 		})
@@ -167,21 +166,21 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 		//	coll:  builder.Empty(),
 		//	args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 		//	want1: []Pair[int, int](nil),
-		//	want2: map[int]int{},
+		//	want2: map[int]Pair[int, int]{},
 		//},
 		{
 			name:  "Apply() on one-item collection",
 			coll:  builder.One(),
 			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112)},
-			want2: map[int]int{11: 112},
+			want2: map[int]Pair[int, int]{11: NewPair(11, 112)},
 		},
 		{
 			name:  "Apply() on three-item collection",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112), NewPair(12, 223), NewPair(13, 334)},
-			want2: map[int]int{11: 112, 12: 223, 13: 334},
+			want2: map[int]Pair[int, int]{11: NewPair(11, 112), 12: NewPair(12, 223), 13: NewPair(13, 334)},
 		},
 	}
 }
@@ -191,8 +190,8 @@ func testMapApply(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.Apply(tt.args.mapper)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Apply() did not apply correctly to slice")
 			}
@@ -1775,13 +1774,13 @@ func testMapRemove(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.Remove(tt.args.key)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
 			actualKp := builder.extractUnderlyingKp(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Remove() did not remove correctly from slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Remove() did not remove correctly from map")
 			}
 			if !reflect.DeepEqual(actualKp, tt.want3) {
@@ -1799,6 +1798,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{index: 0},
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
+			want4: map[int]int{},
 			err:   ErrOutOfBounds,
 		},
 		{
@@ -1808,6 +1808,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: NewPair(1, 111),
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveAt() on three-item collection at beginning",
@@ -1816,6 +1817,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{2: 222, 3: 333},
 			want3: NewPair(1, 111),
+			want4: map[int]int{222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveAt() on three-item collection in the middle",
@@ -1824,6 +1826,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 3: 333},
 			want3: NewPair(2, 222),
+			want4: map[int]int{111: 1, 333: 1},
 		},
 		{
 			name:  "RemoveAt() on three-item collection at end",
@@ -1832,6 +1835,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: NewPair(3, 333),
+			want4: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "RemoveAt() on three-item collection out of bounds",
@@ -1840,6 +1844,7 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: nil,
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 			err:   ErrOutOfBounds,
 		},
 		{
@@ -1849,7 +1854,17 @@ func getMapRemoveAtCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: nil,
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 			err:   ErrOutOfBounds,
+		},
+		{
+			name:  "RemoveAt() on six-item with duplicates",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{index: 2},
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
+			want2: map[int]int{1: 111, 2: 222, 4: 111, 5: 222, 6: 333},
+			want3: NewPair(3, 333),
+			want4: map[int]int{111: 2, 222: 2, 333: 1},
 		},
 	}
 }
@@ -1859,18 +1874,22 @@ func testMapRemoveAt(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			removed, err := tt.coll.RemoveAt(tt.args.index)
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveAt() did not remove correctly from slice")
 			}
-			if !reflect.DeepEqual(actualMap, tt.want2) {
+			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("RemoveAt() did not remove correctly from map")
 			}
 			if !reflect.DeepEqual(removed, tt.want3) {
-				fmt.Println(removed)
-				fmt.Println(tt.want3)
 				t.Errorf("RemoveAt() did not return removed value correctly")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("RemoveAt() did not remove correctly from values counter")
+				}
 			}
 			if tt.err != nil {
 				if !errors.Is(err, tt.err) {
@@ -2607,6 +2626,43 @@ func testMapTailOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
 			got1 := tt.coll.TailOrDefault(tt.args.defaultValue)
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("TailOrDefault() got1 = %v, want1 = %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapToSliceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "ToSlice() on empty collection",
+			coll:  builder.Empty(),
+			want1: []Pair[int, int](nil),
+		},
+		{
+			name:  "ToSlice() on one-item collection",
+			coll:  builder.One(),
+			want1: []Pair[int, int]{NewPair(1, 111)},
+		},
+		{
+			name:  "ToSlice() on three-item collection",
+			coll:  builder.Three(),
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
+		},
+		{
+			name:  "ToSlice() on six-item collection",
+			coll:  builder.SixWithDuplicates(),
+			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
+		},
+	}
+}
+
+func testMapToSlice(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapToSliceCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.ToSlice()
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("ToSlice() = %v, want1 = %v", got, tt.want1)
 			}
 		})
 	}
