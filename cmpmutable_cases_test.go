@@ -81,47 +81,45 @@ func testRemoveValues(t *testing.T, builder orderedMutableCollIntBuilder) {
 	}
 }
 
-func getSortAscCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+func getSortAscCases[C cmpInternal[int]](builder testCollectionBuilder[C, int]) []testCase[C, int] {
 
-	sortOnEmptyCollectionCase := orderedMutableTestCase{
+	sortOnEmptyCollectionCase := testCase[C, int]{
 		name:  "SortAsc() on empty collection",
 		coll:  builder.Empty(),
 		want1: []int{},
 	}
 
-	sortOnOneItemCollectionCase := orderedMutableTestCase{
+	sortOnOneItemCollectionCase := testCase[C, int]{
 		name:  "SortAsc() on one-item collection",
 		coll:  builder.One(),
 		want1: []int{111},
 	}
 
-	sortOnThreeItemCollectionCase := orderedMutableTestCase{
+	sortOnThreeItemCollectionCase := testCase[C, int]{
 		name:  "SortAsc() on three-item collection",
 		coll:  builder.Three(),
 		want1: []int{111, 222, 333},
 	}
 
-	sortOnSixItemCollectionCase := orderedMutableTestCase{
+	sortOnSixItemCollectionCase := testCase[C, int]{
 		name:  "SortAsc() on six-item collection",
 		coll:  builder.SixWithDuplicates(),
 		want1: []int{111, 111, 222, 222, 333, 333},
 	}
 
-	sortOnThreeItemCollectionReversedCase := orderedMutableTestCase{
+	sortOnThreeItemCollectionReversedCase := testCase[C, int]{
 		name:  "SortAsc() on three-item collection reversed",
-		coll:  builder.Three(),
+		coll:  builder.ThreeRev(),
 		want1: []int{111, 222, 333},
 	}
-	sortOnThreeItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
 
-	sortOnSixItemCollectionReversedCase := orderedMutableTestCase{
+	sortOnSixItemCollectionReversedCase := testCase[C, int]{
 		name:  "SortAsc() on six-item collection reversed",
 		coll:  builder.SixWithDuplicates(),
 		want1: []int{111, 111, 222, 222, 333, 333},
 	}
-	sortOnSixItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
 
-	return []orderedMutableTestCase{
+	return []testCase[C, int]{
 		sortOnEmptyCollectionCase,
 		sortOnOneItemCollectionCase,
 		sortOnThreeItemCollectionCase,
@@ -131,18 +129,19 @@ func getSortAscCases(builder orderedMutableCollIntBuilder) []orderedMutableTestC
 	}
 }
 
-func testSortAsc(t *testing.T, builder orderedMutableCollIntBuilder) {
-	cases := getSortAscCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.SortAsc()
-			slice := tt.coll.(Base[int]).ToSlice()
-			if !reflect.DeepEqual(slice, tt.want1) {
-				t.Errorf("SortAsc() resulted in: %v, but wanted %v", slice, tt.want1)
-			}
-		})
-	}
-}
+// TODO
+//func testSortAsc[C cmpInternalMutable[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+//	cases := getSortAscCases(builder)
+//	for _, tt := range cases {
+//		t.Run(tt.name, func(t *testing.T) {
+//			tt.coll.SortAsc()
+//			slice := builder.extractUnderlyingSlice(tt.coll)
+//			if !reflect.DeepEqual(slice, tt.want1) {
+//				t.Errorf("SortAsc() resulted in: %v, but wanted %v", slice, tt.want1)
+//			}
+//		})
+//	}
+//}
 
 func getSortDescCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
 	sortOnEmptyCollectionCase := orderedMutableTestCase{

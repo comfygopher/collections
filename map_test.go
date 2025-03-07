@@ -34,6 +34,14 @@ func (lcb *comfyMapIntBuilder[C]) Three() C {
 	}).(C)
 }
 
+func (lcb *comfyMapIntBuilder[C]) ThreeRev() C {
+	return lcb.make([]Pair[int, int]{
+		NewPair(10, 333),
+		NewPair(20, 222),
+		NewPair(30, 111),
+	}).(C)
+}
+
 func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]Pair[int, int]{
 		NewPair(1, 111),

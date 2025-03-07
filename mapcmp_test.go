@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type comfyCmpMapIntBuilder[C mapInternal[int, int]] struct {
+type comfyCmpMapIntBuilder[C any] struct {
 }
 
 func (lcb *comfyCmpMapIntBuilder[C]) Empty() C {
@@ -31,6 +31,14 @@ func (lcb *comfyCmpMapIntBuilder[C]) Three() C {
 		NewPair(1, 111),
 		NewPair(2, 222),
 		NewPair(3, 333),
+	}).(C)
+}
+
+func (lcb *comfyCmpMapIntBuilder[C]) ThreeRev() C {
+	return lcb.make([]Pair[int, int]{
+		NewPair(10, 333),
+		NewPair(20, 222),
+		NewPair(30, 111),
 	}).(C)
 }
 
@@ -169,17 +177,17 @@ func Test_comfyCmpMap_Contains(t *testing.T) {
 	testMapContains(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
-//func Test_comfyCmpMap_ContainsValue(t *testing.T) {
-//	testMapContainsValue(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
+func Test_comfyCmpMap_ContainsValue(t *testing.T) {
+	testContainsValue(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
 
 func Test_comfyCmpMap_Count(t *testing.T) {
 	testMapCount(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
-//func Test_comfyCmpMap_CountValues(t *testing.T) {
-//	testMapCountValues(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
+func Test_comfyCmpMap_CountValues(t *testing.T) {
+	testCountValues(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
 
 func Test_comfyCmpMap_Each(t *testing.T) {
 	testMapEach(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
@@ -229,9 +237,9 @@ func Test_comfyCmpMap_HeadOrDefault(t *testing.T) {
 	testMapHeadOrDefault(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
-//func Test_comfyCmpMap_IndexOf(t *testing.T) {
-//	testMapIndexOf(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
+func Test_comfyCmpMap_IndexOf(t *testing.T) {
+	testIndexOf(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
 
 func Test_comfyCmpMap_IsEmpty(t *testing.T) {
 	testMapIsEmpty(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
@@ -250,17 +258,21 @@ func Test_comfyCmpMap_KeyValues(t *testing.T) {
 	testMapKeyValuesBreak(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_LastIndexOf(t *testing.T) {
+	testLastIndexOf(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
+
 func Test_comfyCmpMap_Len(t *testing.T) {
 	testMapLen(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
-//func Test_comfyCmpMap_Max(t *testing.T) {
-//	testMapMax(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
-//
-//func Test_comfyCmpMap_Min(t *testing.T) {
-//	testMapMin(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
+func Test_comfyCmpMap_Max(t *testing.T) {
+	testMax(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
+
+func Test_comfyCmpMap_Min(t *testing.T) {
+	testMin(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
 
 func Test_comfyCmpMap_Prepend(t *testing.T) {
 	testMapPrepend(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})

@@ -41,6 +41,7 @@ type testCollectionBuilder[C any, V any] interface {
 	One() C
 	Two() C
 	Three() C
+	ThreeRev() C
 	SixWithDuplicates() C
 	extractUnderlyingSlice(c C) any
 	extractUnderlyingMap(c C) any

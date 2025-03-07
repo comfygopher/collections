@@ -31,6 +31,20 @@ type indexedMutableInternal[V any] interface {
 	baseInternal[V]
 }
 
+type cmpInternal[V cmp.Ordered] interface {
+	Cmp[V]
+}
+
+type cmpBaseInternal[B any, V cmp.Ordered] interface {
+	Base[B]
+	cmpInternal[V]
+}
+
+//type cmpInternalMutable[V cmp.Ordered] interface {
+//	cmpInternal[V]
+//	CmpMutable[V]
+//}
+
 type linearMutableInternal[V any] interface {
 	LinearMutable[V]
 	baseInternal[V]
@@ -54,6 +68,13 @@ type mapInternal[K comparable, V any] interface {
 type cmpMapInternal[K comparable, V cmp.Ordered] interface {
 	CmpMap[K, V]
 	mapInternal[K, V]
+	cmpInternal[V]
+}
+
+type cmpMapBaseInternal[K comparable, V cmp.Ordered] interface {
+	Base[Pair[K, V]]
+	cmpMapInternal[K, V]
+	cmpBaseInternal[Pair[K, V], V]
 }
 
 type comfyPair[K comparable, V any] struct {

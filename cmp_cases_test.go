@@ -5,52 +5,48 @@ import (
 	"testing"
 )
 
-type orderedIntArgs = testArgs[Cmp[int], int]
-type orderedTestCase = testCase[Cmp[int], int]
-type orderedCollIntBuilder = testCollectionBuilder[Cmp[int], int]
-
-func getContainsValueCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getContainsValueCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "ContainsValue() on empty collection",
 			coll:  builder.Empty(),
-			args:  orderedIntArgs{value: 1},
+			args:  testArgs[C, int]{value: 1},
 			want1: false,
 		},
 		{
 			name:  "ContainsValue() on one-item collection",
 			coll:  builder.One(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: true,
 		},
 		{
 			name:  "ContainsValue() on three-item collection - first val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: true,
 		},
 		{
 			name:  "ContainsValue() on three-item collection - second val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: true,
 		},
 		{
 			name:  "ContainsValue() on three-item collection - third val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: true,
 		},
 		{
 			name:  "ContainsValue() on three-item collection, not found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 999},
+			args:  testArgs[C, int]{value: 999},
 			want1: false,
 		},
 	}
 }
 
-func testContainsValue(t *testing.T, builder orderedCollIntBuilder) {
+func testContainsValue[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getContainsValueCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,66 +57,66 @@ func testContainsValue(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getCountValuesCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getCountValuesCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "CountValues() on empty collection",
 			coll:  builder.Empty(),
-			args:  orderedIntArgs{value: 1},
+			args:  testArgs[C, int]{value: 1},
 			want1: 0,
 		},
 		{
 			name:  "CountValues() on one-item collection",
 			coll:  builder.One(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 1,
 		},
 		{
 			name:  "CountValues() on three-item collection - first val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 1,
 		},
 		{
 			name:  "CountValues() on three-item collection - second val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 1,
 		},
 		{
 			name:  "CountValues() on three-item collection - third val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 1,
 		},
 		{
 			name:  "CountValues() on three-item collection, not found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 999},
+			args:  testArgs[C, int]{value: 999},
 			want1: 0,
 		},
 		{
 			name:  "CountValues() on six-item collection, 2 `111` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 2,
 		},
 		{
 			name:  "CountValues() on six-item collection, 2 `222` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 2,
 		},
 		{
 			name:  "CountValues() on six-item collection, 2 `333` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 2,
 		},
 	}
 }
 
-func testCountValues(t *testing.T, builder orderedCollIntBuilder) {
+func testCountValues[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getCountValuesCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -132,12 +128,12 @@ func testCountValues(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getIndexOfCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "IndexOf() on empty collection",
 			coll:  builder.Empty(),
-			args:  orderedIntArgs{value: 1},
+			args:  testArgs[C, int]{value: 1},
 			want1: -1,
 			want2: false,
 			err:   ErrValueNotFound,
@@ -145,35 +141,35 @@ func getIndexOfCases(builder orderedCollIntBuilder) []orderedTestCase {
 		{
 			name:  "IndexOf() on one-item collection",
 			coll:  builder.One(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 0,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on three-item collection - first val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 0,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on three-item collection - second val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 1,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on three-item collection - third val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 2,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on three-item collection, not found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 999},
+			args:  testArgs[C, int]{value: 999},
 			want1: -1,
 			want2: false,
 			err:   ErrValueNotFound,
@@ -181,28 +177,28 @@ func getIndexOfCases(builder orderedCollIntBuilder) []orderedTestCase {
 		{
 			name:  "IndexOf() on six-item collection, first `111` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 0,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on six-item collection, first `222` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 1,
 			want2: true,
 		},
 		{
 			name:  "IndexOf() on six-item collection, first `333` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 2,
 			want2: true,
 		},
 	}
 }
 
-func testIndexOf(t *testing.T, builder orderedCollIntBuilder) {
+func testIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getIndexOfCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -217,75 +213,75 @@ func testIndexOf(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getLastIndexOfCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getLastIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "LastIndexOf() on empty collection",
 			coll:  builder.Empty(),
-			args:  orderedIntArgs{value: 1},
+			args:  testArgs[C, int]{value: 1},
 			want1: -1,
 			want2: false,
 		},
 		{
 			name:  "LastIndexOf() on one-item collection",
 			coll:  builder.One(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 0,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on three-item collection - first val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 0,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on three-item collection - second val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 1,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on three-item collection - third val found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 2,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on three-item collection, not found",
 			coll:  builder.Three(),
-			args:  orderedIntArgs{value: 999},
+			args:  testArgs[C, int]{value: 999},
 			want1: -1,
 			want2: false,
 		},
 		{
 			name:  "LastIndexOf() on six-item collection, last `111` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 111},
+			args:  testArgs[C, int]{value: 111},
 			want1: 3,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on six-item collection, last `222` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 222},
+			args:  testArgs[C, int]{value: 222},
 			want1: 4,
 			want2: true,
 		},
 		{
 			name:  "LastIndexOf() on six-item collection, last `333` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedIntArgs{value: 333},
+			args:  testArgs[C, int]{value: 333},
 			want1: 5,
 			want2: true,
 		},
 	}
 }
 
-func testLastIndexOf(t *testing.T, builder orderedCollIntBuilder) {
+func testLastIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getLastIndexOfCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -300,8 +296,8 @@ func testLastIndexOf(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getMaxCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getMaxCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "Max() on empty collection",
 			coll:  builder.Empty(),
@@ -326,7 +322,7 @@ func getMaxCases(builder orderedCollIntBuilder) []orderedTestCase {
 	}
 }
 
-func testMax(t *testing.T, builder orderedCollIntBuilder) {
+func testMax[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getMaxCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -342,8 +338,8 @@ func testMax(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getMinCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getMinCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "Min() on empty collection",
 			coll:  builder.Empty(),
@@ -368,7 +364,7 @@ func getMinCases(builder orderedCollIntBuilder) []orderedTestCase {
 	}
 }
 
-func testMin(t *testing.T, builder orderedCollIntBuilder) {
+func testMin[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getMinCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -384,8 +380,8 @@ func testMin(t *testing.T, builder orderedCollIntBuilder) {
 	}
 }
 
-func getSumCases(builder orderedCollIntBuilder) []orderedTestCase {
-	return []orderedTestCase{
+func getSumCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+	return []testCase[C, int]{
 		{
 			name:  "Sum() on empty collection",
 			coll:  builder.Empty(),
@@ -409,7 +405,7 @@ func getSumCases(builder orderedCollIntBuilder) []orderedTestCase {
 	}
 }
 
-func testSum(t *testing.T, builder orderedCollIntBuilder) {
+func testSum[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
 	cases := getSumCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

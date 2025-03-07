@@ -24,6 +24,10 @@ func (lcb *comfySeqIntBuilder[C]) Three() C {
 	return lcb.make([]int{111, 222, 333}).(C)
 }
 
+func (lcb *comfySeqIntBuilder[C]) ThreeRev() C {
+	return lcb.make([]int{333, 222, 111}).(C)
+}
+
 func (lcb *comfySeqIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]int{111, 222, 333, 111, 222, 333}).(C)
 }
