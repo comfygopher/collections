@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func getContainsValueCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getContainsValueCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "ContainsValue() on empty collection",
@@ -46,7 +46,7 @@ func getContainsValueCases[C any](builder testCollectionBuilder[C, int]) []testC
 	}
 }
 
-func testContainsValue[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testContainsValue[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getContainsValueCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -57,7 +57,7 @@ func testContainsValue[C cmpInternal[int]](t *testing.T, builder testCollectionB
 	}
 }
 
-func getCountValuesCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getCountValuesCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "CountValues() on empty collection",
@@ -116,7 +116,7 @@ func getCountValuesCases[C any](builder testCollectionBuilder[C, int]) []testCas
 	}
 }
 
-func testCountValues[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testCountValues[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getCountValuesCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -128,7 +128,7 @@ func testCountValues[C cmpInternal[int]](t *testing.T, builder testCollectionBui
 	}
 }
 
-func getIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getIndexOfCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "IndexOf() on empty collection",
@@ -198,7 +198,7 @@ func getIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCase[C,
 	}
 }
 
-func testIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getIndexOfCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -213,7 +213,7 @@ func testIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder
 	}
 }
 
-func getLastIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getLastIndexOfCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "LastIndexOf() on empty collection",
@@ -281,7 +281,7 @@ func getLastIndexOfCases[C any](builder testCollectionBuilder[C, int]) []testCas
 	}
 }
 
-func testLastIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testLastIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getLastIndexOfCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -296,7 +296,7 @@ func testLastIndexOf[C cmpInternal[int]](t *testing.T, builder testCollectionBui
 	}
 }
 
-func getMaxCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getMaxCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "Max() on empty collection",
@@ -322,7 +322,7 @@ func getMaxCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int
 	}
 }
 
-func testMax[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testMax[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getMaxCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -338,7 +338,7 @@ func testMax[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, 
 	}
 }
 
-func getMinCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getMinCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "Min() on empty collection",
@@ -364,7 +364,7 @@ func getMinCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int
 	}
 }
 
-func testMin[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testMin[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getMinCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -380,7 +380,7 @@ func testMin[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, 
 	}
 }
 
-func getSumCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getSumCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{
 			name:  "Sum() on empty collection",
@@ -405,7 +405,7 @@ func getSumCases[C any](builder testCollectionBuilder[C, int]) []testCase[C, int
 	}
 }
 
-func testSum[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
+func testSum[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getSumCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

@@ -53,6 +53,15 @@ func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
+func (lcb *comfyMapIntBuilder[C]) extractRawValues(c C) any {
+	s := lcb.extractUnderlyingSlice(c).([]Pair[int, int])
+	flat := make([]int, 0, len(s))
+	for _, pair := range s {
+		flat = append(flat, pair.Val())
+	}
+	return flat
+}
+
 func (lcb *comfyMapIntBuilder[C]) extractUnderlyingSlice(c C) any {
 	return (any(c)).(*comfyMap[int, int]).s
 }

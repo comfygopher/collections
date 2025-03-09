@@ -36,13 +36,15 @@ type testCase[C any, V any] struct {
 	modify      func()
 }
 
-type testCollectionBuilder[C any, V any] interface {
+type testCollectionBuilder[C any] interface {
 	Empty() C
 	One() C
 	Two() C
 	Three() C
 	ThreeRev() C
 	SixWithDuplicates() C
+
+	extractRawValues(c C) any
 	extractUnderlyingSlice(c C) any
 	extractUnderlyingMap(c C) any
 	extractUnderlyingKp(c C) any

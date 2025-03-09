@@ -8,7 +8,7 @@ import (
 
 type listIntArgs = testArgs[listInternal[int], int]
 type listTestCase = testCase[listInternal[int], int]
-type listCollIntBuilder = testCollectionBuilder[listInternal[int], int]
+type listCollIntBuilder = testCollectionBuilder[listInternal[int]]
 
 func getInsertAtCases(builder listCollIntBuilder) []listTestCase {
 	return []listTestCase{

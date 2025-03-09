@@ -40,10 +40,15 @@ type cmpBaseInternal[B any, V cmp.Ordered] interface {
 	cmpInternal[V]
 }
 
-//type cmpInternalMutable[V cmp.Ordered] interface {
-//	cmpInternal[V]
-//	CmpMutable[V]
-//}
+type cmpMutableInternal[V cmp.Ordered] interface {
+	CmpMutable[V]
+}
+
+type cmpBaseMutableInternal[B any, V cmp.Ordered] interface {
+	Base[B]
+	cmpInternal[V]
+	CmpMutable[V]
+}
 
 type linearMutableInternal[V any] interface {
 	LinearMutable[V]

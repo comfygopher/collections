@@ -18,7 +18,7 @@ func i2iToPairs(m any) map[int]Pair[int, int] {
 
 type baseMapIntArgs = testArgs[mapInternal[int, int], Pair[int, int]]
 type baseMapTestCase = testCase[mapInternal[int, int], Pair[int, int]]
-type baseMapCollIntBuilder = testCollectionBuilder[mapInternal[int, int], Pair[int, int]]
+type baseMapCollIntBuilder = testCollectionBuilder[mapInternal[int, int]]
 
 func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{

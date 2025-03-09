@@ -7,7 +7,7 @@ import (
 
 type indexedIntArgs = testArgs[indexedInternal[int], int]
 type indexedTestCase = testCase[indexedInternal[int], int]
-type indexedCollIntBuilder = testCollectionBuilder[indexedInternal[int], int]
+type indexedCollIntBuilder = testCollectionBuilder[indexedInternal[int]]
 
 func getAtCases(builder indexedCollIntBuilder) []indexedTestCase {
 	return []indexedTestCase{

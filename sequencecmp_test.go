@@ -32,8 +32,16 @@ func (lcb *comfyCmpSeqIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]int{111, 222, 333, 111, 222, 333}).(C)
 }
 
-func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingSlice(_ C) any {
-	return nil
+func (lcb *comfyCmpSeqIntBuilder[C]) extractRawValues(coll C) any {
+	s := lcb.extractUnderlyingSlice(coll).([]int)
+	if s == nil {
+		return nil
+	}
+	return s
+}
+
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingSlice(coll C) any {
+	return (any(coll)).(*comfyCmpSeq[int]).s
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingMap(_ C) any {
@@ -233,13 +241,13 @@ func Test_comfyCmpSeq_Sort(t *testing.T) {
 	testSort(t, &comfyCmpSeqIntBuilder[indexedMutableInternal[int]]{})
 }
 
-//func Test_comfyCmpSeq_SortAsc(t *testing.T) {
-//	testSortAsc(t, &comfyCmpSeqIntBuilder[CmpMutable[int]]{})
-//}
-//
-//func Test_comfyCmpSeq_SortDesc(t *testing.T) {
-//	testSortDesc(t, &comfyCmpSeqIntBuilder[CmpMutable[int]]{})
-//}
+func Test_comfyCmpSeq_SortAsc(t *testing.T) {
+	testSortAsc(t, &comfyCmpSeqIntBuilder[cmpBaseMutableInternal[int, int]]{})
+}
+
+func Test_comfyCmpSeq_SortDesc(t *testing.T) {
+	testSortDesc(t, &comfyCmpSeqIntBuilder[CmpMutable[int]]{})
+}
 
 func Test_comfyCmpSeq_Sum(t *testing.T) {
 	testSum(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})

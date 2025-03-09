@@ -53,6 +53,15 @@ func (lcb *comfyCmpMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
+func (lcb *comfyCmpMapIntBuilder[C]) extractRawValues(c C) any {
+	s := lcb.extractUnderlyingSlice(c).([]Pair[int, int])
+	flat := make([]int, 0, len(s))
+	for _, pair := range s {
+		flat = append(flat, pair.Val())
+	}
+	return flat
+}
+
 func (lcb *comfyCmpMapIntBuilder[C]) extractUnderlyingSlice(c C) any {
 	return (any(c)).(*comfyCmpMap[int, int]).s
 }
@@ -322,17 +331,17 @@ func Test_comfyCmpMap_Sort(t *testing.T) {
 	testMapSort(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
-//func Test_comfyCmpMap_SortAsc(t *testing.T) {
-//	testMapSortAsc(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
-//
-//func Test_comfyCmpMap_SortDesc(t *testing.T) {
-//	testMapSortDesc(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
-//
-//func Test_comfyCmpMap_Sum(t *testing.T) {
-//	testMapSum(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
-//}
+func Test_comfyCmpMap_SortAsc(t *testing.T) {
+	testSortAsc(t, &comfyCmpMapIntBuilder[cmpMutableInternal[int]]{})
+}
+
+func Test_comfyCmpMap_SortDesc(t *testing.T) {
+	testSortDesc(t, &comfyCmpMapIntBuilder[cmpMutableInternal[int]]{})
+}
+
+func Test_comfyCmpMap_Sum(t *testing.T) {
+	testSum(t, &comfyCmpMapIntBuilder[cmpInternal[int]]{})
+}
 
 func Test_comfyCmpMap_Tail(t *testing.T) {
 	testMapTail(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})

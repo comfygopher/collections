@@ -7,7 +7,7 @@ import (
 
 type orderedMutableIntArgs = testArgs[CmpMutable[int], int]
 type orderedMutableTestCase = testCase[CmpMutable[int], int]
-type orderedMutableCollIntBuilder = testCollectionBuilder[CmpMutable[int], int]
+type orderedMutableCollIntBuilder = testCollectionBuilder[CmpMutable[int]]
 
 func getRemoveValuesCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
 	return []orderedMutableTestCase{
@@ -81,7 +81,7 @@ func testRemoveValues(t *testing.T, builder orderedMutableCollIntBuilder) {
 	}
 }
 
-func getSortAscCases[C cmpInternal[int]](builder testCollectionBuilder[C, int]) []testCase[C, int] {
+func getSortAscCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 
 	sortOnEmptyCollectionCase := testCase[C, int]{
 		name:  "SortAsc() on empty collection",
@@ -129,60 +129,57 @@ func getSortAscCases[C cmpInternal[int]](builder testCollectionBuilder[C, int]) 
 	}
 }
 
-// TODO
-//func testSortAsc[C cmpInternalMutable[int]](t *testing.T, builder testCollectionBuilder[C, int]) {
-//	cases := getSortAscCases(builder)
-//	for _, tt := range cases {
-//		t.Run(tt.name, func(t *testing.T) {
-//			tt.coll.SortAsc()
-//			slice := builder.extractUnderlyingSlice(tt.coll)
-//			if !reflect.DeepEqual(slice, tt.want1) {
-//				t.Errorf("SortAsc() resulted in: %v, but wanted %v", slice, tt.want1)
-//			}
-//		})
-//	}
-//}
+func testSortAsc[C cmpMutableInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
+	cases := getSortAscCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.coll.SortAsc()
+			slice := builder.extractRawValues(tt.coll)
+			if !reflect.DeepEqual(slice, tt.want1) {
+				t.Errorf("SortAsc() resulted in: %v, but wanted %v", slice, tt.want1)
+			}
+		})
+	}
+}
 
-func getSortDescCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
-	sortOnEmptyCollectionCase := orderedMutableTestCase{
+func getSortDescCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
+	sortOnEmptyCollectionCase := testCase[C, int]{
 		name:  "SortDesc() on empty collection",
 		coll:  builder.Empty(),
 		want1: []int{},
 	}
 
-	sortOnOneItemCollectionCase := orderedMutableTestCase{
+	sortOnOneItemCollectionCase := testCase[C, int]{
 		name:  "SortDesc() on one-item collection",
 		coll:  builder.One(),
 		want1: []int{111},
 	}
 
-	sortOnThreeItemCollectionCase := orderedMutableTestCase{
+	sortOnThreeItemCollectionCase := testCase[C, int]{
 		name:  "SortDesc() on three-item collection",
 		coll:  builder.Three(),
 		want1: []int{333, 222, 111},
 	}
 
-	sortOnSixItemCollectionCase := orderedMutableTestCase{
+	sortOnSixItemCollectionCase := testCase[C, int]{
 		name:  "SortDesc() on six-item collection",
 		coll:  builder.SixWithDuplicates(),
 		want1: []int{333, 333, 222, 222, 111, 111},
 	}
 
-	sortOnThreeItemCollectionReversedCase := orderedMutableTestCase{
+	sortOnThreeItemCollectionReversedCase := testCase[C, int]{
 		name:  "SortDesc() on three-item collection reversed",
-		coll:  builder.Three(),
+		coll:  builder.ThreeRev(),
 		want1: []int{333, 222, 111},
 	}
-	sortOnThreeItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
 
-	sortOnSixItemCollectionReversedCase := orderedMutableTestCase{
+	sortOnSixItemCollectionReversedCase := testCase[C, int]{
 		name:  "SortDesc() on six-item collection reversed",
 		coll:  builder.SixWithDuplicates(),
 		want1: []int{333, 333, 222, 222, 111, 111},
 	}
-	sortOnSixItemCollectionReversedCase.coll.(LinearMutable[int]).Reverse()
 
-	return []orderedMutableTestCase{
+	return []testCase[C, int]{
 		sortOnEmptyCollectionCase,
 		sortOnOneItemCollectionCase,
 		sortOnThreeItemCollectionCase,
@@ -192,12 +189,12 @@ func getSortDescCases(builder orderedMutableCollIntBuilder) []orderedMutableTest
 	}
 }
 
-func testSortDesc(t *testing.T, builder orderedMutableCollIntBuilder) {
+func testSortDesc[C cmpMutableInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
 	cases := getSortDescCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.SortDesc()
-			slice := tt.coll.(Base[int]).ToSlice()
+			slice := builder.extractRawValues(tt.coll)
 			if !reflect.DeepEqual(slice, tt.want1) {
 				t.Errorf("SortDesc() resulted in: %v, but wanted %v", slice, tt.want1)
 			}

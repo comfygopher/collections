@@ -40,6 +40,10 @@ func (lcb *comfySeqIntBuilder[C]) make(items []int) baseInternal[int] {
 	return coll
 }
 
+func (lcb *comfySeqIntBuilder[C]) extractRawValues(c C) any {
+	return lcb.extractUnderlyingSlice(c)
+}
+
 func (lcb *comfySeqIntBuilder[C]) extractUnderlyingSlice(_ C) any {
 	return nil
 }

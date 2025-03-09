@@ -8,7 +8,7 @@ import (
 
 type baseIntArgs = testArgs[baseInternal[int], int]
 type baseTestCase = testCase[baseInternal[int], int]
-type baseCollIntBuilder = testCollectionBuilder[baseInternal[int], int]
+type baseCollIntBuilder = testCollectionBuilder[baseInternal[int]]
 
 type baseIntPairArgs = testArgs[baseInternal[Pair[int, int]], Pair[int, int]]
 type baseIntPairTestCase = testCase[baseInternal[Pair[int, int]], Pair[int, int]]

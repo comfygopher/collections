@@ -225,10 +225,14 @@ func comfyReduceSliceRev[V any](s []V, reducer Reducer[V]) (V, error) {
 }
 
 func comfySortSliceAndKP[K comparable, V any](s []Pair[K, V], compare PairComparator[K, V]) ([]Pair[K, V], map[K]int) {
+	kp := make(map[K]int)
+	if s == nil {
+		return s, kp
+	}
+
 	slices.SortFunc(s, func(a, b Pair[K, V]) int {
 		return compare(a, b)
 	})
-	kp := make(map[K]int)
 	for i, pair := range s {
 		kp[pair.Key()] = i
 	}
