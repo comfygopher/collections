@@ -331,9 +331,7 @@ func (c *comfyCmpMap[K, V]) Set(k K, v V) {
 }
 
 func (c *comfyCmpMap[K, V]) SetMany(s []Pair[K, V]) {
-	for _, pair := range s {
-		c.set(pair)
-	}
+	c.setMany(s)
 }
 
 func (c *comfyCmpMap[K, V]) Sort(compare PairComparator[K, V]) {
@@ -413,6 +411,7 @@ func (c *comfyCmpMap[K, V]) copy() mapInternal[K, V] {
 func (c *comfyCmpMap[K, V]) set(pair Pair[K, V]) {
 	pos, exists := c.kp[pair.Key()]
 	if exists {
+		c.vc.Decrement(c.s[pos].Val())
 		c.s[pos] = pair
 		c.m[pair.Key()] = pair
 	} else {

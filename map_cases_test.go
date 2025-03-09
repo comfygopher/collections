@@ -28,6 +28,8 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{value: NewPair(1, 111)},
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on one-item collection",
@@ -35,6 +37,8 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{value: NewPair(2, 222)},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
+			want3: map[int]int{1: 0, 2: 1},
+			want4: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "Append() on three-item collection",
@@ -42,13 +46,17 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{value: NewPair(4, 444)},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+			want4: map[int]int{111: 1, 222: 1, 333: 1, 444: 1},
 		},
 		{
 			name:  "Append() on three-item collection - duplicate key",
 			coll:  builder.Three(),
 			args:  baseMapIntArgs{value: NewPair(2, 999)},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333), NewPair(2, 999)},
-			want2: map[int]int{1: 111, 2: 999, 3: 333},
+			want2: map[int]int{1: 111, 3: 333, 2: 999},
+			want3: map[int]int{1: 0, 3: 1, 2: 2},
+			want4: map[int]int{111: 1, 333: 1, 999: 1},
 		},
 		{
 			name:  "Append() many on empty collection",
@@ -56,6 +64,8 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)}},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Append() many on one-item collection",
@@ -63,6 +73,8 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)}},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Append() many on three-item collection",
@@ -70,6 +82,30 @@ func getAppendCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555)}},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444), NewPair(5, 555)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444, 5: 555},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4},
+			want4: map[int]int{111: 1, 222: 1, 333: 1, 444: 1, 555: 1},
+		},
+		{
+			name: "Append() many on three-item collection with duplicates",
+			coll: builder.Three(),
+			args: baseMapIntArgs{values: []Pair[int, int]{
+				NewPair(4, 444),
+				NewPair(5, 555),
+				NewPair(6, 111),
+				NewPair(7, 444),
+			}},
+			want1: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+				NewPair(4, 444),
+				NewPair(5, 555),
+				NewPair(6, 111),
+				NewPair(7, 444),
+			},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444, 5: 555, 6: 111, 7: 444},
+			want4: map[int]int{111: 2, 222: 1, 333: 1, 444: 2, 555: 1},
 		},
 	}
 }
@@ -85,11 +121,21 @@ func testMapAppend(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Append() did not append correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Append() did not append correctly to map")
+			}
+			if !reflect.DeepEqual(actualKp, tt.want3) {
+				t.Errorf("Append() did not append correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Append() did not append correctly to values counter")
+				}
 			}
 		})
 	}
@@ -103,6 +149,8 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.Empty()},
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
+			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "Append() on empty collection",
@@ -110,6 +158,8 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.One()},
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() empty collection on one item collection",
@@ -117,6 +167,8 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.Empty()},
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on one-item collection",
@@ -124,6 +176,8 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.One()},
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
+			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on three-item collection",
@@ -131,6 +185,8 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.Two()},
 			want1: []Pair[int, int]{NewPair(3, 333), NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 1, 2: 2, 3: 0},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Append() empty collection on three-item collection",
@@ -138,6 +194,24 @@ func getMapAppendCollCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{coll: builder.Empty()},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
+		},
+		{
+			name: "Append() empty collection on three-item collection with duplicates",
+			coll: builder.Three(),
+			args: baseMapIntArgs{coll: builder.SixWithDuplicates()},
+			want1: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+				NewPair(4, 111),
+				NewPair(5, 222),
+				NewPair(6, 333),
+			},
+			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5},
+			want4: map[int]int{111: 2, 222: 2, 333: 2},
 		},
 	}
 }
@@ -149,11 +223,21 @@ func testMapAppendColl(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.AppendColl(tt.args.coll)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Append() did not append correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Append() did not append correctly to map")
+			}
+			if !reflect.DeepEqual(actualKP, tt.want3) {
+				t.Errorf("Append() did not append correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Append() did not append correctly to values counter")
+				}
 			}
 		})
 	}
@@ -161,19 +245,23 @@ func testMapAppendColl(t *testing.T, builder baseMapCollIntBuilder) {
 
 func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
-		//{
-		//	name:  "Apply() on empty collection",
-		//	coll:  builder.Empty(),
-		//	args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
-		//	want1: []Pair[int, int](nil),
-		//	want2: map[int]Pair[int, int]{},
-		//},
+		{
+			name:  "Apply() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			want1: []Pair[int, int](nil),
+			want2: map[int]Pair[int, int]{},
+			want3: map[int]int{},
+			want4: map[int]int{},
+		},
 		{
 			name:  "Apply() on one-item collection",
 			coll:  builder.One(),
 			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112)},
 			want2: map[int]Pair[int, int]{11: NewPair(11, 112)},
+			want3: map[int]int{11: 0},
+			want4: map[int]int{112: 1},
 		},
 		{
 			name:  "Apply() on three-item collection",
@@ -181,6 +269,31 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112), NewPair(12, 223), NewPair(13, 334)},
 			want2: map[int]Pair[int, int]{11: NewPair(11, 112), 12: NewPair(12, 223), 13: NewPair(13, 334)},
+			want3: map[int]int{11: 0, 12: 1, 13: 2},
+			want4: map[int]int{112: 1, 223: 1, 334: 1},
+		},
+		{
+			name: "Apply() on six-item collection with duplicates",
+			coll: builder.SixWithDuplicates(),
+			args: baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			want1: []Pair[int, int]{
+				NewPair(11, 112),
+				NewPair(12, 223),
+				NewPair(13, 334),
+				NewPair(14, 112),
+				NewPair(15, 223),
+				NewPair(16, 334),
+			},
+			want2: map[int]Pair[int, int]{
+				11: NewPair(11, 112),
+				12: NewPair(12, 223),
+				13: NewPair(13, 334),
+				14: NewPair(14, 112),
+				15: NewPair(15, 223),
+				16: NewPair(16, 334),
+			},
+			want3: map[int]int{11: 0, 12: 1, 13: 2, 14: 3, 15: 4, 16: 5},
+			want4: map[int]int{112: 2, 223: 2, 334: 2},
 		},
 	}
 }
@@ -192,11 +305,21 @@ func testMapApply(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.Apply(tt.args.mapper)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Apply() did not apply correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Apply() did not apply correctly to map")
+			}
+			if !reflect.DeepEqual(actualKP, tt.want3) {
+				t.Errorf("Apply() did not apply correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Apply() did not apply correctly to values counter")
+				}
 			}
 		})
 	}
@@ -318,6 +441,7 @@ func getMapClearCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: make(map[int]Pair[int, int]),
 			want3: make(map[int]int),
+			want4: make(map[int]int),
 		},
 		{
 			name:  "Clear() on one-item collection",
@@ -325,6 +449,7 @@ func getMapClearCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: make(map[int]Pair[int, int]),
 			want3: make(map[int]int),
+			want4: make(map[int]int),
 		},
 		{
 			name:  "Clear() on three-item collection",
@@ -332,6 +457,7 @@ func getMapClearCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: make(map[int]Pair[int, int]),
 			want3: make(map[int]int),
+			want4: make(map[int]int),
 		},
 	}
 }
@@ -343,15 +469,21 @@ func testMapClear(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.Clear()
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Clear() did not clear slice correctly")
 			}
 			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Clear() did not clear map correctly")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Clear() did not clear kp correctly")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Clear() did not clear values counter correctly")
+				}
 			}
 		})
 	}
@@ -1578,6 +1710,7 @@ func getMapPrependCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]Pair[int, int]{1: NewPair(1, 111)},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Prepend() on one-item collection",
@@ -1586,54 +1719,168 @@ func getMapPrependCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(1, 111)},
 			want2: map[int]Pair[int, int]{2: NewPair(2, 222), 1: NewPair(1, 111)},
 			want3: map[int]int{2: 0, 1: 1},
+			want4: map[int]int{222: 1, 111: 1},
 		},
 		{
-			name:  "Prepend() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{value: NewPair(4, 444)},
-			want1: []Pair[int, int]{NewPair(4, 444), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]Pair[int, int]{4: NewPair(4, 444), 1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			name: "Prepend() on three-item collection",
+			coll: builder.Three(),
+			args: baseMapIntArgs{value: NewPair(4, 444)},
+			want1: []Pair[int, int]{
+				NewPair(4, 444),
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+			},
+			want2: map[int]Pair[int, int]{
+				4: NewPair(4, 444),
+				1: NewPair(1, 111),
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+			},
 			want3: map[int]int{4: 0, 1: 1, 2: 2, 3: 3},
+			want4: map[int]int{444: 1, 111: 1, 222: 1, 333: 1},
 		},
 		{
-			name:  "Prepend() on three-item collection - duplicate key",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{value: NewPair(2, 999)},
-			want1: []Pair[int, int]{NewPair(2, 999), NewPair(1, 111), NewPair(3, 333)},
-			want2: map[int]Pair[int, int]{2: NewPair(2, 999), 1: NewPair(1, 111), 3: NewPair(3, 333)},
+			name: "Prepend() on three-item collection - duplicate key",
+			coll: builder.Three(),
+			args: baseMapIntArgs{value: NewPair(2, 999)},
+			want1: []Pair[int, int]{
+				NewPair(2, 999),
+				NewPair(1, 111),
+				NewPair(3, 333),
+			},
+			want2: map[int]Pair[int, int]{
+				2: NewPair(2, 999),
+				1: NewPair(1, 111),
+				3: NewPair(3, 333),
+			},
 			want3: map[int]int{2: 0, 1: 1, 3: 2},
+			want4: map[int]int{999: 1, 111: 1, 333: 1},
 		},
 		{
-			name:  "Prepend() many on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)}},
-			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]Pair[int, int]{1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			name: "Prepend() many on empty collection",
+			coll: builder.Empty(),
+			args: baseMapIntArgs{
+				values: []Pair[int, int]{
+					NewPair(1, 111),
+					NewPair(2, 222),
+					NewPair(3, 333),
+				},
+			},
+			want1: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+			},
+			want2: map[int]Pair[int, int]{
+				1: NewPair(1, 111),
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+			},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
-			name:  "Prepend() many on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)}},
-			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333), NewPair(1, 111)},
-			want2: map[int]Pair[int, int]{2: NewPair(2, 222), 3: NewPair(3, 333), 1: NewPair(1, 111)},
+			name: "Prepend() many on one-item collection",
+			coll: builder.One(),
+			args: baseMapIntArgs{
+				values: []Pair[int, int]{
+					NewPair(2, 222),
+					NewPair(3, 333),
+				},
+			},
+			want1: []Pair[int, int]{
+				NewPair(2, 222),
+				NewPair(3, 333),
+				NewPair(1, 111),
+			},
+			want2: map[int]Pair[int, int]{
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+				1: NewPair(1, 111),
+			},
 			want3: map[int]int{2: 0, 3: 1, 1: 2},
+			want4: map[int]int{222: 1, 333: 1, 111: 1},
 		},
 		{
-			name:  "Prepend() many on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555)}},
-			want1: []Pair[int, int]{NewPair(4, 444), NewPair(5, 555), NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-			want2: map[int]Pair[int, int]{4: NewPair(4, 444), 5: NewPair(5, 555), 1: NewPair(1, 111), 2: NewPair(2, 222), 3: NewPair(3, 333)},
+			name: "Prepend() many on three-item collection",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				values: []Pair[int, int]{
+					NewPair(4, 444),
+					NewPair(5, 555),
+				},
+			},
+			want1: []Pair[int, int]{
+				NewPair(4, 444),
+				NewPair(5, 555),
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+			},
+			want2: map[int]Pair[int, int]{
+				4: NewPair(4, 444),
+				5: NewPair(5, 555),
+				1: NewPair(1, 111),
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+			},
 			want3: map[int]int{4: 0, 5: 1, 1: 2, 2: 3, 3: 4},
+			want4: map[int]int{444: 1, 555: 1, 111: 1, 222: 1, 333: 1},
 		},
 		{
-			name:  "Prepend() many on three-item collection - duplicate key",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999)}},
-			want1: []Pair[int, int]{NewPair(2, 999), NewPair(3, 999), NewPair(1, 111)},
-			want2: map[int]Pair[int, int]{2: NewPair(2, 999), 3: NewPair(3, 999), 1: NewPair(1, 111)},
+			name: "Prepend() many on three-item collection - duplicate key",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				values: []Pair[int, int]{
+					NewPair(2, 999),
+					NewPair(3, 999),
+				},
+			},
+			want1: []Pair[int, int]{
+				NewPair(2, 999),
+				NewPair(3, 999),
+				NewPair(1, 111),
+			},
+			want2: map[int]Pair[int, int]{
+				2: NewPair(2, 999),
+				3: NewPair(3, 999),
+				1: NewPair(1, 111),
+			},
 			want3: map[int]int{2: 0, 3: 1, 1: 2},
+			want4: map[int]int{999: 2, 111: 1},
+		},
+		{
+			name: "Prepend() many on three-item collection - duplicates",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				values: []Pair[int, int]{
+					NewPair(1, 111),
+					NewPair(2, 222),
+					NewPair(3, 333),
+					NewPair(4, 111),
+					NewPair(5, 222),
+					NewPair(6, 333),
+				},
+			},
+			want1: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+				NewPair(4, 111),
+				NewPair(5, 222),
+				NewPair(6, 333),
+			},
+			want2: map[int]Pair[int, int]{
+				1: NewPair(1, 111),
+				2: NewPair(2, 222),
+				3: NewPair(3, 333),
+				4: NewPair(4, 111),
+				5: NewPair(5, 222),
+				6: NewPair(6, 333),
+			},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5},
+			want4: map[int]int{111: 2, 222: 2, 333: 2},
 		},
 	}
 }
@@ -1649,15 +1896,21 @@ func testMapPrepend(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Prepend() did not prepend correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, tt.want2) {
 				t.Errorf("Prepend() did not prepend correctly to map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Prepend() did not prepend correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Prepend() did not prepend correctly to values counter")
+				}
 			}
 		})
 	}
@@ -1717,6 +1970,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "Remove() on one-item collection - found",
@@ -1725,6 +1979,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "Remove() on one-item collection - not found",
@@ -1733,6 +1988,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Remove() on three-item collection - first item",
@@ -1741,6 +1997,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{2: 222, 3: 333},
 			want3: map[int]int{2: 0, 3: 1},
+			want4: map[int]int{222: 1, 333: 1},
 		},
 		{
 			name:  "Remove() on three-item collection - middle item",
@@ -1749,6 +2006,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 3: 333},
 			want3: map[int]int{1: 0, 3: 1},
+			want4: map[int]int{111: 1, 333: 1},
 		},
 		{
 			name:  "Remove() on three-item collection - last item",
@@ -1757,6 +2015,7 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
+			want4: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "Remove() on three-item collection - not found",
@@ -1765,6 +2024,16 @@ func getMapRemoveCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
+		},
+		{
+			name:  "Remove() on six-item collection",
+			coll:  builder.SixWithDuplicates(),
+			args:  baseMapIntArgs{key: 1},
+			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
+			want2: map[int]int{2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
+			want3: map[int]int{2: 0, 3: 1, 4: 2, 5: 3, 6: 4},
+			want4: map[int]int{222: 2, 333: 2, 111: 1},
 		},
 	}
 }
@@ -1776,15 +2045,21 @@ func testMapRemove(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.Remove(tt.args.key)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Remove() did not remove correctly from slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Remove() did not remove correctly from map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Remove() did not remove correctly from kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Remove() did not remove correctly from values counter")
+				}
 			}
 		})
 	}
@@ -1909,6 +2184,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on empty collection - empty keys",
@@ -1917,6 +2193,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on one-item collection - empty keys",
@@ -1925,6 +2202,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "RemoveMany() on one-item collection - all found",
@@ -1933,6 +2211,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on one-item collection - not found",
@@ -1941,6 +2220,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "RemoveMany() on one-item collection - some found",
@@ -1949,6 +2229,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - all found",
@@ -1957,6 +2238,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - not found",
@@ -1965,6 +2247,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - some found",
@@ -1973,6 +2256,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(3, 333)},
 			want2: map[int]int{3: 333},
 			want3: map[int]int{3: 0},
+			want4: map[int]int{333: 1},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - some found, some not",
@@ -1981,6 +2265,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(3, 333)},
 			want2: map[int]int{3: 333},
 			want3: map[int]int{3: 0},
+			want4: map[int]int{333: 1},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - some found, some not, some duplicate",
@@ -1989,6 +2274,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(3, 333)},
 			want2: map[int]int{3: 333},
 			want3: map[int]int{3: 0},
+			want4: map[int]int{333: 1},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - all found, some duplicate",
@@ -1997,6 +2283,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on three-item collection - all found, some duplicate, some not",
@@ -2005,6 +2292,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMany() on six-item collection with duplicates - some found at the beginning",
@@ -2013,6 +2301,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
 			want2: map[int]int{4: 111, 5: 222, 6: 333},
 			want3: map[int]int{4: 0, 5: 1, 6: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveMany() on six-item collection with duplicates - some found at the end",
@@ -2021,6 +2310,7 @@ func getMapRemoveManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 	}
 }
@@ -2032,15 +2322,21 @@ func testMapRemoveMany(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.RemoveMany(tt.args.keys)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveMany() did not remove correctly from slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("RemoveMany() did not remove correctly from map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("RemoveMany() did not remove correctly from kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("RemoveMany() did not remove correctly from values counter")
+				}
 			}
 		})
 	}
@@ -2055,6 +2351,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMatching() on one-item collection, found",
@@ -2063,6 +2360,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMatching() on one-item collection, not found",
@@ -2071,6 +2369,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found all",
@@ -2079,6 +2378,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found none",
@@ -2087,6 +2387,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found first",
@@ -2095,6 +2396,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{2: 222, 3: 333},
 			want3: map[int]int{2: 0, 3: 1},
+			want4: map[int]int{222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found middle",
@@ -2103,6 +2405,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 3: 333},
 			want3: map[int]int{1: 0, 3: 1},
+			want4: map[int]int{111: 1, 333: 1},
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found last",
@@ -2111,6 +2414,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
+			want4: map[int]int{111: 1, 222: 1},
 		},
 	}
 }
@@ -2122,15 +2426,21 @@ func testMapRemoveMatching(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.RemoveMatching(tt.args.predicate)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveMatching() did not remove correctly from slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("RemoveMatching() did not remove correctly from map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("RemoveMatching() did not remove correctly from kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("RemoveMatching() did not remove correctly from values counter")
+				}
 			}
 		})
 	}
@@ -2144,6 +2454,7 @@ func getMapReverseCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int](nil),
 			want2:    map[int]int{},
 			want3:    map[int]int{},
+			want4:    map[int]int{},
 			metaInt1: 1,
 		},
 		{
@@ -2152,6 +2463,7 @@ func getMapReverseCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int]{NewPair(1, 111)},
 			want2:    map[int]int{1: 111},
 			want3:    map[int]int{1: 0},
+			want4:    map[int]int{111: 1},
 			metaInt1: 1,
 		},
 		{
@@ -2160,6 +2472,7 @@ func getMapReverseCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
 			want2:    map[int]int{3: 333, 2: 222, 1: 111},
 			want3:    map[int]int{1: 2, 2: 1, 3: 0},
+			want4:    map[int]int{111: 1, 222: 1, 333: 1},
 			metaInt1: 1,
 		},
 		{
@@ -2168,7 +2481,17 @@ func getMapReverseCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2:    map[int]int{1: 111, 2: 222, 3: 333},
 			want3:    map[int]int{1: 0, 2: 1, 3: 2},
+			want4:    map[int]int{111: 1, 222: 1, 333: 1},
 			metaInt1: 2,
+		},
+		{
+			name:     "Reverse() on six-item collection",
+			coll:     builder.SixWithDuplicates(),
+			want1:    []Pair[int, int]{NewPair(6, 333), NewPair(5, 222), NewPair(4, 111), NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+			want2:    map[int]int{6: 333, 5: 222, 4: 111, 3: 333, 2: 222, 1: 111},
+			want3:    map[int]int{1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0},
+			want4:    map[int]int{111: 2, 222: 2, 333: 2},
+			metaInt1: 1,
 		},
 	}
 }
@@ -2182,15 +2505,21 @@ func testMapReverse(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Reverse() did not reverse correctly from slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Reverse() did not reverse correctly from map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Reverse() did not reverse correctly from kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Reverse() did not reverse correctly from values counter")
+				}
 			}
 		})
 	}
@@ -2329,6 +2658,7 @@ func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Set() on one-item collection - replace",
@@ -2337,6 +2667,7 @@ func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 999)},
 			want2: map[int]int{1: 999},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{999: 1},
 		},
 		{
 			name:  "Set() on one item collection - add",
@@ -2345,6 +2676,7 @@ func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
+			want4: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "Set() on three-item collection - replace",
@@ -2353,6 +2685,7 @@ func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 999, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 999: 1, 333: 1},
 		},
 		{
 			name:  "Set() on three-item collection - add",
@@ -2361,6 +2694,7 @@ func getMapSetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
 			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+			want4: map[int]int{111: 1, 222: 1, 333: 1, 444: 1},
 		},
 	}
 }
@@ -2372,15 +2706,21 @@ func testMapSet(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.Set(tt.args.value.Key(), tt.args.value.Val())
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Set() did not set correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Set() did not set correctly to map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Set() did not set correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Set() did not set correctly to values counter")
+				}
 			}
 		})
 	}
@@ -2395,6 +2735,7 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "SetAll() on one-item collection - replace",
@@ -2403,6 +2744,7 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 999)},
 			want2: map[int]int{1: 999},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{999: 1},
 		},
 		{
 			name:  "SetAll() on one item collection - add",
@@ -2411,6 +2753,7 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
+			want4: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "SetAll() on three-item collection - replace",
@@ -2419,6 +2762,7 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 999, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 999: 1, 333: 1},
 		},
 		{
 			name:  "SetAll() on three-item collection - add",
@@ -2427,6 +2771,7 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 444)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 444},
 			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+			want4: map[int]int{111: 1, 222: 1, 333: 1, 444: 1},
 		},
 		{
 			name:  "SetAll() on three-item collection - replace and add",
@@ -2435,6 +2780,25 @@ func getMapSetManyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 999), NewPair(3, 333), NewPair(4, 444)},
 			want2: map[int]int{1: 111, 2: 999, 3: 333, 4: 444},
 			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3},
+			want4: map[int]int{111: 1, 999: 1, 333: 1, 444: 1},
+		},
+		{
+			name: "SetAll() on six-item collection - replace and add",
+			coll: builder.SixWithDuplicates(),
+			args: baseMapIntArgs{values: []Pair[int, int]{NewPair(2, 999), NewPair(7, 444), NewPair(8, 333)}},
+			want1: []Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 999),
+				NewPair(3, 333),
+				NewPair(4, 111),
+				NewPair(5, 222),
+				NewPair(6, 333),
+				NewPair(7, 444),
+				NewPair(8, 333),
+			},
+			want2: map[int]int{1: 111, 2: 999, 3: 333, 4: 111, 5: 222, 6: 333, 7: 444, 8: 333},
+			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7},
+			want4: map[int]int{111: 2, 999: 1, 333: 3, 444: 1, 222: 1},
 		},
 	}
 }
@@ -2446,15 +2810,21 @@ func testMapSetMany(t *testing.T, builder baseMapCollIntBuilder) {
 			tt.coll.SetMany(tt.args.values)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("SetAll() did not set correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("SetAll() did not set correctly to map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("SetAll() did not set correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("SetAll() did not set correctly to values counter")
+				}
 			}
 		})
 	}
@@ -2469,6 +2839,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "Sort() on one-item collection",
@@ -2477,6 +2848,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Sort() on three-item collection",
@@ -2485,6 +2857,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Sort() on three-item collection - reverse",
@@ -2493,6 +2866,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
 			want2: map[int]int{3: 333, 2: 222, 1: 111},
 			want3: map[int]int{1: 2, 2: 1, 3: 0},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:     "Sort() on three-item collection - reverse twice",
@@ -2502,6 +2876,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
 			want2:    map[int]int{3: 333, 2: 222, 1: 111},
 			want3:    map[int]int{1: 2, 2: 1, 3: 0},
+			want4:    map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Sort() on six-item collection",
@@ -2510,6 +2885,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5},
+			want4: map[int]int{111: 2, 222: 2, 333: 2},
 		},
 		{
 			name:  "Sort() on six-item collection - reverse",
@@ -2518,6 +2894,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(6, 333), NewPair(5, 222), NewPair(4, 111), NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
 			want2: map[int]int{6: 333, 5: 222, 4: 111, 3: 333, 2: 222, 1: 111},
 			want3: map[int]int{1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0},
+			want4: map[int]int{111: 2, 222: 2, 333: 2},
 		},
 		{
 			name:     "Sort() on six-item collection - reverse twice",
@@ -2527,6 +2904,7 @@ func getMapSortCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1:    []Pair[int, int]{NewPair(6, 333), NewPair(5, 222), NewPair(4, 111), NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
 			want2:    map[int]int{6: 333, 5: 222, 4: 111, 3: 333, 2: 222, 1: 111},
 			want3:    map[int]int{1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0},
+			want4:    map[int]int{111: 2, 222: 2, 333: 2},
 		},
 	}
 }
@@ -2544,15 +2922,21 @@ func testMapSort(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
-			actualKp := builder.extractUnderlyingKp(tt.coll)
+			actualKP := builder.extractUnderlyingKp(tt.coll)
+			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Sort() did not sort correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("Sort() did not sort correctly to map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("Sort() did not sort correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("Sort() did not sort correctly to values counter")
+				}
 			}
 		})
 	}
@@ -2761,6 +3145,7 @@ func getMapCopyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
+			want4: map[int]int{},
 		},
 		{
 			name:  "Copy() on one-item collection",
@@ -2768,6 +3153,7 @@ func getMapCopyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
+			want4: map[int]int{111: 1},
 		},
 		{
 			name:  "Copy() on three-item collection",
@@ -2775,6 +3161,7 @@ func getMapCopyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
+			want4: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 	}
 }
@@ -2786,15 +3173,21 @@ func testMapCopy(t *testing.T, builder baseMapCollIntBuilder) {
 			got := tt.coll.copy().(mapInternal[int, int])
 			actualSlice := builder.extractUnderlyingSlice(got)
 			actualMap := builder.extractUnderlyingMap(got)
-			actualKp := builder.extractUnderlyingKp(got)
+			actualKP := builder.extractUnderlyingKp(got)
+			actualVC := builder.extractUnderlyingValsCount(got)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Copy() did not copy correctly to slice")
 			}
 			if !reflect.DeepEqual(actualMap, i2iToPairs(tt.want2)) {
 				t.Errorf("copy() did not copy correctly to map")
 			}
-			if !reflect.DeepEqual(actualKp, tt.want3) {
+			if !reflect.DeepEqual(actualKP, tt.want3) {
 				t.Errorf("copy() did not copy correctly to kp")
+			}
+			if actualVC != nil {
+				if !reflect.DeepEqual(actualVC, tt.want4) {
+					t.Errorf("copy() did not copy correctly to values counter")
+				}
 			}
 		})
 	}
