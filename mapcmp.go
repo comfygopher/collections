@@ -9,13 +9,6 @@ import (
 	"slices"
 )
 
-type comfyCmpMap[K comparable, V cmp.Ordered] struct {
-	s  []Pair[K, V]
-	m  map[K]Pair[K, V]
-	kp map[K]int
-	vc *valuesCounter[V]
-}
-
 // NewCmpMap creates a new CmpMap instance.
 func NewCmpMap[K comparable, V cmp.Ordered]() CmpMap[K, V] {
 	return &comfyCmpMap[K, V]{
@@ -29,8 +22,15 @@ func NewCmpMap[K comparable, V cmp.Ordered]() CmpMap[K, V] {
 // NewCmpMapFrom creates a new CmpMap instance from a slice of pairs.
 func NewCmpMapFrom[K comparable, V cmp.Ordered](s []Pair[K, V]) CmpMap[K, V] {
 	cm := NewCmpMap[K, V]()
-	cm.SetMany(s)
+	cm.(*comfyCmpMap[K, V]).setMany(s)
 	return cm
+}
+
+type comfyCmpMap[K comparable, V cmp.Ordered] struct {
+	s  []Pair[K, V]
+	m  map[K]Pair[K, V]
+	kp map[K]int
+	vc *valuesCounter[V]
 }
 
 func (c *comfyCmpMap[K, V]) Append(p ...Pair[K, V]) {

@@ -274,7 +274,7 @@ func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
 }
 
 func sliceRemoveMatching[V any](s []V, predicate Predicate[V]) []V {
-	newS := make([]V, 0)
+	newS := []V(nil)
 	for i, v := range s {
 		if !predicate(i, v) {
 			newS = append(newS, v)

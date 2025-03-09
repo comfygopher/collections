@@ -13,6 +13,9 @@ func newValuesCounter[V cmp.Ordered]() *valuesCounter[V] {
 }
 
 func (c *valuesCounter[V]) Count(v V) int {
+	if _, ok := c.counter[v]; !ok {
+		return 0
+	}
 	return c.counter[v]
 }
 

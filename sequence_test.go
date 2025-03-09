@@ -9,7 +9,7 @@ type comfySeqIntBuilder[C baseInternal[int]] struct {
 }
 
 func (lcb *comfySeqIntBuilder[C]) Empty() C {
-	return lcb.make([]int{}).(C)
+	return lcb.make([]int(nil)).(C)
 }
 
 func (lcb *comfySeqIntBuilder[C]) One() C {
@@ -44,8 +44,8 @@ func (lcb *comfySeqIntBuilder[C]) extractRawValues(c C) any {
 	return lcb.extractUnderlyingSlice(c)
 }
 
-func (lcb *comfySeqIntBuilder[C]) extractUnderlyingSlice(_ C) any {
-	return nil
+func (lcb *comfySeqIntBuilder[C]) extractUnderlyingSlice(c C) any {
+	return (any(c)).(*comfySeq[int]).s
 }
 
 func (lcb *comfySeqIntBuilder[C]) extractUnderlyingMap(_ C) any {

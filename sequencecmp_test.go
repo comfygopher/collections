@@ -9,7 +9,7 @@ type comfyCmpSeqIntBuilder[C any] struct {
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) Empty() C {
-	return lcb.make([]int{}).(C)
+	return lcb.make([]int(nil)).(C)
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) One() C {
@@ -33,11 +33,7 @@ func (lcb *comfyCmpSeqIntBuilder[C]) SixWithDuplicates() C {
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) extractRawValues(coll C) any {
-	s := lcb.extractUnderlyingSlice(coll).([]int)
-	if s == nil {
-		return nil
-	}
-	return s
+	return lcb.extractUnderlyingSlice(coll)
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingSlice(coll C) any {
@@ -52,13 +48,22 @@ func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingKp(_ C) any {
 	return nil
 }
 
-func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingValsCount(_ C) any {
-	return nil
+func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingValsCount(coll C) any {
+	vc := (any(coll)).(*comfyCmpSeq[int]).vc.counter
+	if vc == nil {
+		panic("Could not extract Values Counter from comfyCmpSeq")
+	}
+	return vc
 }
 
 func (lcb *comfyCmpSeqIntBuilder[C]) make(items []int) Base[int] {
 	coll := &comfyCmpSeq[int]{
-		s: items,
+		s:  items,
+		vc: newValuesCounter[int](),
+	}
+
+	for _, v := range items {
+		coll.vc.Increment(v)
 	}
 
 	return coll
@@ -69,7 +74,7 @@ func TestNewCmpSequence(t *testing.T) {
 	if intSeq == nil {
 		t.Error("NewCmpSequence[int]() returned nil")
 	}
-	if !reflect.DeepEqual(intSeq, &comfyCmpSeq[int]{s: make([]int, 0)}) {
+	if !reflect.DeepEqual(intSeq, &comfyCmpSeq[int]{s: []int(nil), vc: newValuesCounter[int]()}) {
 		t.Error("NewCmpSequence[int]() did not return a comfyCmpSeq[int]")
 	}
 
@@ -77,7 +82,7 @@ func TestNewCmpSequence(t *testing.T) {
 	if stringSeq == nil {
 		t.Error("NewCmpSequence[string]() returned nil")
 	}
-	if !reflect.DeepEqual(stringSeq, &comfyCmpSeq[string]{s: make([]string, 0)}) {
+	if !reflect.DeepEqual(stringSeq, &comfyCmpSeq[string]{s: []string(nil), vc: newValuesCounter[string]()}) {
 		t.Error("NewCmpSequence[int]() did not return a comfyCmpSeq[int]")
 	}
 }
@@ -86,19 +91,33 @@ func TestNewCmpSequenceFrom(t *testing.T) {
 	intSlice := []int{1, 2, 3}
 	intSeq := NewCmpSequenceFrom[int](intSlice)
 	if intSeq == nil {
-		t.Error("NewSequence[int]() returned nil")
+		t.Error("NewCmpSequence[int]() returned nil")
 	}
-	if !reflect.DeepEqual(intSeq, &comfyCmpSeq[int]{s: intSlice}) {
-		t.Error("NewSequence[int]() did not return a comfyCmpSeq[int]")
+	wantIntVC := &valuesCounter[int]{
+		counter: map[int]int{
+			1: 1,
+			2: 1,
+			3: 1,
+		},
+	}
+	if !reflect.DeepEqual(intSeq, &comfyCmpSeq[int]{s: intSlice, vc: wantIntVC}) {
+		t.Error("NewCmpSequence[int]() did not return a comfyCmpSeq[int]")
 	}
 
 	stringSlice := []string{"a", "b", "c"}
 	stringSeq := NewCmpSequenceFrom[string](stringSlice)
 	if stringSeq == nil {
-		t.Error("NewSequence[string]() returned nil")
+		t.Error("NewCmpSequence[string]() returned nil")
 	}
-	if !reflect.DeepEqual(stringSeq, &comfyCmpSeq[string]{s: stringSlice}) {
-		t.Error("NewSequence[int]() did not return a comfyCmpSeq[int]")
+	wantStringVC := &valuesCounter[string]{
+		counter: map[string]int{
+			"a": 1,
+			"b": 1,
+			"c": 1,
+		},
+	}
+	if !reflect.DeepEqual(stringSeq, &comfyCmpSeq[string]{s: stringSlice, vc: wantStringVC}) {
+		t.Error("NewCmpSequence[int]() did not return a comfyCmpSeq[int]")
 	}
 }
 
@@ -275,7 +294,17 @@ func Test_comfyCmpSeq_copy(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_copy_pointer(t *testing.T) {
-	c1 := &comfyCmpSeq[int]{s: []int{123, 234, 345}}
+	c1 := &comfyCmpSeq[int]{
+		s: []int{123, 234, 345},
+		vc: &valuesCounter[int]{
+			counter: map[int]int{
+				123: 1,
+				234: 1,
+				345: 1,
+			},
+		},
+	}
+
 	c2 := c1.copy()
 
 	t.Run("copy() creates a new instance", func(t *testing.T) {

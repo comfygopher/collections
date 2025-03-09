@@ -24,6 +24,9 @@ func NewSequenceFrom[V any](l []V) Sequence[V] {
 }
 
 func (c *comfySeq[V]) Append(v ...V) {
+	if len(v) == 0 {
+		return
+	}
 	c.s = append(c.s, v...)
 }
 
@@ -55,21 +58,11 @@ func (c *comfySeq[V]) AtOrDefault(i int, defaultValue V) V {
 }
 
 func (c *comfySeq[V]) Clear() {
-	c.s = make([]V, 0)
+	c.s = []V(nil)
 }
 
 func (c *comfySeq[V]) Contains(predicate Predicate[V]) bool {
 	return comfyContains[Indexed[V], V](c, predicate)
-}
-
-//nolint:unused
-func (c *comfySeq[V]) copy() Base[V] {
-	newCl := &comfySeq[V]{
-		s: make([]V, 0),
-	}
-	newCl.s = append(newCl.s, c.s...)
-
-	return newCl
 }
 
 func (c *comfySeq[V]) Count(predicate Predicate[V]) int {
@@ -170,6 +163,9 @@ func (c *comfySeq[V]) Len() int {
 }
 
 func (c *comfySeq[V]) Prepend(v ...V) {
+	if len(v) == 0 {
+		return
+	}
 	c.s = append(v, c.s...)
 }
 
@@ -248,4 +244,15 @@ func (c *comfySeq[V]) Values() iter.Seq[V] {
 			}
 		}
 	}
+}
+
+// Private:
+
+func (c *comfySeq[V]) copy() Base[V] {
+	newCl := &comfySeq[V]{
+		s: []V(nil),
+	}
+	newCl.s = append(newCl.s, c.s...)
+
+	return newCl
 }

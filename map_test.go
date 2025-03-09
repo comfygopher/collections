@@ -312,3 +312,41 @@ func Test_comfyMap_copy(t *testing.T) {
 	testMapCopy(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 	testMapCopyDontPreserveRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
+
+func Test_comfyMap_copy_pointer(t *testing.T) {
+	c1 := &comfyMap[int, int]{
+		s: []Pair[int, int]{
+			NewPair(1, 111),
+			NewPair(2, 222),
+			NewPair(3, 333),
+		},
+		m: map[int]Pair[int, int]{
+			1: NewPair(1, 111),
+			2: NewPair(2, 222),
+			3: NewPair(3, 333),
+		},
+		kp: map[int]int{
+			1: 0,
+			2: 1,
+			3: 2,
+		},
+	}
+
+	c2 := c1.copy()
+
+	t.Run("copy() creates a new instance", func(t *testing.T) {
+		if c1 == c2 {
+			t.Error("copy() did not create a new instance")
+		}
+	})
+
+	t.Run("copy() creates a deep copy", func(t *testing.T) {
+		c1.s[0].SetVal(999)
+		c2s := c2.ToSlice()
+		for _, p := range c2s {
+			if p.Val() == 999 {
+				t.Error("copy() did not create a deep copy")
+			}
+		}
+	})
+}

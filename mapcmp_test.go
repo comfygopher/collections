@@ -55,6 +55,9 @@ func (lcb *comfyCmpMapIntBuilder[C]) SixWithDuplicates() C {
 
 func (lcb *comfyCmpMapIntBuilder[C]) extractRawValues(c C) any {
 	s := lcb.extractUnderlyingSlice(c).([]Pair[int, int])
+	if s == nil {
+		return []int(nil)
+	}
 	flat := make([]int, 0, len(s))
 	for _, pair := range s {
 		flat = append(flat, pair.Val())
@@ -364,4 +367,39 @@ func Test_comfyCmpMap_Values(t *testing.T) {
 func Test_comfyCmpMap_copy(t *testing.T) {
 	testMapCopy(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 	testMapCopyDontPreserveRef(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
+}
+
+func Test_comfyCmpMap_copy_pointer(t *testing.T) {
+	c1 := &comfyCmpMap[int, int]{
+		m: map[int]Pair[int, int]{
+			1: NewPair(1, 111),
+			2: NewPair(2, 222),
+			3: NewPair(3, 333),
+		},
+		vc: &valuesCounter[int]{
+			counter: map[int]int{
+				111: 1,
+				222: 1,
+				333: 1,
+			},
+		},
+	}
+
+	c2 := c1.copy()
+
+	t.Run("copy() creates a new instance", func(t *testing.T) {
+		if c1 == c2 {
+			t.Error("copy() did not create a new instance")
+		}
+	})
+
+	t.Run("copy() creates a deep copy", func(t *testing.T) {
+		c1.m[1] = NewPair(1, 999)
+		c2m := c2.ToSlice()
+		for v := range c2m {
+			if v == 999 {
+				t.Error("copy() did not create a deep copy")
+			}
+		}
+	})
 }
