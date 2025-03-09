@@ -129,7 +129,7 @@ type Cmp[V cmp.Ordered] interface {
 	CountValues(v V) int
 	// HasValue is an alias for ContainsValue.
 	// Deprecated: use ContainsValue instead.
-	// HasValue(v V) bool // TODO
+	HasValue(v V) bool
 	IndexOf(val V) (i int, found bool)
 	LastIndexOf(val V) (i int, found bool)
 	Max() (v V, err error)

@@ -13,7 +13,7 @@ func getMapAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 		coll:  builder.Empty(),
 		args:  baseMapIntArgs{value: appendOneOnEmptyCaseValue},
 		want1: []Pair[int, int]{NewPair(1, 999)},
-		want2: map[int]int{1: 999},
+		want2: map[int]Pair[int, int]{1: NewPair(1, 999)},
 		modify: func() {
 			appendOneOnEmptyCaseValue.SetVal(999)
 		},
@@ -25,7 +25,7 @@ func getMapAppendRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 		coll:  builder.One(),
 		args:  baseMapIntArgs{value: appendOneOnOneItemCaseValue},
 		want1: []Pair[int, int]{NewPair(1, 111), NewPair(10, 999)},
-		want2: map[int]int{1: 111, 10: 999},
+		want2: map[int]Pair[int, int]{1: NewPair(1, 111), 10: NewPair(10, 999)},
 		modify: func() {
 			appendOneOnOneItemCaseValue.SetVal(999)
 		},
@@ -47,8 +47,10 @@ func testMapAppendRef(t *testing.T, builder baseMapCollIntBuilder) {
 				tt.coll.Append(tt.args.value)
 			}
 			tt.modify()
-			actualSlice := tt.coll.ToSlice()
-			actualMap := tt.coll.ToMap()
+
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualMap := builder.extractUnderlyingMap(tt.coll)
+
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("Append() did not append correctly to slice")
 			}
@@ -68,7 +70,7 @@ func getMapValuesRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 		want1: []Pair[int, int]{NewPair(1, 1111), NewPair(2, 1222), NewPair(3, 1333)},
 	}
 	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
-		return NewMapFrom(threeItemModifyValuesCase.args.values).(mapInternal[int, int])
+		return builder.FromValues(threeItemModifyValuesCase.args.valuesAsAnySlice())
 	}
 	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
 		p.SetVal(p.Val() + 1000)
@@ -86,7 +88,7 @@ func testMapValuesRef(t *testing.T, builder baseMapCollIntBuilder) {
 
 			tt.coll = tt.collBuilder()
 
-			actualSliceBeforeModification := tt.coll.ToSlice()
+			actualSliceBeforeModification := builder.extractUnderlyingSlice(tt.coll)
 			if !reflect.DeepEqual(actualSliceBeforeModification, tt.args.values) {
 				t.Errorf("Values() did not modify values correctly in slice")
 			}
@@ -95,7 +97,7 @@ func testMapValuesRef(t *testing.T, builder baseMapCollIntBuilder) {
 				tt.args.visit(-1, v)
 			}
 
-			actualSliceAfterModification := tt.coll.ToSlice()
+			actualSliceAfterModification := builder.extractUnderlyingSlice(tt.coll)
 			if !reflect.DeepEqual(actualSliceAfterModification, tt.want1) {
 				t.Errorf("Values() did not modify values correctly in slice")
 			}
@@ -112,7 +114,7 @@ func getMapCopyRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 		want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 	}
 	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
-		return NewMapFrom(threeItemModifyValuesCase.args.values).(mapInternal[int, int])
+		return builder.FromValues(threeItemModifyValuesCase.args.valuesAsAnySlice())
 	}
 	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
 		p.SetVal(p.Val() + 1000)
@@ -130,19 +132,20 @@ func testMapCopyDontPreserveRef(t *testing.T, builder baseMapCollIntBuilder) {
 
 			tt.coll = tt.collBuilder()
 
-			actualSliceBeforeModification := tt.coll.ToSlice()
+			actualSliceBeforeModification := builder.extractUnderlyingSlice(tt.coll)
+
 			if !reflect.DeepEqual(actualSliceBeforeModification, tt.args.values) {
 				t.Errorf("Values() did not modify values correctly in slice")
 			}
 
-			copy := tt.coll.copy().(Map[int, int])
-			for v := range copy.Values() {
+			copiedMap := tt.coll.copy().(mapInternal[int, int])
+			for v := range copiedMap.Values() {
 				tt.args.visit(-1, v)
 			}
 
-			actualSliceAfterModification := tt.coll.ToSlice()
+			actualSliceAfterModification := builder.extractUnderlyingSlice(tt.coll)
 			if !reflect.DeepEqual(actualSliceAfterModification, tt.want1) {
-				t.Errorf("Values() want = %v, but got = %v", tt.want1, actualSliceAfterModification)
+				t.Errorf("Values() wanted not modified values = %v, but got = %v", tt.want1, actualSliceAfterModification)
 			}
 		})
 	}

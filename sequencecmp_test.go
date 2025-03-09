@@ -32,6 +32,14 @@ func (lcb *comfyCmpSeqIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]int{111, 222, 333, 111, 222, 333}).(C)
 }
 
+func (lcb *comfyCmpSeqIntBuilder[C]) FromValues(values []any) C {
+	c := lcb.make([]int{})
+	for _, v := range values {
+		c.Append(v.(int))
+	}
+	return c.(C)
+}
+
 func (lcb *comfyCmpSeqIntBuilder[C]) extractRawValues(coll C) any {
 	return lcb.extractUnderlyingSlice(coll)
 }
@@ -56,7 +64,7 @@ func (lcb *comfyCmpSeqIntBuilder[C]) extractUnderlyingValsCount(coll C) any {
 	return vc
 }
 
-func (lcb *comfyCmpSeqIntBuilder[C]) make(items []int) Base[int] {
+func (lcb *comfyCmpSeqIntBuilder[C]) make(items []int) linearMutableInternal[int] {
 	coll := &comfyCmpSeq[int]{
 		s:  items,
 		vc: newValuesCounter[int](),
@@ -186,6 +194,14 @@ func Test_comfyCmpSeq_FindLast(t *testing.T) {
 	testFindLast(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfyCmpSeq_Fold(t *testing.T) {
+	testFold(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+}
+
+func Test_comfyCmpSeq_HasValue(t *testing.T) {
+	testHasValue(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
+}
+
 func Test_comfyCmpSeq_Head(t *testing.T) {
 	testHead(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
@@ -198,6 +214,23 @@ func Test_comfyCmpSeq_IndexOf(t *testing.T) {
 	testIndexOf(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
 }
 
+func Test_comfyCmpSeq_IndexOfInvalidState(t *testing.T) {
+	t.Run("invalid internal state", func(t *testing.T) {
+		coll := NewCmpSequenceFrom[int]([]int{1, 2, 3})
+		coll.(*comfyCmpSeq[int]).vc.Increment(4)
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Error("IndexOf() did not panic")
+			}
+			if r != "invalid internal state of comfyCmpSeq" {
+				t.Errorf("IndexOf() panicked with wrong error: %v", r)
+			}
+		}()
+		coll.IndexOf(4)
+	})
+}
+
 func Test_comfyCmpSeq_InsertAt(t *testing.T) {
 	testInsertAt(t, &comfyCmpSeqIntBuilder[listInternal[int]]{})
 }
@@ -208,6 +241,23 @@ func Test_comfyCmpSeq_IsEmpty(t *testing.T) {
 
 func Test_comfyCmpSeq_LastIndexOf(t *testing.T) {
 	testLastIndexOf(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
+}
+
+func Test_comfyCmpSeq_LastIndexOfInvalidState(t *testing.T) {
+	t.Run("invalid internal state", func(t *testing.T) {
+		coll := NewCmpSequenceFrom[int]([]int{1, 2, 3})
+		coll.(*comfyCmpSeq[int]).vc.Increment(4)
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Error("LastIndexOf() did not panic")
+			}
+			if r != "invalid internal state of comfyCmpSeq" {
+				t.Errorf("LastIndexOf() panicked with wrong error: %v", r)
+			}
+		}()
+		coll.LastIndexOf(4)
+	})
 }
 
 func Test_comfyCmpSeq_Len(t *testing.T) {
@@ -315,7 +365,7 @@ func Test_comfyCmpSeq_copy_pointer(t *testing.T) {
 
 	t.Run("copy() creates a deep copy", func(t *testing.T) {
 		c1.s[0] = 999
-		c2s := c2.ToSlice()
+		c2s := c2.(*comfyCmpSeq[int]).s
 		for v := range c2s {
 			if v == 999 {
 				t.Error("copy() did not create a deep copy")

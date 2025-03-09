@@ -57,6 +57,17 @@ func testContainsValue[C cmpInternal[int]](t *testing.T, builder testCollectionB
 	}
 }
 
+func testHasValue[C cmpInternal[int]](t *testing.T, builder testCollectionBuilder[C]) {
+	cases := getContainsValueCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.coll.HasValue(tt.args.value); got != tt.want1 {
+				t.Errorf("HasValue() = %v, want1 %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getCountValuesCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 	return []testCase[C, int]{
 		{

@@ -53,6 +53,14 @@ func (lcb *comfyCmpMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
+func (lcb *comfyCmpMapIntBuilder[C]) FromValues(values []any) C {
+	c := lcb.make([]Pair[int, int]{})
+	for _, v := range values {
+		c.set(v.(Pair[int, int]))
+	}
+	return c.(C)
+}
+
 func (lcb *comfyCmpMapIntBuilder[C]) extractRawValues(c C) any {
 	s := lcb.extractUnderlyingSlice(c).([]Pair[int, int])
 	if s == nil {
@@ -241,6 +249,10 @@ func Test_comfyCmpMap_Has(t *testing.T) {
 	testMapHas(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_HasValue(t *testing.T) {
+	testHasValue(t, &comfyCmpMapIntBuilder[cmpMapBaseInternal[int, int]]{})
+}
+
 func Test_comfyCmpMap_Head(t *testing.T) {
 	testMapHead(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -310,6 +322,10 @@ func Test_comfyCmpMap_RemoveMatching(t *testing.T) {
 	testMapRemoveMatching(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_RemoveValues(t *testing.T) {
+	testRemoveValues(t, &comfyCmpMapIntBuilder[CmpMutable[int]]{})
+}
+
 func Test_comfyCmpMap_Reverse(t *testing.T) {
 	testMapReverse(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -354,6 +370,10 @@ func Test_comfyCmpMap_TailOrDefault(t *testing.T) {
 	testMapTailOrDefault(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_ToMap(t *testing.T) {
+	testMapToMap(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyCmpMap_ToSlice(t *testing.T) {
 	testMapToSlice(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -395,9 +415,9 @@ func Test_comfyCmpMap_copy_pointer(t *testing.T) {
 
 	t.Run("copy() creates a deep copy", func(t *testing.T) {
 		c1.m[1] = NewPair(1, 999)
-		c2m := c2.ToSlice()
-		for v := range c2m {
-			if v == 999 {
+		c2m := c2.(*comfyCmpMap[int, int]).m
+		for _, pair := range c2m {
+			if pair.Val() == 999 {
 				t.Error("copy() did not create a deep copy")
 			}
 		}

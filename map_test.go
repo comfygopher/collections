@@ -53,6 +53,14 @@ func (lcb *comfyMapIntBuilder[C]) SixWithDuplicates() C {
 	}).(C)
 }
 
+func (lcb *comfyMapIntBuilder[C]) FromValues(values []any) C {
+	c := lcb.make([]Pair[int, int]{})
+	for _, v := range values {
+		c.set(v.(Pair[int, int]))
+	}
+	return c.(C)
+}
+
 func (lcb *comfyMapIntBuilder[C]) extractRawValues(c C) any {
 	s := lcb.extractUnderlyingSlice(c).([]Pair[int, int])
 	flat := make([]int, 0, len(s))
@@ -298,6 +306,10 @@ func Test_comfyMap_TailOrDefault(t *testing.T) {
 	testMapTailOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyMap_ToMap(t *testing.T) {
+	testMapToMap(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyMap_ToSlice(t *testing.T) {
 	testMapToSlice(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -342,7 +354,7 @@ func Test_comfyMap_copy_pointer(t *testing.T) {
 
 	t.Run("copy() creates a deep copy", func(t *testing.T) {
 		c1.s[0].SetVal(999)
-		c2s := c2.ToSlice()
+		c2s := c2.(*comfyMap[int, int]).s
 		for _, p := range c2s {
 			if p.Val() == 999 {
 				t.Error("copy() did not create a deep copy")

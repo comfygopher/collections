@@ -32,7 +32,15 @@ func (lcb *comfySeqIntBuilder[C]) SixWithDuplicates() C {
 	return lcb.make([]int{111, 222, 333, 111, 222, 333}).(C)
 }
 
-func (lcb *comfySeqIntBuilder[C]) make(items []int) baseInternal[int] {
+func (lcb *comfySeqIntBuilder[C]) FromValues(values []any) C {
+	c := lcb.make([]int{})
+	for _, v := range values {
+		c.Append(v.(int))
+	}
+	return c.(C)
+}
+
+func (lcb *comfySeqIntBuilder[C]) make(items []int) linearMutableInternal[int] {
 	coll := &comfySeq[int]{
 		s: items,
 	}
@@ -276,8 +284,7 @@ func Test_comfySeq_copy_pointer(t *testing.T) {
 
 	t.Run("copy() creates a deep copy", func(t *testing.T) {
 		c1.s[0] = 999
-		c2s := c2.ToSlice()
-		for v := range c2s {
+		for v := range c2.(*comfySeq[int]).s {
 			if v == 999 {
 				t.Error("copy() did not create a deep copy")
 			}

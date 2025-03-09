@@ -3015,6 +3015,43 @@ func testMapTailOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getToMapCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "ToMap() on empty collection",
+			coll:  builder.Empty(),
+			want1: map[int]int{},
+		},
+		{
+			name:  "ToMap() on one-item collection",
+			coll:  builder.One(),
+			want1: map[int]int{1: 111},
+		},
+		{
+			name:  "ToMap() on three-item collection",
+			coll:  builder.Three(),
+			want1: map[int]int{1: 111, 2: 222, 3: 333},
+		},
+		{
+			name:  "ToMap() on six-item collection",
+			coll:  builder.SixWithDuplicates(),
+			want1: map[int]int{1: 111, 2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
+		},
+	}
+}
+
+func testMapToMap(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getToMapCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.ToMap()
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("ToMap() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getMapToSliceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{

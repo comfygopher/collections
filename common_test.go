@@ -18,6 +18,14 @@ type testArgs[C any, V any] struct {
 	coll            C
 }
 
+func (ta *testArgs[C, V]) valuesAsAnySlice() []any {
+	anySlice := make([]any, len(ta.values))
+	for i, v := range ta.values {
+		anySlice[i] = v
+	}
+	return anySlice
+}
+
 type testCase[C any, V any] struct {
 	name        string
 	coll        C
@@ -43,6 +51,7 @@ type testCollectionBuilder[C any] interface {
 	Three() C
 	ThreeRev() C
 	SixWithDuplicates() C
+	FromValues(values []any) C
 
 	extractRawValues(c C) any
 	extractUnderlyingSlice(c C) any

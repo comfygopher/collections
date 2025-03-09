@@ -82,7 +82,7 @@ func testRemoveValues(t *testing.T, builder orderedMutableCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.RemoveValues(tt.args.value)
-			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+			actualSlice := builder.extractRawValues(tt.coll)
 			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
 				t.Errorf("RemoveValues() resulted in: %v, but wanted %v", actualSlice, tt.want1)

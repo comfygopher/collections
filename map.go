@@ -315,6 +315,22 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 // Private functions:
 
+func (c *comfyMap[K, V]) copy() mapInternal[K, V] {
+	newCm := &comfyMap[K, V]{
+		s:  []Pair[K, V](nil),
+		m:  make(map[K]Pair[K, V]),
+		kp: make(map[K]int),
+	}
+	for i, pair := range c.s {
+		p := pair.copy()
+		newCm.s = append(newCm.s, p)
+		newCm.m[pair.Key()] = p
+		newCm.kp[pair.Key()] = i
+	}
+
+	return newCm
+}
+
 func (c *comfyMap[K, V]) set(pair Pair[K, V]) {
 	pos, exists := c.kp[pair.Key()]
 	if exists {
@@ -404,21 +420,4 @@ func (c *comfyMap[K, V]) removeMany(keys []K) {
 	c.s = newS
 	c.m = newM
 	c.kp = newKP
-}
-
-//nolint:unused
-func (c *comfyMap[K, V]) copy() mapInternal[K, V] {
-	newCm := &comfyMap[K, V]{
-		s:  []Pair[K, V](nil),
-		m:  make(map[K]Pair[K, V]),
-		kp: make(map[K]int),
-	}
-	for i, pair := range c.s {
-		p := pair.copy()
-		newCm.s = append(newCm.s, p)
-		newCm.m[pair.Key()] = p
-		newCm.kp[pair.Key()] = i
-	}
-
-	return newCm
 }

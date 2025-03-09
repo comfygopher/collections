@@ -398,11 +398,10 @@ func (c *comfyCmpMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 // Private:
 
-//nolint:unused
 func (c *comfyCmpMap[K, V]) copy() mapInternal[K, V] {
 	newCm := NewCmpMap[K, V]().(*comfyCmpMap[K, V])
 	for _, pair := range c.s {
-		newCm.set(pair)
+		newCm.set(pair.copy())
 	}
 
 	return newCm

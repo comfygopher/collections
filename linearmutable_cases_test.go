@@ -281,7 +281,7 @@ func getReverseCases(builder linearMutableCollIntBuilder) []linearMutableTestCas
 		{
 			name:  "Reverse() on empty collection",
 			coll:  builder.Empty(),
-			want1: []int{},
+			want1: []int(nil),
 		},
 		{
 			name:  "Reverse() on one-item collection",
@@ -301,8 +301,11 @@ func testReverse(t *testing.T, builder linearMutableCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.coll.Reverse()
-			if !reflect.DeepEqual(tt.coll.ToSlice(), tt.want1) {
-				t.Errorf("Reverse() resulted in: %v, but wanted %v", tt.coll.ToSlice(), tt.want1)
+
+			actualSlice := builder.extractUnderlyingSlice(tt.coll)
+
+			if !reflect.DeepEqual(actualSlice, tt.want1) {
+				t.Errorf("Reverse() resulted in: %v, but wanted %v", actualSlice, tt.want1)
 			}
 		})
 	}
@@ -312,11 +315,18 @@ func testReverseTwice(t *testing.T, builder linearMutableCollIntBuilder) {
 	t.Run("Reverse() twice", func(t *testing.T) {
 		coll := builder.Three()
 		coll.Reverse()
-		if !reflect.DeepEqual(coll.ToSlice(), []int{333, 222, 111}) {
+
+		actualSlice1 := builder.extractUnderlyingSlice(coll)
+
+		if !reflect.DeepEqual(actualSlice1, []int{333, 222, 111}) {
 			t.Errorf("Reverse() twice is not identity")
 		}
+
 		coll.Reverse()
-		if !reflect.DeepEqual(coll.ToSlice(), []int{111, 222, 333}) {
+
+		actualSlice2 := builder.extractUnderlyingSlice(coll)
+
+		if !reflect.DeepEqual(actualSlice2, []int{111, 222, 333}) {
 			t.Errorf("Reverse() twice is not identity")
 		}
 	})
