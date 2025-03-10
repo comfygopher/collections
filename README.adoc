@@ -1,4 +1,10 @@
-= What is Comfy Gopher?
+= Comfy Gopher - Collections
+
+image:https://codecov.io/gh/comfygopher/collections/graph/badge.svg?token=I5QQ2SU3E7[codecov,link=https://codecov.io/gh/comfygopher/collections]
+
+image:https://img.shields.io/coderabbit/prs/github/comfygopher/collections?utm_source=oss&utm_medium=github&utm_campaign=comfygopher%2Fcollections&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews[CodeRabbit Pull Request Reviews]
+
+== What is Comfy Gopher?
 
 *Comfy Gopher is a Set of general-purpose Tools, Utilities, and Data Structures for Comfortable Development*
 
@@ -6,11 +12,12 @@ These tools prioritize speed and ease of development over strict efficiency or f
 They accelerate development and enhance the experience, by reducing the cognitive load,
 making them well suited for rapid prototyping.
 
-== Comfy Gopher - Collections
+== Comfy Gopher - Collections package
 
 === Goals
 
 1. Provide convenient abstraction for collection data structures
+1. Focus on developer experience
 1. Reduce repetition in day-to-day collections operations
 1. Address the missing ordered map data structure
 1. Provide API for in-place modifications of collections

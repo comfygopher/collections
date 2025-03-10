@@ -89,9 +89,7 @@ func (c *comfyCmpMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {
 }
 
 func (c *comfyCmpMap[K, V]) ContainsValue(v V) bool {
-	return comfyContains[Base[Pair[K, V]], Pair[K, V]](c, func(_ int, pair Pair[K, V]) bool {
-		return pair.Val() == v
-	})
+	return c.vc.Count(v) > 0
 }
 
 func (c *comfyCmpMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
@@ -99,9 +97,7 @@ func (c *comfyCmpMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
 }
 
 func (c *comfyCmpMap[K, V]) CountValues(v V) int {
-	return comfyCount[Indexed[Pair[K, V]], Pair[K, V]](c, func(_ int, pair Pair[K, V]) bool {
-		return pair.Val() == v
-	})
+	return c.vc.Count(v)
 }
 
 func (c *comfyCmpMap[K, V]) Each(f Visitor[Pair[K, V]]) {
