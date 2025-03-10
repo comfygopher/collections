@@ -248,6 +248,7 @@ func (c *comfySeq[V]) Values() iter.Seq[V] {
 
 // Private:
 
+//nolint:unused
 func (c *comfySeq[V]) copy() Base[V] {
 	newCl := &comfySeq[V]{
 		s: []V(nil),

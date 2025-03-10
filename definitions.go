@@ -8,12 +8,11 @@ import (
 )
 
 var (
-	// ErrKeyNotFound     = errors.New("key not found")
-	// ErrKeyAlreadyExists
+	// ErrOutOfBounds is returned when an operation is performed on an index that is out of bounds.
 	ErrOutOfBounds = errors.New("index out of bounds")
-	// ErrValueNotFound
+	// ErrEmptyCollection is returned when an operation is performed on an empty collection.
 	ErrEmptyCollection = fmt.Errorf("%w: collection is empty", ErrOutOfBounds)
-	// ErrKeyAlreadyExists
+	// ErrValueNotFound is returned when a value is not found in a collection.
 	ErrValueNotFound = errors.New("value not found")
 )
 
@@ -70,9 +69,10 @@ type Base[V any] interface {
 	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
 	ToSlice() []V
 	Values() iter.Seq[V]
-	//ValuesRev() iter.Seq[V] // TODO
+	// ValuesRev() iter.Seq[V] // TODO
 }
 
+// BasePairs is the base interface for all collections of key-value pairs.
 type BasePairs[K comparable, V any] interface {
 	Base[Pair[K, V]]
 }
@@ -84,7 +84,7 @@ type Linear[V any] interface {
 	HeadOrDefault(defaultValue V) (head V)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
-	//LinearValues() iter.Seq2[int, V]  // TODO
+	// LinearValues() iter.Seq2[int, V]  // TODO
 }
 
 // Indexed interface indicates that given collection can be accessed by index.
@@ -188,14 +188,14 @@ type Map[K comparable, V any] interface {
 	BasePairs[K, V]
 	IndexedMutable[Pair[K, V]]
 	LinearMutable[Pair[K, V]]
-	//FoldValues(reducer Reducer[V], initial V) V // TODO
+	// FoldValues(reducer Reducer[V], initial V) V // TODO
 	Get(key K) (val V, ok bool)
 	GetOrDefault(k K, defaultValue V) V
 	Has(key K) bool
 	Keys() iter.Seq[K]
 	KeysToSlice() []K
 	KeyValues() iter.Seq2[K, V]
-	//ReduceValues(reducer Reducer[V]) (V, error) // TODO
+	// ReduceValues(reducer Reducer[V]) (V, error) // TODO
 	Remove(key K)
 	RemoveMany(keys []K)
 	Set(key K, val V)

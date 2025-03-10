@@ -113,11 +113,11 @@ func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
 }
 
 func comfyMax[C Base[V], V cmp.Ordered](c C) (V, error) {
-	return c.Reduce(func(max V, _ int, current V) V {
-		if current > max {
+	return c.Reduce(func(acc V, _ int, current V) V {
+		if current > acc {
 			return current
 		}
-		return max
+		return acc
 	})
 }
 
@@ -141,11 +141,11 @@ func comfyMaxOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) (V, er
 }
 
 func comfyMin[C Base[V], V cmp.Ordered](coll C) (V, error) {
-	return coll.Reduce(func(min V, _ int, current V) V {
-		if current < min {
+	return coll.Reduce(func(acc V, _ int, current V) V {
+		if current < acc {
 			return current
 		}
-		return min
+		return acc
 	})
 }
 

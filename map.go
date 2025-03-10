@@ -22,6 +22,7 @@ func NewMap[K comparable, V any]() Map[K, V] {
 	}
 }
 
+// NewMapFrom creates a new Map instance from a slice of pairs.
 func NewMapFrom[K comparable, V any](s []Pair[K, V]) Map[K, V] {
 	cm := NewMap[K, V]()
 	cm.SetMany(s)
@@ -315,6 +316,7 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 // Private functions:
 
+//nolint:unused
 func (c *comfyMap[K, V]) copy() mapInternal[K, V] {
 	newCm := &comfyMap[K, V]{
 		s:  []Pair[K, V](nil),
