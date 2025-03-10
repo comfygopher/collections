@@ -6,7 +6,7 @@ import (
 
 // Set is a collection of unique elements.
 type Set[K comparable, V cmp.Ordered] interface {
-	CmpMap[*comfyPair[K, V], K, V]
+	CmpMap[K, V]
 }
 
 //type comfySet[K comparable, V cmp.Cmp] struct {

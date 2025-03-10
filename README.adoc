@@ -1,10 +1,32 @@
-= Comfy Gopher
+= What is Comfy Gopher?
 
-*A Set of general-purpose Tools, Utilities, and Data Structures for Comfortable Development*
+*Comfy Gopher is a Set of general-purpose Tools, Utilities, and Data Structures for Comfortable Development*
 
 These tools prioritize speed and ease of development over strict efficiency or full compliance with Go philosophy.
 They accelerate development and enhance the experience, by reducing the cognitive load,
 making them well suited for rapid prototyping.
+
+== Comfy Gopher - Collections
+
+=== Goals
+
+1. Provide convenient abstraction for collection data structures
+1. Reduce repetition in day-to-day collections operations
+1. Address the missing ordered map data structure
+1. Provide API for in-place modifications of collections
+1. Reduce strain of juggling between empty slice pointers `[]V(nil) vs []V{}`
+
+=== No-goals
+
+This is a set of elements that the Collections package are NOT trying to achieve:
+
+1. Thread-safety
++
+You must implement your own thread-safety.
+
+1. Superb efficiency
++
+Although care is taken to ensure that the data structures used are efficient, exceptional efficiency is not the main goal here.
 
 == Alternatives
 

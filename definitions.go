@@ -8,32 +8,37 @@ import (
 )
 
 var (
-	// ErrKeyNotFound     = errors.New("key not found")
-	// ErrKeyAlreadyExists
+	// ErrOutOfBounds is returned when an operation is performed on an index that is out of bounds.
 	ErrOutOfBounds = errors.New("index out of bounds")
-	// ErrValueNotFound
+	// ErrEmptyCollection is returned when an operation is performed on an empty collection.
 	ErrEmptyCollection = fmt.Errorf("%w: collection is empty", ErrOutOfBounds)
-	// ErrKeyAlreadyExists
+	// ErrValueNotFound is returned when a value is not found in a collection.
 	ErrValueNotFound = errors.New("value not found")
 )
 
 // Predicate is used to verify collection element against implemented conditions.
-type Predicate[V any] = func(i int, v V) (valid bool)
+type Predicate[V any] = func(i int, val V) (valid bool)
 
 // Visitor is used to visit each element of a collection.
-type Visitor[V any] = func(i int, v V)
+type Visitor[V any] = func(i int, val V)
 
 // Reducer is used to reducer fold a collection into a single value.
 type Reducer[V any] = func(acc V, i int, current V) V
 
 // Mapper is used to map an element of a collection to a new value.
-type Mapper[V any] = func(i int, v V) V
+type Mapper[V any] = func(i int, val V) V
+
+// Comparator is a comparator function.
+type Comparator[V any] = func(a, b V) int
+
+// PairComparator is a comparator function for key-value pairs.
+type PairComparator[K comparable, V any] = Comparator[Pair[K, V]]
 
 // KKVistor is a visitor function for key-value pairs.
-type KVVistor[K comparable, V any] = func(i int, k K, v V)
+type KVVistor[K comparable, V any] = func(i int, k K, val V)
 
 // KVPredicate is a predicate function for key-value pairs.
-type KVPredicate[K comparable, V any] = func(i int, k K, v V) (valid bool)
+type KVPredicate[K comparable, V any] = func(i int, k K, val V) (valid bool)
 
 // KVReducer is a reducer function for key-value pairs.
 type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, currentValue V) (K, V)
@@ -56,15 +61,20 @@ type Base[V any] interface {
 	// FoldRev(reducer Reducer[V], initial V) (result V) // TODO
 	IsEmpty() bool
 	Len() int
-	Search(predicate Predicate[V]) (v V, found bool)
-	// SearchLastPos(predicate Predicate[V]) (v V, found bool) // TODO
-	// SearchPos(predicate Predicate[V]) (v V, found bool) // TODO
-	SearchRev(predicate Predicate[V]) (v V, found bool)
+	Search(predicate Predicate[V]) (val V, found bool)
+	// SearchLastPos(predicate Predicate[V]) (val V, found bool) // TODO
+	// SearchPos(predicate Predicate[V]) (val V, found bool) // TODO
+	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Reduce(reducer Reducer[V]) (result V, err error)
 	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
 	ToSlice() []V
 	Values() iter.Seq[V]
-	copy() Base[V]
+	// ValuesRev() iter.Seq[V] // TODO
+}
+
+// BasePairs is the base interface for all collections of key-value pairs.
+type BasePairs[K comparable, V any] interface {
+	Base[Pair[K, V]]
 }
 
 // Linear interface indicates that given collection preserves the order of elements.
@@ -74,6 +84,7 @@ type Linear[V any] interface {
 	HeadOrDefault(defaultValue V) (head V)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
+	// LinearValues() iter.Seq2[int, V]  // TODO
 }
 
 // Indexed interface indicates that given collection can be accessed by index.
@@ -104,8 +115,8 @@ type Mutable[V any] interface {
 type IndexedMutable[V any] interface {
 	Indexed[V]
 	Mutable[V]
-	RemoveAt(idx int) error
-	Sort(cmp func(a, b V) int)
+	RemoveAt(idx int) (removed V, err error)
+	Sort(cmp Comparator[V])
 }
 
 // Cmp is a colection of elements of type cmp.Ordered
@@ -118,9 +129,9 @@ type Cmp[V cmp.Ordered] interface {
 	CountValues(v V) int
 	// HasValue is an alias for ContainsValue.
 	// Deprecated: use ContainsValue instead.
-	// HasValue(v V) bool // TODO
-	IndexOf(v V) (i int, found bool)
-	LastIndexOf(v V) (i int, found bool)
+	HasValue(v V) bool
+	IndexOf(val V) (i int, found bool)
+	LastIndexOf(val V) (i int, found bool)
 	Max() (v V, err error)
 	Min() (v V, err error)
 	Sum() (v V)
@@ -131,7 +142,7 @@ type Cmp[V cmp.Ordered] interface {
 // that are not preserving order of elements (like the Go's native map).
 type CmpMutable[V cmp.Ordered] interface {
 	Cmp[V]
-	RemoveValues(v V) // TODO: needed????
+	RemoveValues(v V) // TODO: replace with multiple values (v ...V)
 	SortAsc()
 	SortDesc()
 }
@@ -163,7 +174,7 @@ type CmpSequence[V cmp.Ordered] interface {
 // List is a mutable collection of elements.
 type List[V any] interface {
 	LinearMutable[V]
-	InsertAt(i int, v V) error
+	InsertAt(i int, val V) error
 }
 
 // CmpLinear is a list of elements of type cmp.Ordered
@@ -173,25 +184,32 @@ type CmpLinear[V cmp.Ordered] interface {
 }
 
 // Map is a collection of key-value pairs.
-type Map[P Pair[K, V], K comparable, V any] interface {
-	Mutable[P]
-	Indexed[P]
-	// GetE(k K) (P, error) // TODO?
-
-	Get(k K) (v V, ok bool)
-	GetOrDefault(k K, defaultValue V) (v V, ok bool)
-	Has(k K) bool
+type Map[K comparable, V any] interface {
+	BasePairs[K, V]
+	IndexedMutable[Pair[K, V]]
+	LinearMutable[Pair[K, V]]
+	// FoldValues(reducer Reducer[V], initial V) V // TODO
+	Get(key K) (val V, ok bool)
+	GetOrDefault(k K, defaultValue V) V
+	Has(key K) bool
 	Keys() iter.Seq[K]
 	KeysToSlice() []K
-	RawValues() iter.Seq[V]
-	Remove(k K)
+	KeyValues() iter.Seq2[K, V]
+	// ReduceValues(reducer Reducer[V]) (V, error) // TODO
+	Remove(key K)
 	RemoveMany(keys []K)
+	Set(key K, val V)
+	SetMany(s []Pair[K, V])
+	Sort(compare PairComparator[K, V])
 	ToMap() map[K]V
+	// Values returns values iterator.
+	// Use KeyValues for key-value iterator.
+	Values() iter.Seq[Pair[K, V]]
 }
 
 // CmpMap is a map of key-value pairs where values implement the cmp.Ordered interface
-type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
-	Map[P, K, V]
+type CmpMap[K comparable, V cmp.Ordered] interface {
+	Map[K, V]
 	CmpMutable[V]
 }
 
@@ -200,34 +218,15 @@ type CmpMap[P Pair[K, V], K comparable, V cmp.Ordered] interface {
 // the key. Tampering with the keys would most likely result in breaking the internal consistency of the collection.
 type Pair[K comparable, V any] interface {
 	Key() K
-	Value() V
+	Val() V
+	SetVal(v V)
 	copy() Pair[K, V]
 }
 
-type comfyPair[K comparable, V any] struct {
-	k K
-	v V
-}
-
 // NewPair creates a new Pair instance.
-func NewPair[K comparable, V any](k K, v V) Pair[K, V] {
+func NewPair[K comparable, V any](key K, val V) Pair[K, V] {
 	return &comfyPair[K, V]{
-		k: k,
-		v: v,
-	}
-}
-
-func (p *comfyPair[K, V]) Key() K {
-	return p.k
-}
-
-func (p *comfyPair[K, V]) Value() V {
-	return p.v
-}
-
-func (p *comfyPair[K, V]) copy() Pair[K, V] {
-	return &comfyPair[K, V]{
-		k: p.k,
-		v: p.v,
+		k: key,
+		v: val,
 	}
 }

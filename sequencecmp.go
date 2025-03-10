@@ -9,33 +9,43 @@ import (
 // NewCmpSequence creates a new CmpSequence instance.
 func NewCmpSequence[V cmp.Ordered]() CmpSequence[V] {
 	return &comfyCmpSeq[V]{
-		s: make([]V, 0),
+		s:  []V(nil),
+		vc: newValuesCounter[V](),
 	}
 }
 
 // NewCmpSequenceFrom creates a new CmpSequence instance from a slice.
-func NewCmpSequenceFrom[V cmp.Ordered](l []V) CmpSequence[V] {
-	return &comfyCmpSeq[V]{
-		s: l,
-	}
+func NewCmpSequenceFrom[V cmp.Ordered](s []V) CmpSequence[V] {
+	sq := NewCmpSequence[V]()
+	sq.Append(s...)
+	return sq
 }
 
 type comfyCmpSeq[V cmp.Ordered] struct {
-	s []V
+	s  []V
+	vc *valuesCounter[V]
 }
 
 func (c *comfyCmpSeq[V]) Apply(f Mapper[V]) {
 	for i, v := range c.s {
+		c.vc.Decrement(v)
 		c.s[i] = f(i, v)
+		c.vc.Increment(c.s[i])
 	}
 }
 
 func (c *comfyCmpSeq[V]) Append(v ...V) {
-	c.s = append(c.s, v...)
+	for _, v := range v {
+		c.s = append(c.s, v)
+		c.vc.Increment(v)
+	}
 }
 
 func (c *comfyCmpSeq[V]) AppendColl(coll Linear[V]) {
-	c.s = append(c.s, coll.ToSlice()...)
+	for v := range coll.Values() {
+		c.s = append(c.s, v)
+		c.vc.Increment(v)
+	}
 }
 
 func (c *comfyCmpSeq[V]) At(i int) (V, bool) {
@@ -54,25 +64,16 @@ func (c *comfyCmpSeq[V]) AtOrDefault(i int, defaultValue V) V {
 }
 
 func (c *comfyCmpSeq[V]) Clear() {
-	c.s = make([]V, 0)
+	c.s = []V(nil)
+	c.vc = newValuesCounter[V]()
 }
 
 func (c *comfyCmpSeq[V]) Contains(predicate Predicate[V]) bool {
-	for i, v := range c.s {
-		if predicate(i, v) {
-			return true
-		}
-	}
-	return false
+	return comfyContains(c, predicate)
 }
 
 func (c *comfyCmpSeq[V]) ContainsValue(v V) bool {
-	for _, current := range c.s {
-		if current == v {
-			return true
-		}
-	}
-	return false
+	return c.vc.Count(v) > 0
 }
 
 func (c *comfyCmpSeq[V]) Count(predicate Predicate[V]) int {
@@ -86,13 +87,7 @@ func (c *comfyCmpSeq[V]) Count(predicate Predicate[V]) int {
 }
 
 func (c *comfyCmpSeq[V]) CountValues(v V) int {
-	count := 0
-	for _, current := range c.s {
-		if current == v {
-			count++
-		}
-	}
-	return count
+	return c.vc.Count(v)
 }
 
 func (c *comfyCmpSeq[V]) Each(f Visitor[V]) {
@@ -142,7 +137,11 @@ func (c *comfyCmpSeq[V]) FindLast(predicate Predicate[V], defaultValue V) V {
 }
 
 func (c *comfyCmpSeq[V]) Fold(reducer Reducer[V], initial V) V {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
+}
+
+func (c *comfyCmpSeq[V]) HasValue(v V) bool {
+	return c.ContainsValue(v)
 }
 
 func (c *comfyCmpSeq[V]) Head() (V, bool) {
@@ -161,12 +160,15 @@ func (c *comfyCmpSeq[V]) HeadOrDefault(defaultValue V) V {
 }
 
 func (c *comfyCmpSeq[V]) IndexOf(v V) (i int, found bool) {
+	if c.vc.Count(v) == 0 {
+		return -1, false
+	}
 	for i, current := range c.s {
 		if current == v {
 			return i, true
 		}
 	}
-	return -1, false
+	panic("invalid internal state of comfyCmpSeq")
 }
 
 func (c *comfyCmpSeq[V]) InsertAt(i int, v V) error {
@@ -174,6 +176,7 @@ func (c *comfyCmpSeq[V]) InsertAt(i int, v V) error {
 		return ErrOutOfBounds
 	}
 	c.s = slices.Insert(c.s, i, v)
+	c.vc.Increment(v)
 	return nil
 }
 
@@ -182,12 +185,15 @@ func (c *comfyCmpSeq[V]) IsEmpty() bool {
 }
 
 func (c *comfyCmpSeq[V]) LastIndexOf(v V) (i int, found bool) {
+	if c.vc.Count(v) == 0 {
+		return -1, false
+	}
 	for i := len(c.s) - 1; i >= 0; i-- {
 		if c.s[i] == v {
 			return i, true
 		}
 	}
-	return -1, false
+	panic("invalid internal state of comfyCmpSeq")
 }
 
 func (c *comfyCmpSeq[V]) Len() int {
@@ -203,39 +209,52 @@ func (c *comfyCmpSeq[V]) Min() (V, error) {
 }
 
 func (c *comfyCmpSeq[V]) Prepend(v ...V) {
+	if len(v) == 0 {
+		return
+	}
 	c.s = append(v, c.s...)
+	for _, v := range v {
+		c.vc.Increment(v)
+	}
 }
 
 func (c *comfyCmpSeq[V]) Reduce(reducer Reducer[V]) (V, error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
-func (c *comfyCmpSeq[V]) RemoveAt(i int) error {
-	if i < 0 || i >= len(c.s) {
-		return ErrOutOfBounds
+func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
+	if removed, c.s, err = sliceRemoveAt(c.s, i); err != nil {
+		return removed, err
 	}
-	c.s = append(c.s[:i], c.s[i+1:]...)
-	return nil
+	c.vc.Decrement(removed)
+
+	return removed, nil
 }
 
 func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) {
-	newS := make([]V, 0)
+	newS := []V(nil)
+	newVC := newValuesCounter[V]()
 	for i, v := range c.s {
 		if !predicate(i, v) {
 			newS = append(newS, v)
+			newVC.Increment(v)
 		}
 	}
 	c.s = newS
+	c.vc = newVC
 }
 
 func (c *comfyCmpSeq[V]) RemoveValues(v V) {
-	newS := make([]V, 0)
+	newS := []V(nil)
+	newVC := newValuesCounter[V]()
 	for _, current := range c.s {
 		if current != v {
 			newS = append(newS, current)
+			newVC.Increment(current)
 		}
 	}
 	c.s = newS
+	c.vc = newVC
 }
 
 func (c *comfyCmpSeq[V]) Reverse() {
@@ -323,10 +342,10 @@ func (c *comfyCmpSeq[V]) Values() iter.Seq[V] {
 
 //nolint:unused
 func (c *comfyCmpSeq[V]) copy() Base[V] {
-	newCcl := &comfyCmpSeq[V]{
-		s: make([]V, 0),
+	ccl := &comfyCmpSeq[V]{
+		s:  []V(nil),
+		vc: newValuesCounter[V](),
 	}
-	newCcl.s = append(newCcl.s, c.s...)
-
-	return newCcl
+	ccl.Append(c.s...)
+	return ccl
 }

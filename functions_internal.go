@@ -2,9 +2,23 @@ package coll
 
 //lint:file-ignore U1000
 
-import "cmp"
+import (
+	"cmp"
+	"slices"
+)
 
-func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
+func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
+	keys := []K(nil)
+	for _, pair := range p {
+		keys = append(keys, pair.Key())
+	}
+	c.removeMany(keys)
+	for _, pair := range p {
+		c.set(pair)
+	}
+}
+
+func comfyContains[C Base[V], V any](coll C, predicate Predicate[V]) bool {
 	found := false
 	coll.EachUntil(func(i int, v V) bool {
 		if predicate(i, v) {
@@ -18,10 +32,16 @@ func comfyContains[C Indexed[V], V any](coll C, predicate Predicate[V]) bool {
 	return found
 }
 
-func comfyContainsKV[M Map[*comfyPair[K, V], K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
+func comfyContainsValue[C Base[V], V cmp.Ordered](coll C, search V) bool {
+	return comfyContains(coll, func(_ int, v V) bool {
+		return v == search
+	})
+}
+
+func comfyContainsKV[M Map[K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
 	found := false
-	m.EachUntil(func(i int, p *comfyPair[K, V]) bool {
-		if predicate(i, p.Key(), p.Value()) {
+	m.EachUntil(func(i int, p Pair[K, V]) bool {
+		if predicate(i, p.Key(), p.Val()) {
 			found = true
 			return false
 		}
@@ -83,37 +103,33 @@ func comfyFindLast[C Base[V], V any](coll C, predicate Predicate[V], defaultValu
 	return defaultValue
 }
 
-//func comfyIndexOf[C Base[V], V cmp.Cmp](coll C, value V) (int, error) {
-//	if coll.IsEmpty() {
-//		return -1, ErrEmptyCollection
-//	}
-//
-//	foundIdx := -1
-//	coll.EachUntil(func(i int, v V) bool {
-//		if v == value {
-//			foundIdx = i
-//			return false
-//		}
-//
-//		return true
-//	})
-//
-//	if foundIdx == -1 {
-//		return -1, ErrValueNotFound
-//	}
-//
-//	return foundIdx, nil
-//}
+func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
+	kp := make(map[K]int, len(s))
+	for i, k := range s {
+		kp[k] = i
+	}
 
-func comfyMax[C Base[V], V cmp.Ordered](coll C) (V, error) {
+	return kp
+}
+
+func comfyMax[C Base[V], V cmp.Ordered](c C) (V, error) {
+	return c.Reduce(func(acc V, _ int, current V) V {
+		if current > acc {
+			return current
+		}
+		return acc
+	})
+}
+
+func comfyMaxOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) (V, error) {
 	first := true
 	var foundVal V
-	coll.Each(func(_ int, v V) {
+	c.Each(func(_ int, p Pair[K, V]) {
 		if first {
-			foundVal = v
+			foundVal = p.Val()
 			first = false
-		} else if v > foundVal {
-			foundVal = v
+		} else if p.Val() > foundVal {
+			foundVal = p.Val()
 		}
 	})
 
@@ -125,14 +141,23 @@ func comfyMax[C Base[V], V cmp.Ordered](coll C) (V, error) {
 }
 
 func comfyMin[C Base[V], V cmp.Ordered](coll C) (V, error) {
+	return coll.Reduce(func(acc V, _ int, current V) V {
+		if current < acc {
+			return current
+		}
+		return acc
+	})
+}
+
+func comfyMinOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) (V, error) {
 	first := true
 	var foundVal V
-	coll.Each(func(_ int, v V) {
+	c.Each(func(_ int, p Pair[K, V]) {
 		if first {
-			foundVal = v
+			foundVal = p.Val()
 			first = false
-		} else if v < foundVal {
-			foundVal = v
+		} else if p.Val() < foundVal {
+			foundVal = p.Val()
 		}
 	})
 
@@ -143,95 +168,113 @@ func comfyMin[C Base[V], V cmp.Ordered](coll C) (V, error) {
 	return foundVal, nil
 }
 
-func comfyFold[C Base[V], V any](coll C, reducer Reducer[V], initial V) V {
+func comfyFoldSlice[V any](s []V, reducer Reducer[V], initial V) V {
 	acc := initial
-	coll.Each(func(i int, v V) {
+	for i, v := range s {
 		acc = reducer(acc, i, v)
-	})
+	}
 
 	return acc
 }
 
-func comfyFoldRev[C Base[V], V any](coll C, reducer Reducer[V], initial V) V {
+func comfyFoldSliceRev[V any](s []V, reducer Reducer[V], initial V) V {
 	acc := initial
-	coll.EachRev(func(i int, v V) {
-		acc = reducer(acc, i, v)
-	})
+	for i := len(s) - 1; i >= 0; i-- {
+		acc = reducer(acc, i, s[i])
+	}
 
 	return acc
 }
 
-func comfyReduce[C Base[V], V any](coll C, reducer Reducer[V]) (V, error) {
+func comfyReduceSlice[V any](s []V, reducer Reducer[V]) (V, error) {
 	var acc V
-	if coll.IsEmpty() {
+	if len(s) == 0 {
 		return acc, ErrEmptyCollection
 	}
 
 	first := true
-	coll.Each(func(i int, v V) {
+	for i, v := range s {
 		if first {
 			acc = v
 			first = false
 		} else {
 			acc = reducer(acc, i, v)
 		}
-	})
+	}
 
 	return acc, nil
 }
 
-func comfyReduceRev[C Base[V], V any](coll C, reducer Reducer[V]) (V, error) {
+func comfyReduceSliceRev[V any](s []V, reducer Reducer[V]) (V, error) {
 	var acc V
-	if coll.IsEmpty() {
+	if len(s) == 0 {
 		return acc, ErrEmptyCollection
 	}
 
 	first := true
-	coll.EachRev(func(i int, v V) {
+	for i := len(s) - 1; i >= 0; i-- {
 		if first {
-			acc = v
+			acc = s[i]
 			first = false
 		} else {
-			acc = reducer(acc, i, v)
+			acc = reducer(acc, i, s[i])
 		}
-	})
+	}
 
 	return acc, nil
 }
 
-func comfyReduceKV[M Map[*comfyPair[K, V], K, V], K comparable, V any](coll M, reducer KVReducer[K, V], initialKey K, initialValue V) (K, V) {
-	kAcc := initialKey
-	vAcc := initialValue
-	coll.Each(func(_ int, pair *comfyPair[K, V]) {
-		kAcc, vAcc = reducer(kAcc, vAcc, pair.Key(), pair.Value())
-	})
+func comfySortSliceAndKP[K comparable, V any](s []Pair[K, V], compare PairComparator[K, V]) ([]Pair[K, V], map[K]int) {
+	kp := make(map[K]int)
+	if s == nil {
+		return s, kp
+	}
 
-	return kAcc, vAcc
+	slices.SortFunc(s, func(a, b Pair[K, V]) int {
+		return compare(a, b)
+	})
+	for i, pair := range s {
+		kp[pair.Key()] = i
+	}
+
+	return s, kp
 }
 
 func comfySum[C Base[V], V cmp.Ordered](coll C) V {
-	if coll.IsEmpty() {
-		var v V
-		return v
+	var sum V
+	for v := range coll.Values() {
+		sum += v
 	}
 
-	var initial V
-
-	return coll.Fold(func(sum V, _ int, current V) V {
-		return sum + current
-	}, initial)
+	return sum
 }
 
-func sliceRemoveAt[V any](s []V, i int) ([]V, error) {
-	if i < 0 || i >= len(s) {
-		return nil, ErrOutOfBounds
+func comfySumOfPairs[C BasePairs[K, V], K comparable, V cmp.Ordered](c C) V {
+	var initial V
+	for p := range c.Values() {
+		initial += p.Val()
 	}
 
-	return append(s[:i], s[i+1:]...), nil
+	return initial
+}
+
+func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
+	if i < 0 || i >= len(s) {
+		var v V
+		return v, s, ErrOutOfBounds
+	}
+
+	removed = s[i]
+
+	if len(s) == 1 {
+		return removed, []V(nil), nil
+	}
+
+	return removed, append(s[:i], s[i+1:]...), nil
 }
 
 func sliceRemoveMatching[V any](s []V, predicate Predicate[V]) []V {
-	newS := make([]V, 0)
+	newS := []V(nil)
 	for i, v := range s {
 		if !predicate(i, v) {
 			newS = append(newS, v)

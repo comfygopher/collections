@@ -24,6 +24,9 @@ func NewSequenceFrom[V any](l []V) Sequence[V] {
 }
 
 func (c *comfySeq[V]) Append(v ...V) {
+	if len(v) == 0 {
+		return
+	}
 	c.s = append(c.s, v...)
 }
 
@@ -55,21 +58,11 @@ func (c *comfySeq[V]) AtOrDefault(i int, defaultValue V) V {
 }
 
 func (c *comfySeq[V]) Clear() {
-	c.s = make([]V, 0)
+	c.s = []V(nil)
 }
 
 func (c *comfySeq[V]) Contains(predicate Predicate[V]) bool {
 	return comfyContains[Indexed[V], V](c, predicate)
-}
-
-//nolint:unused
-func (c *comfySeq[V]) copy() Base[V] {
-	newCl := &comfySeq[V]{
-		s: make([]V, 0),
-	}
-	newCl.s = append(newCl.s, c.s...)
-
-	return newCl
 }
 
 func (c *comfySeq[V]) Count(predicate Predicate[V]) int {
@@ -132,7 +125,7 @@ func (c *comfySeq[V]) FindLast(predicate Predicate[V], defaultValue V) V {
 }
 
 func (c *comfySeq[V]) Fold(reducer Reducer[V], initial V) V {
-	return comfyFold(c, reducer, initial)
+	return comfyFoldSlice(c.s, reducer, initial)
 }
 
 func (c *comfySeq[V]) Head() (V, bool) {
@@ -170,21 +163,22 @@ func (c *comfySeq[V]) Len() int {
 }
 
 func (c *comfySeq[V]) Prepend(v ...V) {
+	if len(v) == 0 {
+		return
+	}
 	c.s = append(v, c.s...)
 }
 
 func (c *comfySeq[V]) Reduce(reducer Reducer[V]) (V, error) {
-	return comfyReduce(c, reducer)
+	return comfyReduceSlice(c.s, reducer)
 }
 
-func (c *comfySeq[V]) RemoveAt(i int) error {
-	s, err := sliceRemoveAt(c.s, i)
-	if err != nil {
-		return err
+func (c *comfySeq[V]) RemoveAt(i int) (removed V, err error) {
+	if removed, c.s, err = sliceRemoveAt(c.s, i); err != nil {
+		return removed, err
 	}
 
-	c.s = s
-	return nil
+	return removed, nil
 }
 
 func (c *comfySeq[V]) RemoveMatching(predicate Predicate[V]) {
@@ -250,4 +244,16 @@ func (c *comfySeq[V]) Values() iter.Seq[V] {
 			}
 		}
 	}
+}
+
+// Private:
+
+//nolint:unused
+func (c *comfySeq[V]) copy() Base[V] {
+	newCl := &comfySeq[V]{
+		s: []V(nil),
+	}
+	newCl.s = append(newCl.s, c.s...)
+
+	return newCl
 }

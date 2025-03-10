@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-type baseIntArgs = testArgs[Base[int], int]
-type baseTestCase = testCase[Base[int], int]
-type baseCollIntBuilder = testCollectionBuilder[Base[int], int]
+type baseIntArgs = testArgs[baseInternal[int], int]
+type baseTestCase = testCase[baseInternal[int], int]
+type baseCollIntBuilder = testCollectionBuilder[baseInternal[int]]
 
-type baseIntPairArgs = testArgs[Base[Pair[int, int]], Pair[int, int]]
-type baseIntPairTestCase = testCase[Base[Pair[int, int]], Pair[int, int]]
-type baseCollIntPairBuilder = testPairCollectionBuilder[Base[Pair[int, int]]]
+type baseIntPairArgs = testArgs[baseInternal[Pair[int, int]], Pair[int, int]]
+type baseIntPairTestCase = testCase[baseInternal[Pair[int, int]], Pair[int, int]]
+type baseCollIntPairBuilder = testPairCollectionBuilder[baseInternal[Pair[int, int]]]
 
 func getContainsCases(builder baseCollIntBuilder) []baseTestCase {
 	return []baseTestCase{
@@ -598,6 +598,50 @@ func testFind(t *testing.T, builder baseCollIntBuilder) {
 	}
 }
 
+func getFindCasesWithDupes(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
+	return []*baseIntPairTestCase{
+		{
+			name: "Find() on six-item collection, first one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return true },
+				defaultValue: nil,
+			},
+			want1: NewPair(1, 111),
+		},
+		{
+			name: "Find() on six-item collection, second one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 222 },
+				defaultValue: nil,
+			},
+			want1: NewPair(2, 222),
+		},
+		{
+			name: "Find() on six-item collection, not found",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 999 },
+				defaultValue: nil,
+			},
+			want1: nil,
+		},
+	}
+}
+
+func testFindWithDupes(t *testing.T, builder baseCollIntPairBuilder) {
+	cases := getFindCasesWithDupes(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.Find(tt.args.predicate, tt.args.defaultValue)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("Find() = %v, want1 %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getFindLastCases(builder baseCollIntBuilder) []*baseTestCase {
 	return []*baseTestCase{
 		{
@@ -656,6 +700,50 @@ func getFindLastCases(builder baseCollIntBuilder) []*baseTestCase {
 			}},
 			want1: 333,
 		},
+	}
+}
+
+func getFindLastCasesWithDupes(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
+	return []*baseIntPairTestCase{
+		{
+			name: "FindLast() on six-item collection, first one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return true },
+				defaultValue: nil,
+			},
+			want1: NewPair(6, 333),
+		},
+		{
+			name: "FindLast() on six-item collection, second one",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 222 },
+				defaultValue: nil,
+			},
+			want1: NewPair(5, 222),
+		},
+		{
+			name: "FindLast() on six-item collection, not found",
+			coll: builder.SixWithDuplicates(),
+			args: baseIntPairArgs{
+				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 999 },
+				defaultValue: nil,
+			},
+			want1: nil,
+		},
+	}
+}
+
+func testFindLastWithDupes(t *testing.T, builder baseCollIntPairBuilder) {
+	cases := getFindLastCasesWithDupes(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.FindLast(tt.args.predicate, tt.args.defaultValue)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("FindLast() = %v, want1 %v", got, tt.want1)
+			}
+		})
 	}
 }
 
@@ -1005,7 +1093,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 111
+				return v.Val() == 111
 			}},
 			want1: NewPair(1, 111),
 			want2: true,
@@ -1014,7 +1102,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 222
+				return v.Val() == 222
 			}},
 			want1: NewPair(2, 222),
 			want2: true,
@@ -1023,7 +1111,7 @@ func getSearchPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCase {
 			name: "Search() pair on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 333
+				return v.Val() == 333
 			}},
 			want1: NewPair(3, 333),
 			want2: true,
@@ -1199,7 +1287,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 111
+				return v.Val() == 111
 			}},
 			want1: NewPair(4, 111),
 			want2: true,
@@ -1208,7 +1296,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 222
+				return v.Val() == 222
 			}},
 			want1: NewPair(5, 222),
 			want2: true,
@@ -1217,7 +1305,7 @@ func getSearchRevPairCases(builder baseCollIntPairBuilder) []*baseIntPairTestCas
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
 			args: baseIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
-				return v.Value() == 333
+				return v.Val() == 333
 			}},
 			want1: NewPair(6, 333),
 			want2: true,
