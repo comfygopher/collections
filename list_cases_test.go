@@ -20,7 +20,7 @@ func getInsertAtCases(builder listCollIntBuilder) []listTestCase {
 			want2: map[int]int{999: 1},
 		},
 		{
-			name:  "InsertAt() on one-item collection",
+			name:  "InsertAt() on one-item collection at beginning",
 			coll:  builder.One(),
 			args:  listIntArgs{index: 0, value: 1},
 			want1: []int{1, 111},
@@ -32,13 +32,6 @@ func getInsertAtCases(builder listCollIntBuilder) []listTestCase {
 			args:  listIntArgs{index: 1, value: 1},
 			want1: []int{111, 1},
 			want2: map[int]int{111: 1, 1: 1},
-		},
-		{
-			name:  "InsertAt() on one-item collection at beginning",
-			coll:  builder.One(),
-			args:  listIntArgs{index: 0, value: 1},
-			want1: []int{1, 111},
-			want2: map[int]int{1: 1, 111: 1},
 		},
 		{
 			name:  "InsertAt() on three-item collection at beginning",

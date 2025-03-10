@@ -367,7 +367,7 @@ func Test_comfyCmpSeq_copy_pointer(t *testing.T) {
 	t.Run("copy() creates a deep copy", func(t *testing.T) {
 		c1.s[0] = 999
 		c2s := c2.(*comfyCmpSeq[int]).s
-		for v := range c2s {
+		for _, v := range c2s {
 			if v == 999 {
 				t.Error("copy() did not create a deep copy")
 			}

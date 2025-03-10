@@ -28,7 +28,11 @@ func (c *valuesCounter[V]) Increment(v V) {
 }
 
 func (c *valuesCounter[V]) Decrement(v V) {
-	if c.counter[v] == 1 {
+	count, exists := c.counter[v]
+	if !exists {
+		return
+	}
+	if count == 1 {
 		delete(c.counter, v)
 	} else {
 		c.counter[v]--
