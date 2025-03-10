@@ -13,18 +13,11 @@ func newValuesCounter[V cmp.Ordered]() *valuesCounter[V] {
 }
 
 func (c *valuesCounter[V]) Count(v V) int {
-	if _, ok := c.counter[v]; !ok {
-		return 0
-	}
 	return c.counter[v]
 }
 
 func (c *valuesCounter[V]) Increment(v V) {
-	if _, ok := c.counter[v]; !ok {
-		c.counter[v] = 1
-	} else {
-		c.counter[v]++
-	}
+	c.counter[v]++
 }
 
 func (c *valuesCounter[V]) Decrement(v V) {
