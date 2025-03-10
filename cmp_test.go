@@ -1,9 +1,12 @@
 package coll
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func Test_valuesCounter(t *testing.T) {
-	t.Run("Increment() and Count()", func(t *testing.T) {
+	t.Run("Increment(), Decrement(), and Count()", func(t *testing.T) {
 		vc := newValuesCounter[int]()
 		vc.Decrement(1)
 		vc.Increment(1)
@@ -16,20 +19,23 @@ func Test_valuesCounter(t *testing.T) {
 		vc.Increment(4)
 		vc.Increment(4)
 		vc.Increment(4)
-		if vc.Count(1) != 2 {
-			t.Errorf("Count(1) = %v, want %v", vc.Count(1), 2)
+		testCases := []struct {
+			value    int
+			expected int
+		}{
+			{1, 2},
+			{2, 1},
+			{3, 3},
+			{4, 4},
+			{5, 0}, // Non-existent value
 		}
-		if vc.Count(2) != 1 {
-			t.Errorf("Count(2) = %v, want %v", vc.Count(2), 1)
-		}
-		if vc.Count(3) != 3 {
-			t.Errorf("Count(3) = %v, want %v", vc.Count(3), 3)
-		}
-		if vc.Count(4) != 4 {
-			t.Errorf("Count(4) = %v, want %v", vc.Count(4), 4)
-		}
-		if vc.Count(5) != 0 {
-			t.Errorf("Count(5) = %v, want %v", vc.Count(5), 0)
+
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("Count(%d)", tc.value), func(t *testing.T) {
+				if count := vc.Count(tc.value); count != tc.expected {
+					t.Errorf("Count(%d) = %v, want %v", tc.value, count, tc.expected)
+				}
+			})
 		}
 	})
 }
