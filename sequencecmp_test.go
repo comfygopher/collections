@@ -199,6 +199,10 @@ func Test_comfyCmpSeq_Fold(t *testing.T) {
 	testFold(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfyCmpSeq_FoldRev(t *testing.T) {
+	testFoldRev(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+}
+
 func Test_comfyCmpSeq_HasValue(t *testing.T) {
 	testHasValue(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
 }

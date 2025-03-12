@@ -1201,7 +1201,7 @@ func getMapFoldCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			name: "Fold() on empty collection",
 			coll: builder.Empty(),
 			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
 					return acc
 				},
 				initial: nil,
@@ -1209,10 +1209,21 @@ func getMapFoldCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: nil,
 		},
 		{
+			name: "Fold() on empty collection with initial",
+			coll: builder.Empty(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return acc
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(10, 100),
+		},
+		{
 			name: "Fold() on one-item collection",
 			coll: builder.One(),
 			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
 					return current
 				},
 				initial: nil,
@@ -1220,10 +1231,21 @@ func getMapFoldCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: NewPair(1, 111),
 		},
 		{
+			name: "Fold() on one-item collection with non-nil initial",
+			coll: builder.One(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(11, 211),
+		},
+		{
 			name: "Fold() on three-item collection",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
 					if acc == nil {
 						return current
 					}
@@ -1234,10 +1256,23 @@ func getMapFoldCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 			want1: NewPair(6, 666),
 		},
 		{
+			name: "Fold() on three-item collection with non-nil initial",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					newKey := acc.Key() + current.Key()
+					newVal := acc.Val()*10 + current.Val()
+					return NewPair(newKey, newVal)
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(16, 113653),
+		},
+		{
 			name: "Fold() on six-item collection",
 			coll: builder.SixWithDuplicates(),
 			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
 					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
 				},
 				initial: NewPair(0, 0),
@@ -1254,6 +1289,105 @@ func testMapFold(t *testing.T, builder baseMapCollIntBuilder) {
 			got := tt.coll.Fold(tt.args.reducer, tt.args.initial)
 			if !reflect.DeepEqual(got, tt.want1) {
 				t.Errorf("Fold() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapFoldRevCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name: "Fold() on empty collection",
+			coll: builder.Empty(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return acc
+				},
+				initial: nil,
+			},
+			want1: nil,
+		},
+		{
+			name: "Fold() on empty collection with initial",
+			coll: builder.Empty(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return acc
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(10, 100),
+		},
+		{
+			name: "Fold() on one-item collection",
+			coll: builder.One(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return current
+				},
+				initial: nil,
+			},
+			want1: NewPair(1, 111),
+		},
+		{
+			name: "Fold() on one-item collection with non-nil initial",
+			coll: builder.One(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(11, 211),
+		},
+		{
+			name: "Fold() on three-item collection",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					if acc == nil {
+						return current
+					}
+					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
+				},
+				initial: nil,
+			},
+			want1: NewPair(6, 666),
+		},
+		{
+			name: "Fold() on three-item collection with non-nil initial",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					newKey := acc.Key() + current.Key()
+					newVal := acc.Val()*10 + current.Val()
+					return NewPair(newKey, newVal)
+				},
+				initial: NewPair(10, 100),
+			},
+			want1: NewPair(16, 135631),
+		},
+		{
+			name: "Fold() on six-item collection",
+			coll: builder.SixWithDuplicates(),
+			args: baseMapIntArgs{
+				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
+					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
+				},
+				initial: NewPair(0, 0),
+			},
+			want1: NewPair(21, 1332),
+		},
+	}
+}
+
+func testMapFoldRev(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapFoldRevCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.FoldRev(tt.args.reducer, tt.args.initial)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("FoldRev() = %v, want1 = %v", got, tt.want1)
 			}
 		})
 	}

@@ -140,6 +140,10 @@ func (c *comfyCmpSeq[V]) Fold(reducer Reducer[V], initial V) V {
 	return comfyFoldSlice(c.s, reducer, initial)
 }
 
+func (c *comfyCmpSeq[V]) FoldRev(reducer Reducer[V], initial V) V {
+	return comfyFoldSliceRev(c.s, reducer, initial)
+}
+
 func (c *comfyCmpSeq[V]) HasValue(v V) bool {
 	return c.ContainsValue(v)
 }

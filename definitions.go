@@ -58,7 +58,7 @@ type Base[V any] interface {
 	// See: SearchRev
 	FindLast(predicate Predicate[V], defaultValue V) V
 	Fold(reducer Reducer[V], initial V) (result V)
-	// FoldRev(reducer Reducer[V], initial V) (result V) // TODO
+	FoldRev(reducer Reducer[V], initial V) (result V)
 	IsEmpty() bool
 	Len() int
 	Search(predicate Predicate[V]) (val V, found bool)

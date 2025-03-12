@@ -128,6 +128,10 @@ func (c *comfySeq[V]) Fold(reducer Reducer[V], initial V) V {
 	return comfyFoldSlice(c.s, reducer, initial)
 }
 
+func (c *comfySeq[V]) FoldRev(reducer Reducer[V], initial V) V {
+	return comfyFoldSliceRev(c.s, reducer, initial)
+}
+
 func (c *comfySeq[V]) Head() (V, bool) {
 	if len(c.s) == 0 {
 		var v V

@@ -237,6 +237,10 @@ func Test_comfyCmpMap_Fold(t *testing.T) {
 	testMapFold(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_FoldRev(t *testing.T) {
+	testMapFoldRev(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyCmpMap_Get(t *testing.T) {
 	testMapGet(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
