@@ -126,6 +126,10 @@ func (c *comfyMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) P
 	return comfyFoldSlice(c.s, reducer, initial)
 }
 
+func (c *comfyMap[K, V]) FoldRev(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
+	return comfyFoldSliceRev(c.s, reducer, initial)
+}
+
 func (c *comfyMap[K, V]) Get(k K) (V, bool) {
 	pair, ok := c.m[k]
 	if !ok {

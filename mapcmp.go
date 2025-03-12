@@ -21,8 +21,13 @@ func NewCmpMap[K comparable, V cmp.Ordered]() CmpMap[K, V] {
 
 // NewCmpMapFrom creates a new CmpMap instance from a slice of pairs.
 func NewCmpMapFrom[K comparable, V cmp.Ordered](s []Pair[K, V]) CmpMap[K, V] {
-	cm := NewCmpMap[K, V]()
-	cm.(*comfyCmpMap[K, V]).setMany(s)
+	cm := &comfyCmpMap[K, V]{
+		s:  []Pair[K, V](nil),
+		m:  make(map[K]Pair[K, V]),
+		kp: make(map[K]int),
+		vc: newValuesCounter[V](),
+	}
+	cm.setMany(s)
 	return cm
 }
 
@@ -138,6 +143,10 @@ func (c *comfyCmpMap[K, V]) FindLast(predicate Predicate[Pair[K, V]], defaultVal
 
 func (c *comfyCmpMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
 	return comfyFoldSlice(c.s, reducer, initial)
+}
+
+func (c *comfyCmpMap[K, V]) FoldRev(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
+	return comfyFoldSliceRev(c.s, reducer, initial)
 }
 
 func (c *comfyCmpMap[K, V]) Get(k K) (V, bool) {

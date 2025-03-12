@@ -195,6 +195,10 @@ func Test_comfySeq_Fold(t *testing.T) {
 	testFold(t, &comfySeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfySeq_FoldRev(t *testing.T) {
+	testFoldRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
+}
+
 func Test_comfySeq_Head(t *testing.T) {
 	testHead(t, &comfySeqIntBuilder[linearInternal[int]]{})
 }

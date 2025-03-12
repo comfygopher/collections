@@ -766,18 +766,18 @@ func getFoldCases(builder baseCollIntBuilder) []*baseTestCase {
 			coll: builder.Empty(),
 			args: baseIntArgs{
 				reducer: func(acc int, i int, current int) int {
-					return acc + current
+					return acc*10 + current
 				},
-				initial: 0,
+				initial: 100,
 			},
-			want1: 0,
+			want1: 100,
 		},
 		{
 			name: "Fold() on one-item collection",
 			coll: builder.One(),
 			args: baseIntArgs{
 				reducer: func(acc int, i int, current int) int {
-					return acc + current
+					return acc*10 + current
 				},
 				initial: 0,
 			},
@@ -788,22 +788,22 @@ func getFoldCases(builder baseCollIntBuilder) []*baseTestCase {
 			coll: builder.Three(),
 			args: baseIntArgs{
 				reducer: func(acc int, i int, current int) int {
-					return acc + current
+					return acc*10 + current
 				},
 				initial: 100,
 			},
-			want1: 766,
+			want1: 113653,
 		},
 		{
 			name: "Fold() on three-item collection, include index",
 			coll: builder.Three(),
 			args: baseIntArgs{
 				reducer: func(acc int, i int, current int) int {
-					return acc + i + current
+					return acc*(i+1) + current
 				},
 				initial: 100,
 			},
-			want1: 100 + 0 + 111 + 1 + 222 + 2 + 333,
+			want1: ((100+111)*2+222)*3 + 333,
 		},
 	}
 }
@@ -815,6 +815,67 @@ func testFold(t *testing.T, builder baseCollIntBuilder) {
 			got := tt.coll.Fold(tt.args.reducer, tt.args.initial)
 			if !reflect.DeepEqual(got, tt.want1) {
 				t.Errorf("Reduce() = %v, want1 %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getFoldRevCases(builder baseCollIntBuilder) []*baseTestCase {
+	return []*baseTestCase{
+		{
+			name: "FoldRev() on empty collection",
+			coll: builder.Empty(),
+			args: baseIntArgs{
+				reducer: func(acc int, _ int, current int) int {
+					return acc*10 + current
+				},
+				initial: 100,
+			},
+			want1: 100,
+		},
+		{
+			name: "FoldRev() on one-item collection",
+			coll: builder.One(),
+			args: baseIntArgs{
+				reducer: func(acc int, _ int, current int) int {
+					return acc*10 + current
+				},
+				initial: 100,
+			},
+			want1: 1111,
+		},
+		{
+			name: "FoldRev() on three-item collection",
+			coll: builder.Three(),
+			args: baseIntArgs{
+				reducer: func(acc int, _ int, current int) int {
+					return acc*10 + current
+				},
+				initial: 100,
+			},
+			want1: 135631,
+		},
+		{
+			name: "FoldRev() on three-item collection, include index",
+			coll: builder.Three(),
+			args: baseIntArgs{
+				reducer: func(acc int, i int, current int) int {
+					return acc*(i+1) + current
+				},
+				initial: 100,
+			},
+			want1: ((100*3+333)*2 + 222) + 111,
+		},
+	}
+}
+
+func testFoldRev(t *testing.T, builder baseCollIntBuilder) {
+	cases := getFoldRevCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.coll.FoldRev(tt.args.reducer, tt.args.initial)
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("FoldRev() = %v, want1 %v", got, tt.want1)
 			}
 		})
 	}

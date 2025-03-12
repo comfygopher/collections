@@ -1,35 +1,10 @@
 package coll
 
-// public API:
+// Public:
 
 // Copy creates a copy of the given collection.
 func Copy[C baseInternal[V], V any](c C) C {
-	//var it V
-	//
-	//if _, ok := interface{}(it).(cmp.Cmp); ok {
-	//	// c is of type CmpSequence[V]
-	//}
-
 	return c.copy().(C)
-
-	//switch v := any(c).(type) {
-	//case *comfySeq[V]:
-	//	return c.copy().(C)
-	//case *comfyCmpSeq[any]:
-	//	return c.copy().(C)
-	//}
-
-	// check if c is of type Sequence[C]:
-	//if cl, ok := any(c).(*comfySeq[V]); ok {
-	//	s := make([]V, len(cl.s))
-	//	for _, v := range cl.s {
-	//		s = append(s, v)
-	//	}
-	//	c := &comfySeq[V]{
-	//		s: s,
-	//	}
-	//	return any(c).(C)
-	//}
 }
 
 //// Filter creates a new, filtered collection from the given collection.
@@ -38,6 +13,7 @@ func Copy[C baseInternal[V], V any](c C) C {
 //}
 //
 //// MapTo creates a new, mapped collection from the given collection.
+// Maybe this should be called "Transform"? Maybe "MapTo" should be an alias for "Transform"?
 //func MapTo[OUT Indexed[N], IN Indexed[V], V, N any](coll IN, transformer func(int, V) N) OUT {
 //	panic("not implemented")
 //}
