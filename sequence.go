@@ -177,6 +177,10 @@ func (c *comfySeq[V]) Reduce(reducer Reducer[V]) (V, error) {
 	return comfyReduceSlice(c.s, reducer)
 }
 
+func (c *comfySeq[V]) ReduceRev(reducer Reducer[V]) (V, error) {
+	return comfyReduceSliceRev(c.s, reducer)
+}
+
 func (c *comfySeq[V]) RemoveAt(i int) (removed V, err error) {
 	if removed, c.s, err = sliceRemoveAt(c.s, i); err != nil {
 		return removed, err

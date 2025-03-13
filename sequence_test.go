@@ -228,6 +228,10 @@ func Test_comfySeq_Reduce(t *testing.T) {
 	testReduce(t, &comfySeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfySeq_ReduceRev(t *testing.T) {
+	testReduceRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
+}
+
 func Test_comfySeq_RemoveAt(t *testing.T) {
 	testRemoveAt(t, &comfySeqIntBuilder[indexedMutableInternal[int]]{})
 }

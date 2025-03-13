@@ -950,8 +950,8 @@ func getReduceCases(t *testing.T, builder baseCollIntBuilder) []*baseTestCase {
 		{
 			name: "Reduce() on empty collection",
 			coll: builder.Empty(),
-			args: baseIntArgs{reducer: func(acc int, i int, current int) int {
-				return acc + current
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
 			}},
 			want1: 0,
 			want2: ErrEmptyCollection,
@@ -959,8 +959,8 @@ func getReduceCases(t *testing.T, builder baseCollIntBuilder) []*baseTestCase {
 		{
 			name: "Fold() on one-item collection",
 			coll: builder.One(),
-			args: baseIntArgs{reducer: func(acc int, i int, current int) int {
-				return acc + current
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
 			}},
 			want1: 111,
 			want2: nil,
@@ -968,19 +968,10 @@ func getReduceCases(t *testing.T, builder baseCollIntBuilder) []*baseTestCase {
 		{
 			name: "Fold() on three-item collection",
 			coll: builder.Three(),
-			args: baseIntArgs{reducer: func(acc int, i int, current int) int {
-				return acc + current
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
 			}},
-			want1: 666,
-			want2: nil,
-		},
-		{
-			name: "Fold() on three-item collection, include index",
-			coll: builder.Three(),
-			args: baseIntArgs{reducer: func(acc int, i int, current int) int {
-				return acc + i + current
-			}},
-			want1: 0 + 111 + 1 + 222 + 2 + 333,
+			want1: 13653,
 			want2: nil,
 		},
 	}
@@ -991,6 +982,53 @@ func testReduce(t *testing.T, builder baseCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got1, got2 := tt.coll.Reduce(tt.args.reducer)
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Reduce() = %v, want1 %v", got1, tt.want1)
+			}
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("Reduce() = %v, want1 %v", got2, tt.want2)
+			}
+		})
+	}
+}
+
+func getReduceRevCases(t *testing.T, builder baseCollIntBuilder) []*baseTestCase {
+	return []*baseTestCase{
+		{
+			name: "Reduce() on empty collection",
+			coll: builder.Empty(),
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
+			}},
+			want1: 0,
+			want2: ErrEmptyCollection,
+		},
+		{
+			name: "Fold() on one-item collection",
+			coll: builder.One(),
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
+			}},
+			want1: 111,
+			want2: nil,
+		},
+		{
+			name: "Fold() on three-item collection",
+			coll: builder.Three(),
+			args: baseIntArgs{reducer: func(acc int, _ int, current int) int {
+				return acc*10 + current
+			}},
+			want1: 35631,
+			want2: nil,
+		},
+	}
+}
+
+func testReduceRev(t *testing.T, builder baseCollIntBuilder) {
+	cases := getReduceRevCases(t, builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := tt.coll.ReduceRev(tt.args.reducer)
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Reduce() = %v, want1 %v", got1, tt.want1)
 			}

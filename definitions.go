@@ -66,7 +66,7 @@ type Base[V any] interface {
 	// SearchPos(predicate Predicate[V]) (val V, found bool) // TODO
 	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Reduce(reducer Reducer[V]) (result V, err error)
-	// ReduceRev(reducer Reducer[V]) (result V, err error) // TODO
+	ReduceRev(reducer Reducer[V]) (result V, err error)
 	ToSlice() []V
 	Values() iter.Seq[V]
 	// ValuesRev() iter.Seq[V] // TODO
