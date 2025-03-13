@@ -255,6 +255,10 @@ func (c *comfyCmpMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], err
 	return comfyReduceSlice(c.s, reducer)
 }
 
+func (c *comfyCmpMap[K, V]) ReduceRev(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
+	return comfyReduceSliceRev(c.s, reducer)
+}
+
 func (c *comfyCmpMap[K, V]) Remove(k K) {
 	c.remove(k)
 }

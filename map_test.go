@@ -262,6 +262,10 @@ func Test_comfyMap_Reduce(t *testing.T) {
 	testMapReduce(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyMap_ReduceRev(t *testing.T) {
+	testMapReduceRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyMap_Remove(t *testing.T) {
 	testMapRemove(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }

@@ -1,8 +1,8 @@
 = Comfy Gopher - Collections
 
 image:https://codecov.io/gh/comfygopher/collections/graph/badge.svg?token=I5QQ2SU3E7[codecov,link=https://codecov.io/gh/comfygopher/collections]
-
-image:https://img.shields.io/coderabbit/prs/github/comfygopher/collections?utm_source=oss&utm_medium=github&utm_campaign=comfygopher%2Fcollections&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews[CodeRabbit Pull Request Reviews]
+image:https://img.shields.io/coderabbit/prs/github/comfygopher/collections?utm_source=oss&utm_medium=github&utm_campaign=comfygopher%2Fcollections&labelColor=5b5b5b&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews[CodeRabbit Pull Request Reviews]
+image:https://goreportcard.com/badge/github.com/comfygopher/collections[Go Report Card,link=https://goreportcard.com/report/github.com/comfygopher/collections]
 
 == What is Comfy Gopher?
 

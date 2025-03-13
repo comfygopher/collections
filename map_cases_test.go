@@ -2051,30 +2051,30 @@ func testMapPrepend(t *testing.T, builder baseMapCollIntBuilder) {
 }
 
 func getMapReduceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	sumReducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
-		return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
+	reducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+		return NewPair(acc.Key()+current.Key(), acc.Val()*10+current.Val())
 	}
 
 	return []baseMapTestCase{
 		{
 			name:  "Reduce() on empty collection",
 			coll:  builder.Empty(),
-			args:  baseMapIntArgs{reducer: sumReducer},
+			args:  baseMapIntArgs{reducer: reducer},
 			want1: nil,
 			want2: ErrEmptyCollection,
 		},
 		{
 			name:  "Reduce() on one-item collection",
 			coll:  builder.One(),
-			args:  baseMapIntArgs{reducer: sumReducer},
+			args:  baseMapIntArgs{reducer: reducer},
 			want1: NewPair(1, 111),
 			want2: nil,
 		},
 		{
 			name:  "Reduce() on three-item collection",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{reducer: sumReducer},
-			want1: NewPair(6, 666),
+			args:  baseMapIntArgs{reducer: reducer},
+			want1: NewPair(6, 13653),
 			want2: nil,
 		},
 	}
@@ -2085,6 +2085,51 @@ func testMapReduce(t *testing.T, builder baseMapCollIntBuilder) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got1, got2 := tt.coll.Reduce(tt.args.reducer)
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Reduce() got1 = %v, want1 = %v", got1, tt.want1)
+			}
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("Reduce() got2 = %v, want2 = %v", got2, tt.want2)
+			}
+		})
+	}
+}
+
+func getMapReduceRevCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	reducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
+		return NewPair(acc.Key()+current.Key(), acc.Val()*10+current.Val())
+	}
+
+	return []baseMapTestCase{
+		{
+			name:  "Reduce() on empty collection",
+			coll:  builder.Empty(),
+			args:  baseMapIntArgs{reducer: reducer},
+			want1: nil,
+			want2: ErrEmptyCollection,
+		},
+		{
+			name:  "Reduce() on one-item collection",
+			coll:  builder.One(),
+			args:  baseMapIntArgs{reducer: reducer},
+			want1: NewPair(1, 111),
+			want2: nil,
+		},
+		{
+			name:  "Reduce() on three-item collection",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{reducer: reducer},
+			want1: NewPair(6, 35631),
+			want2: nil,
+		},
+	}
+}
+
+func testMapReduceRev(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapReduceRevCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := tt.coll.ReduceRev(tt.args.reducer)
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Reduce() got1 = %v, want1 = %v", got1, tt.want1)
 			}

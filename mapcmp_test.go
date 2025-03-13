@@ -310,6 +310,10 @@ func Test_comfyCmpMap_Reduce(t *testing.T) {
 	testMapReduce(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyCmpMap_ReduceRev(t *testing.T) {
+	testMapReduceRev(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyCmpMap_Remove(t *testing.T) {
 	testMapRemove(t, &comfyCmpMapIntBuilder[mapInternal[int, int]]{})
 }
