@@ -57,7 +57,7 @@ func (*baseFakeWithoutInternal[V]) Values() iter.Seq[V] {
 func Test_Copy_forEachFlatCollection(t *testing.T) {
 	cases := []struct {
 		name string
-		coll Base[int]
+		coll LinearMutable[int]
 	}{
 		{
 			name: "Copy() on empty Sequence",
@@ -80,7 +80,15 @@ func Test_Copy_forEachFlatCollection(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Copy(tt.coll)
 			if !reflect.DeepEqual(got, tt.coll) {
-				t.Errorf("Copy() = %v, want1 %v", got, tt.coll)
+				t.Errorf("Copy() = %v, want %v", got, tt.coll)
+			}
+
+			tt.coll.Append(999)
+			if reflect.DeepEqual(got, tt.coll) {
+				t.Errorf("Copy() did not create a deep copy")
+			}
+			if got.Len() == tt.coll.Len() {
+				t.Errorf("Original length changed: got %d, want 3", got.Len())
 			}
 		})
 	}
@@ -103,12 +111,24 @@ func Test_Copy_forEachMap(t *testing.T) {
 				NewPair(3, 333),
 			}),
 		},
+		{
+			name: "Copy() on empty CmpMap",
+			coll: NewCmpMap[int, int](),
+		},
+		{
+			name: "Copy() three-item CmpMap",
+			coll: NewCmpMapFrom([]Pair[int, int]{
+				NewPair(1, 111),
+				NewPair(2, 222),
+				NewPair(3, 333),
+			}),
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Copy(tt.coll)
 			if !reflect.DeepEqual(got, tt.coll) {
-				t.Errorf("Copy() = %v, want1 %v", got, tt.coll)
+				t.Errorf("Copy() = %v, want %v", got, tt.coll)
 			}
 		})
 	}
