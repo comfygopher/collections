@@ -88,7 +88,11 @@ func Test_Copy_forEachFlatCollection(t *testing.T) {
 				t.Errorf("Copy() did not create a deep copy")
 			}
 			if got.Len() == tt.coll.Len() {
-				t.Errorf("Original length changed: got %d, want 3", got.Len())
+				t.Errorf(
+					"Copy length %d should be different from original length %d after modification",
+					got.Len(),
+					tt.coll.Len(),
+				)
 			}
 		})
 	}
@@ -129,6 +133,18 @@ func Test_Copy_forEachMap(t *testing.T) {
 			got := Copy(tt.coll)
 			if !reflect.DeepEqual(got, tt.coll) {
 				t.Errorf("Copy() = %v, want %v", got, tt.coll)
+			}
+
+			tt.coll.Append(NewPair(4, 444))
+			if reflect.DeepEqual(got, tt.coll) {
+				t.Errorf("Copy() did not create a deep copy")
+			}
+			if got.Len() == tt.coll.Len() {
+				t.Errorf(
+					"Copy length %d should be different from original length %d after modification",
+					got.Len(),
+					tt.coll.Len(),
+				)
 			}
 		})
 	}
