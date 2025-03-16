@@ -5,37 +5,37 @@ import (
 	"testing"
 )
 
-type linearMutableIntArgs = testArgs[linearMutableInternal[int], int]
-type linearMutableTestCase = testCase[linearMutableInternal[int], int]
-type linearMutableCollIntBuilder = testCollectionBuilder[linearMutableInternal[int]]
+type orderedMutableIntArgs = testArgs[orderedMutableInternal[int], int]
+type orderedMutableTestCase = testCase[orderedMutableInternal[int], int]
+type orderedMutableCollIntBuilder = testCollectionBuilder[orderedMutableInternal[int]]
 
-func getAppendOneCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getAppendOneCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Append() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{value: 111},
+			args:  orderedMutableIntArgs{value: 111},
 			want1: []int{111},
 			want2: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on one-item collection",
 			coll:  builder.One(),
-			args:  linearMutableIntArgs{value: 1},
+			args:  orderedMutableIntArgs{value: 1},
 			want1: []int{111, 1},
 			want2: map[int]int{111: 1, 1: 1},
 		},
 		{
 			name:  "Append() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{value: 4},
+			args:  orderedMutableIntArgs{value: 4},
 			want1: []int{111, 222, 333, 4},
 			want2: map[int]int{111: 1, 222: 1, 333: 1, 4: 1},
 		},
 	}
 }
 
-func testAppendOne(t *testing.T, builder linearMutableCollIntBuilder) {
+func testAppendOne(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getAppendOneCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -54,47 +54,47 @@ func testAppendOne(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func getAppendManyCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getAppendManyCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Append() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{values: []int{111}},
+			args:  orderedMutableIntArgs{values: []int{111}},
 			want1: []int{111},
 			want2: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on one-item collection",
 			coll:  builder.One(),
-			args:  linearMutableIntArgs{values: []int{1}},
+			args:  orderedMutableIntArgs{values: []int{1}},
 			want1: []int{111, 1},
 			want2: map[int]int{111: 1, 1: 1},
 		},
 		{
 			name:  "Append() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{values: []int{4, 5}},
+			args:  orderedMutableIntArgs{values: []int{4, 5}},
 			want1: []int{111, 222, 333, 4, 5},
 			want2: map[int]int{111: 1, 222: 1, 333: 1, 4: 1, 5: 1},
 		},
 		{
 			name:  "Append() on none",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{values: []int{}},
+			args:  orderedMutableIntArgs{values: []int{}},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Append() none to empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{values: []int{}},
+			args:  orderedMutableIntArgs{values: []int{}},
 			want1: []int(nil),
 			want2: map[int]int{},
 		},
 	}
 }
 
-func testAppendMany(t *testing.T, builder linearMutableCollIntBuilder) {
+func testAppendMany(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getAppendManyCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -113,47 +113,47 @@ func testAppendMany(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func getAppendCollCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getAppendCollCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Append() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{coll: builder.One()},
+			args:  orderedMutableIntArgs{coll: builder.One()},
 			want1: []int{111},
 			want2: map[int]int{111: 1},
 		},
 		{
 			name:  "Append() on one-item collection",
 			coll:  builder.One(),
-			args:  linearMutableIntArgs{coll: builder.One()},
+			args:  orderedMutableIntArgs{coll: builder.One()},
 			want1: []int{111, 111},
 			want2: map[int]int{111: 2},
 		},
 		{
 			name:  "Append() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{coll: builder.Two()},
+			args:  orderedMutableIntArgs{coll: builder.Two()},
 			want1: []int{111, 222, 333, 123, 234},
 			want2: map[int]int{111: 1, 222: 1, 333: 1, 123: 1, 234: 1},
 		},
 		{
 			name:  "Append() empty collection on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{coll: builder.Empty()},
+			args:  orderedMutableIntArgs{coll: builder.Empty()},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Append() empty collection on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{coll: builder.Empty()},
+			args:  orderedMutableIntArgs{coll: builder.Empty()},
 			want1: []int(nil),
 			want2: map[int]int{},
 		},
 	}
 }
 
-func testAppendColl(t *testing.T, builder linearMutableCollIntBuilder) {
+func testAppendColl(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getAppendCollCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -172,33 +172,33 @@ func testAppendColl(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func getPrependOneCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getPrependOneCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Prepend() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{value: 1},
+			args:  orderedMutableIntArgs{value: 1},
 			want1: []int{1},
 			want2: map[int]int{1: 1},
 		},
 		{
 			name:  "Prepend() on one-item collection",
 			coll:  builder.One(),
-			args:  linearMutableIntArgs{value: 1},
+			args:  orderedMutableIntArgs{value: 1},
 			want1: []int{1, 111},
 			want2: map[int]int{1: 1, 111: 1},
 		},
 		{
 			name:  "Prepend() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{value: 4},
+			args:  orderedMutableIntArgs{value: 4},
 			want1: []int{4, 111, 222, 333},
 			want2: map[int]int{4: 1, 111: 1, 222: 1, 333: 1},
 		},
 	}
 }
 
-func testPrependOne(t *testing.T, builder linearMutableCollIntBuilder) {
+func testPrependOne(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getPrependOneCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -217,47 +217,47 @@ func testPrependOne(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func getPrependManyCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getPrependManyCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Prepend() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{values: []int{1}},
+			args:  orderedMutableIntArgs{values: []int{1}},
 			want1: []int{1},
 			want2: map[int]int{1: 1},
 		},
 		{
 			name:  "Prepend() on one-item collection",
 			coll:  builder.One(),
-			args:  linearMutableIntArgs{values: []int{1}},
+			args:  orderedMutableIntArgs{values: []int{1}},
 			want1: []int{1, 111},
 			want2: map[int]int{1: 1, 111: 1},
 		},
 		{
 			name:  "Prepend() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{values: []int{4, 5}},
+			args:  orderedMutableIntArgs{values: []int{4, 5}},
 			want1: []int{4, 5, 111, 222, 333},
 			want2: map[int]int{4: 1, 5: 1, 111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Prepend() on none",
 			coll:  builder.Three(),
-			args:  linearMutableIntArgs{values: []int{}},
+			args:  orderedMutableIntArgs{values: []int{}},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "Prepend() none to empty collection",
 			coll:  builder.Empty(),
-			args:  linearMutableIntArgs{values: []int{}},
+			args:  orderedMutableIntArgs{values: []int{}},
 			want1: []int(nil),
 			want2: map[int]int{},
 		},
 	}
 }
 
-func testPrependMany(t *testing.T, builder linearMutableCollIntBuilder) {
+func testPrependMany(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getPrependManyCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -276,8 +276,8 @@ func testPrependMany(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func getReverseCases(builder linearMutableCollIntBuilder) []linearMutableTestCase {
-	return []linearMutableTestCase{
+func getReverseCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
+	return []orderedMutableTestCase{
 		{
 			name:  "Reverse() on empty collection",
 			coll:  builder.Empty(),
@@ -296,7 +296,7 @@ func getReverseCases(builder linearMutableCollIntBuilder) []linearMutableTestCas
 	}
 }
 
-func testReverse(t *testing.T, builder linearMutableCollIntBuilder) {
+func testReverse(t *testing.T, builder orderedMutableCollIntBuilder) {
 	cases := getReverseCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -311,7 +311,7 @@ func testReverse(t *testing.T, builder linearMutableCollIntBuilder) {
 	}
 }
 
-func testReverseTwice(t *testing.T, builder linearMutableCollIntBuilder) {
+func testReverseTwice(t *testing.T, builder orderedMutableCollIntBuilder) {
 	t.Run("Reverse() twice", func(t *testing.T) {
 		coll := builder.Three()
 		coll.Reverse()

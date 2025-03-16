@@ -5,23 +5,23 @@ import (
 	"testing"
 )
 
-type linearIntArgs = testArgs[linearInternal[int], int]
-type linearTestCase = testCase[linearInternal[int], int]
-type linearCollIntBuilder = testCollectionBuilder[linearInternal[int]]
+type orderedIntArgs = testArgs[orderedInternal[int], int]
+type orderedTestCase = testCase[orderedInternal[int], int]
+type orderedCollIntBuilder = testCollectionBuilder[orderedInternal[int]]
 
-type linearIntPairArgs = testArgs[linearInternal[Pair[int, int]], Pair[int, int]]
-type linearPairTestCase = testCase[linearInternal[Pair[int, int]], Pair[int, int]]
-type linearCollIntPairBuilder = testPairCollectionBuilder[linearInternal[Pair[int, int]]]
+type orderedIntPairArgs = testArgs[orderedInternal[Pair[int, int]], Pair[int, int]]
+type orderedPairTestCase = testCase[orderedInternal[Pair[int, int]], Pair[int, int]]
+type orderedCollIntPairBuilder = testPairCollectionBuilder[orderedInternal[Pair[int, int]]]
 
-func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCase {
+func getEachRevCases(t *testing.T, builder orderedCollIntBuilder) []*orderedTestCase {
 
 	// eachRevOnEmptyListCase:
 
-	eachRevOnEmptyListCase := &linearTestCase{
+	eachRevOnEmptyListCase := &orderedTestCase{
 		name: "EachRev() on empty collection",
 		coll: builder.Empty(),
 	}
-	eachRevOnEmptyListCase.args = linearIntArgs{
+	eachRevOnEmptyListCase.args = orderedIntArgs{
 		visit: func(i int, v int) {
 			t.Error("EachRev() called on empty collection")
 		},
@@ -29,7 +29,7 @@ func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCa
 
 	// eachRevOnOneItemCase:
 
-	eachRevOnOneItemCase := &linearTestCase{
+	eachRevOnOneItemCase := &orderedTestCase{
 		name:  "EachRev() on one-item collection",
 		coll:  builder.One(),
 		got1:  []int{},
@@ -37,7 +37,7 @@ func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCa
 		want1: []int{0},
 		want2: []int{111},
 	}
-	eachRevOnOneItemCase.args = linearIntArgs{
+	eachRevOnOneItemCase.args = orderedIntArgs{
 		visit: func(i int, v int) {
 			if i != 0 || v != 111 {
 				t.Error("EachRev() called with wrong values")
@@ -49,7 +49,7 @@ func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCa
 
 	// eachRevOnThreeCase:
 
-	eachRevOnThreeCase := &linearTestCase{
+	eachRevOnThreeCase := &orderedTestCase{
 		name:  "EachRev() on three-item collection",
 		coll:  builder.Three(),
 		got1:  []int{},
@@ -58,7 +58,7 @@ func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCa
 		want2: []int{333, 222, 111},
 	}
 
-	eachRevOnThreeCase.args = linearIntArgs{
+	eachRevOnThreeCase.args = orderedIntArgs{
 		visit: func(i int, v int) {
 			if i < 0 || i > 2 || v < 111 || v > 333 {
 				t.Error("EachRev() called with wrong values")
@@ -70,14 +70,14 @@ func getEachRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCa
 
 	// put the cases together:
 
-	return []*linearTestCase{
+	return []*orderedTestCase{
 		eachRevOnEmptyListCase,
 		eachRevOnOneItemCase,
 		eachRevOnThreeCase,
 	}
 }
 
-func testEachRev(t *testing.T, builder linearCollIntBuilder) {
+func testEachRev(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getEachRevCases(t, builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -92,16 +92,16 @@ func testEachRev(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCase {
+func getEachRevUntilCases(t *testing.T, builder orderedCollIntBuilder) []*orderedTestCase {
 
 	// eachRevUntilOnEmptyListCase:
 
-	eachRevUntilOnEmptyListCase := &linearTestCase{
+	eachRevUntilOnEmptyListCase := &orderedTestCase{
 		name: "EachRevUntil() on empty collection",
 		coll: builder.Empty(),
 	}
 
-	eachRevUntilOnEmptyListCase.args = linearIntArgs{
+	eachRevUntilOnEmptyListCase.args = orderedIntArgs{
 		predicate: func(i int, v int) bool {
 			t.Error("EachRevUntil() called on empty collection")
 			return true
@@ -110,7 +110,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 
 	// eachRevUntilOnOneItemCase:
 
-	eachRevUntilOnOneItemCase := &linearTestCase{
+	eachRevUntilOnOneItemCase := &orderedTestCase{
 		name:  "EachRevUntil() on one-item collection",
 		coll:  builder.One(),
 		got1:  []int{},
@@ -119,7 +119,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 		want2: []int{111},
 	}
 
-	eachRevUntilOnOneItemCase.args = linearIntArgs{
+	eachRevUntilOnOneItemCase.args = orderedIntArgs{
 		predicate: func(i int, v int) bool {
 			if i != 0 || v != 111 {
 				t.Error("EachRevUntil() called with wrong values")
@@ -132,7 +132,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 
 	// eachRevUntilFinishMiddleCase:
 
-	eachRevUntilFinishMiddleCase := &linearTestCase{
+	eachRevUntilFinishMiddleCase := &orderedTestCase{
 		name:  "EachRevUntil() finish in middle",
 		coll:  builder.Three(),
 		got1:  []int{},
@@ -141,7 +141,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 		want2: []int{333, 222},
 	}
 
-	eachRevUntilFinishMiddleCase.args = linearIntArgs{
+	eachRevUntilFinishMiddleCase.args = orderedIntArgs{
 		predicate: func(i int, v int) bool {
 			if i < 0 || i > 2 || v < 111 || v > 333 {
 				t.Error("EachRevUntil() called with wrong values")
@@ -156,7 +156,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 
 	// eachRevUntilAllThreeCase:
 
-	eachRevUntilAllThreeCase := &linearTestCase{
+	eachRevUntilAllThreeCase := &orderedTestCase{
 		name:  "EachRevUntil() on three-item collection",
 		coll:  builder.Three(),
 		got1:  []int{},
@@ -165,7 +165,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 		want2: []int{333, 222, 111},
 	}
 
-	eachRevUntilAllThreeCase.args = linearIntArgs{
+	eachRevUntilAllThreeCase.args = orderedIntArgs{
 		predicate: func(i int, v int) bool {
 			if i < 0 || i > 2 || v < 111 || v > 333 {
 				t.Error("EachRevUntil() called with wrong values")
@@ -178,7 +178,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 
 	// put the cases together:
 
-	return []*linearTestCase{
+	return []*orderedTestCase{
 		eachRevUntilOnEmptyListCase,
 		eachRevUntilOnOneItemCase,
 		eachRevUntilFinishMiddleCase,
@@ -186,7 +186,7 @@ func getEachRevUntilCases(t *testing.T, builder linearCollIntBuilder) []*linearT
 	}
 }
 
-func testEachRevUntil(t *testing.T, builder linearCollIntBuilder) {
+func testEachRevUntil(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getEachRevUntilCases(t, builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -201,12 +201,12 @@ func testEachRevUntil(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
-	return []*linearTestCase{
+func getFindLastCases(builder orderedCollIntBuilder) []*orderedTestCase {
+	return []*orderedTestCase{
 		{
 			name: "FindLast() on empty collection",
 			coll: builder.Empty(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				predicate:    func(i int, v int) bool { return v == 111 },
 				defaultValue: -1,
 			},
@@ -215,7 +215,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FindLast() on one-item collection",
 			coll: builder.One(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				predicate:    func(i int, v int) bool { return v == 111 },
 				defaultValue: -1,
 			},
@@ -224,7 +224,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FindLast() on three-item collection",
 			coll: builder.Three(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				predicate:    func(i int, v int) bool { return v == 222 },
 				defaultValue: -1,
 			},
@@ -233,7 +233,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FindLast() on three-item collection, not found",
 			coll: builder.Three(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				predicate:    func(i int, v int) bool { return v == 999 },
 				defaultValue: -1,
 			},
@@ -242,7 +242,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FindLast() last one",
 			coll: builder.Three(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				predicate:    func(i int, v int) bool { return true },
 				defaultValue: -1,
 			},
@@ -251,7 +251,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FindLast() on three-item collection, compare indexes and values",
 			coll: builder.Three(),
-			args: linearIntArgs{predicate: func(i int, v int) bool {
+			args: orderedIntArgs{predicate: func(i int, v int) bool {
 				if i == 2 && v == 333 {
 					return true
 				}
@@ -262,7 +262,7 @@ func getFindLastCases(builder linearCollIntBuilder) []*linearTestCase {
 	}
 }
 
-func testFindLast(t *testing.T, builder linearCollIntBuilder) {
+func testFindLast(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getFindLastCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -274,12 +274,12 @@ func testFindLast(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getFindLastCasesWithDupes(builder linearCollIntPairBuilder) []*linearPairTestCase {
-	return []*linearPairTestCase{
+func getFindLastCasesWithDupes(builder orderedCollIntPairBuilder) []*orderedPairTestCase {
+	return []*orderedPairTestCase{
 		{
 			name: "FindLast() on six-item collection, first one",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{
+			args: orderedIntPairArgs{
 				predicate:    func(i int, p Pair[int, int]) bool { return true },
 				defaultValue: nil,
 			},
@@ -288,7 +288,7 @@ func getFindLastCasesWithDupes(builder linearCollIntPairBuilder) []*linearPairTe
 		{
 			name: "FindLast() on six-item collection, second one",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{
+			args: orderedIntPairArgs{
 				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 222 },
 				defaultValue: nil,
 			},
@@ -297,7 +297,7 @@ func getFindLastCasesWithDupes(builder linearCollIntPairBuilder) []*linearPairTe
 		{
 			name: "FindLast() on six-item collection, not found",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{
+			args: orderedIntPairArgs{
 				predicate:    func(i int, p Pair[int, int]) bool { return p.Val() == 999 },
 				defaultValue: nil,
 			},
@@ -306,7 +306,7 @@ func getFindLastCasesWithDupes(builder linearCollIntPairBuilder) []*linearPairTe
 	}
 }
 
-func testFindLastWithDupes(t *testing.T, builder linearCollIntPairBuilder) {
+func testFindLastWithDupes(t *testing.T, builder orderedCollIntPairBuilder) {
 	cases := getFindLastCasesWithDupes(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -318,12 +318,12 @@ func testFindLastWithDupes(t *testing.T, builder linearCollIntPairBuilder) {
 	}
 }
 
-func getFoldRevCases(builder linearCollIntBuilder) []*linearTestCase {
-	return []*linearTestCase{
+func getFoldRevCases(builder orderedCollIntBuilder) []*orderedTestCase {
+	return []*orderedTestCase{
 		{
 			name: "FoldRev() on empty collection",
 			coll: builder.Empty(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				reducer: func(acc int, _ int, current int) int {
 					return acc*10 + current
 				},
@@ -334,7 +334,7 @@ func getFoldRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FoldRev() on one-item collection",
 			coll: builder.One(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				reducer: func(acc int, _ int, current int) int {
 					return acc*10 + current
 				},
@@ -345,7 +345,7 @@ func getFoldRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FoldRev() on three-item collection",
 			coll: builder.Three(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				reducer: func(acc int, _ int, current int) int {
 					return acc*10 + current
 				},
@@ -356,7 +356,7 @@ func getFoldRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		{
 			name: "FoldRev() on three-item collection, include index",
 			coll: builder.Three(),
-			args: linearIntArgs{
+			args: orderedIntArgs{
 				reducer: func(acc int, i int, current int) int {
 					return acc*(i+1) + current
 				},
@@ -367,7 +367,7 @@ func getFoldRevCases(builder linearCollIntBuilder) []*linearTestCase {
 	}
 }
 
-func testFoldRev(t *testing.T, builder linearCollIntBuilder) {
+func testFoldRev(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getFoldRevCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -379,8 +379,8 @@ func testFoldRev(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getHeadCases(builder linearCollIntBuilder) []linearTestCase {
-	return []linearTestCase{
+func getHeadCases(builder orderedCollIntBuilder) []orderedTestCase {
+	return []orderedTestCase{
 		{
 			name:  "Head() on empty collection",
 			coll:  builder.Empty(),
@@ -402,7 +402,7 @@ func getHeadCases(builder linearCollIntBuilder) []linearTestCase {
 	}
 }
 
-func testHead(t *testing.T, builder linearCollIntBuilder) {
+func testHead(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getHeadCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -417,30 +417,30 @@ func testHead(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getHeadOrDefaultCases(builder linearCollIntBuilder) []linearTestCase {
-	return []linearTestCase{
+func getHeadOrDefaultCases(builder orderedCollIntBuilder) []orderedTestCase {
+	return []orderedTestCase{
 		{
 			name:  "HeadOrDefault() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: -1,
 		},
 		{
 			name:  "HeadOrDefault() on one-item collection",
 			coll:  builder.One(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: 111,
 		},
 		{
 			name:  "HeadOrDefault() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: 111,
 		},
 	}
 }
 
-func testHeadOrDefault(t *testing.T, builder linearCollIntBuilder) {
+func testHeadOrDefault(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getHeadOrDefaultCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -452,9 +452,9 @@ func testHeadOrDefault(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
+func getSearchRevCases(builder orderedCollIntBuilder) []*orderedTestCase {
 
-	searchRevOnEmptyCollectionCase := &linearTestCase{
+	searchRevOnEmptyCollectionCase := &orderedTestCase{
 		name:  "SearchRev() on empty collection",
 		coll:  builder.Empty(),
 		want1: 0,
@@ -463,7 +463,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnEmptyCollectionCase.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnEmptyCollectionCase.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 111 {
 			searchRevOnEmptyCollectionCase.got3 = i
 			return true
@@ -471,7 +471,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	searchRevOnOneItemCollectionCase := &linearTestCase{
+	searchRevOnOneItemCollectionCase := &orderedTestCase{
 		name:  "SearchRev() on one-item collection",
 		coll:  builder.One(),
 		want1: 111,
@@ -480,7 +480,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnOneItemCollectionCase.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnOneItemCollectionCase.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 111 {
 			searchRevOnOneItemCollectionCase.got3 = i
 			return true
@@ -488,7 +488,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	searchRevOnThreeItemCollectionCase := &linearTestCase{
+	searchRevOnThreeItemCollectionCase := &orderedTestCase{
 		name:  "SearchRev() on three-item collection",
 		coll:  builder.Three(),
 		want1: 222,
@@ -497,7 +497,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnThreeItemCollectionCase.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnThreeItemCollectionCase.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 222 {
 			searchRevOnThreeItemCollectionCase.got3 = i
 			return true
@@ -505,7 +505,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	searchRevOnOneItemCollectionCaseNotFound := &linearTestCase{
+	searchRevOnOneItemCollectionCaseNotFound := &orderedTestCase{
 		name:  "SearchRev() on one-item collection, not found",
 		coll:  builder.One(),
 		want1: 0,
@@ -514,7 +514,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnOneItemCollectionCaseNotFound.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnOneItemCollectionCaseNotFound.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 999 {
 			searchRevOnOneItemCollectionCaseNotFound.got3 = i
 			return true
@@ -522,7 +522,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	searchRevOnThreeItemCollectionCaseAllFound := &linearTestCase{
+	searchRevOnThreeItemCollectionCaseAllFound := &orderedTestCase{
 		name:  "SearchRev() on three-item collection, all found",
 		coll:  builder.Three(),
 		want1: 333,
@@ -531,12 +531,12 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnThreeItemCollectionCaseAllFound.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnThreeItemCollectionCaseAllFound.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		searchRevOnThreeItemCollectionCaseAllFound.got3 = i
 		return true
 	}}
 
-	searchRevOnSixItemCollectionCaseFirstFound := &linearTestCase{
+	searchRevOnSixItemCollectionCaseFirstFound := &orderedTestCase{
 		name:  "SearchRev() on six-item collection, found first occurrence",
 		coll:  builder.SixWithDuplicates(),
 		want1: 111,
@@ -545,7 +545,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnSixItemCollectionCaseFirstFound.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnSixItemCollectionCaseFirstFound.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 111 && i == 3 {
 			searchRevOnSixItemCollectionCaseFirstFound.got3 = i
 			return true
@@ -553,7 +553,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	searchRevOnSixItemCollectionCaseLastFound := &linearTestCase{
+	searchRevOnSixItemCollectionCaseLastFound := &orderedTestCase{
 		name:  "SearchRev() on six-item collection, found second occurrence",
 		coll:  builder.SixWithDuplicates(),
 		want1: 111,
@@ -562,7 +562,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		got3:  nil,
 	}
 
-	searchRevOnSixItemCollectionCaseLastFound.args = linearIntArgs{predicate: func(i int, v int) bool {
+	searchRevOnSixItemCollectionCaseLastFound.args = orderedIntArgs{predicate: func(i int, v int) bool {
 		if v == 111 && i == 0 {
 			searchRevOnSixItemCollectionCaseLastFound.got3 = i
 			return true
@@ -570,7 +570,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 		return false
 	}}
 
-	return []*linearTestCase{
+	return []*orderedTestCase{
 		searchRevOnEmptyCollectionCase,
 		searchRevOnOneItemCollectionCase,
 		searchRevOnThreeItemCollectionCase,
@@ -581,7 +581,7 @@ func getSearchRevCases(builder linearCollIntBuilder) []*linearTestCase {
 	}
 }
 
-func testSearchRev(t *testing.T, builder linearCollIntBuilder) {
+func testSearchRev(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getSearchRevCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -599,12 +599,12 @@ func testSearchRev(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getSearchRevPairCases(builder linearCollIntPairBuilder) []*linearPairTestCase {
-	return []*linearPairTestCase{
+func getSearchRevPairCases(builder orderedCollIntPairBuilder) []*orderedPairTestCase {
+	return []*orderedPairTestCase{
 		{
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
+			args: orderedIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Val() == 111
 			}},
 			want1: NewPair(4, 111),
@@ -613,7 +613,7 @@ func getSearchRevPairCases(builder linearCollIntPairBuilder) []*linearPairTestCa
 		{
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
+			args: orderedIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Val() == 222
 			}},
 			want1: NewPair(5, 222),
@@ -622,7 +622,7 @@ func getSearchRevPairCases(builder linearCollIntPairBuilder) []*linearPairTestCa
 		{
 			name: "SearchRev() on six-item collection, found first occurrence",
 			coll: builder.SixWithDuplicates(),
-			args: linearIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
+			args: orderedIntPairArgs{predicate: func(i int, v Pair[int, int]) bool {
 				return v.Val() == 333
 			}},
 			want1: NewPair(6, 333),
@@ -631,7 +631,7 @@ func getSearchRevPairCases(builder linearCollIntPairBuilder) []*linearPairTestCa
 	}
 }
 
-func testSearchRevPair(t *testing.T, builder linearCollIntPairBuilder) {
+func testSearchRevPair(t *testing.T, builder orderedCollIntPairBuilder) {
 	cases := getSearchRevPairCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -646,12 +646,12 @@ func testSearchRevPair(t *testing.T, builder linearCollIntPairBuilder) {
 	}
 }
 
-func getReduceRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTestCase {
-	return []*linearTestCase{
+func getReduceRevCases(t *testing.T, builder orderedCollIntBuilder) []*orderedTestCase {
+	return []*orderedTestCase{
 		{
 			name: "Reduce() on empty collection",
 			coll: builder.Empty(),
-			args: linearIntArgs{reducer: func(acc int, _ int, current int) int {
+			args: orderedIntArgs{reducer: func(acc int, _ int, current int) int {
 				return acc*10 + current
 			}},
 			want1: 0,
@@ -660,7 +660,7 @@ func getReduceRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTest
 		{
 			name: "Fold() on one-item collection",
 			coll: builder.One(),
-			args: linearIntArgs{reducer: func(acc int, _ int, current int) int {
+			args: orderedIntArgs{reducer: func(acc int, _ int, current int) int {
 				return acc*10 + current
 			}},
 			want1: 111,
@@ -669,7 +669,7 @@ func getReduceRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTest
 		{
 			name: "Fold() on three-item collection",
 			coll: builder.Three(),
-			args: linearIntArgs{reducer: func(acc int, _ int, current int) int {
+			args: orderedIntArgs{reducer: func(acc int, _ int, current int) int {
 				return acc*10 + current
 			}},
 			want1: 35631,
@@ -678,7 +678,7 @@ func getReduceRevCases(t *testing.T, builder linearCollIntBuilder) []*linearTest
 	}
 }
 
-func testReduceRev(t *testing.T, builder linearCollIntBuilder) {
+func testReduceRev(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getReduceRevCases(t, builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -693,8 +693,8 @@ func testReduceRev(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getTailCases(builder linearCollIntBuilder) []linearTestCase {
-	return []linearTestCase{
+func getTailCases(builder orderedCollIntBuilder) []orderedTestCase {
+	return []orderedTestCase{
 		{
 			name:  "Tail() on empty collection",
 			coll:  builder.Empty(),
@@ -716,7 +716,7 @@ func getTailCases(builder linearCollIntBuilder) []linearTestCase {
 	}
 }
 
-func testTail(t *testing.T, builder linearCollIntBuilder) {
+func testTail(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getTailCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -731,30 +731,30 @@ func testTail(t *testing.T, builder linearCollIntBuilder) {
 	}
 }
 
-func getTailOrDefaultCases(builder linearCollIntBuilder) []linearTestCase {
-	return []linearTestCase{
+func getTailOrDefaultCases(builder orderedCollIntBuilder) []orderedTestCase {
+	return []orderedTestCase{
 		{
 			name:  "TailOrDefault() on empty collection",
 			coll:  builder.Empty(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: -1,
 		},
 		{
 			name:  "TailOrDefault() on one-item collection",
 			coll:  builder.One(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: 111,
 		},
 		{
 			name:  "TailOrDefault() on three-item collection",
 			coll:  builder.Three(),
-			args:  linearIntArgs{defaultValue: -1},
+			args:  orderedIntArgs{defaultValue: -1},
 			want1: 333,
 		},
 	}
 }
 
-func testTailOrDefault(t *testing.T, builder linearCollIntBuilder) {
+func testTailOrDefault(t *testing.T, builder orderedCollIntBuilder) {
 	cases := getTailOrDefaultCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

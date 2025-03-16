@@ -57,7 +57,7 @@ func (*baseFakeWithoutInternal[V]) Values() iter.Seq[V] {
 func Test_Copy_forEachFlatCollection(t *testing.T) {
 	cases := []struct {
 		name string
-		coll LinearMutable[int]
+		coll OrderedMutable[int]
 	}{
 		{
 			name: "Copy() on empty Sequence",

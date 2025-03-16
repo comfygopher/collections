@@ -9,14 +9,14 @@ type comfySeq[V any] struct {
 	s []V
 }
 
-// NewSequence creates a new LinearMutable instance.
+// NewSequence creates a new Sequence instance.
 func NewSequence[V any]() Sequence[V] {
 	return &comfySeq[V]{
 		s: []V(nil),
 	}
 }
 
-// NewSequenceFrom creates a new LinearMutable instance from a slice.
+// NewSequenceFrom creates a new Sequence instance from a slice.
 func NewSequenceFrom[V any](l []V) Sequence[V] {
 	return &comfySeq[V]{
 		s: l,
@@ -30,7 +30,7 @@ func (c *comfySeq[V]) Append(v ...V) {
 	c.s = append(c.s, v...)
 }
 
-func (c *comfySeq[V]) AppendColl(coll Linear[V]) {
+func (c *comfySeq[V]) AppendColl(coll Ordered[V]) {
 	c.s = append(c.s, coll.ToSlice()...)
 }
 

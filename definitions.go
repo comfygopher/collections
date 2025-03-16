@@ -43,31 +43,31 @@ type Base[V any] interface {
 	Count(predicate Predicate[V]) int
 
 	// Each iterates over the collection.
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	// See also: EachUntil
 	Each(visit Visitor[V])
 
 	// EachUntil iterates over the collection until the predicate returns false.
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	// See also: Each
 	EachUntil(valid Predicate[V])
 
 	// Find returns the first element that matches the predicate, or the default value if no element matches.
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	// See: Search
 	Find(predicate Predicate[V], defaultValue V) V
 
 	// Fold helps to fold a collection into a single value.
 	// Eg: Fold(func(acc int, i int, current int) int { return acc + current }, 0) // sum of all elements
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	Fold(reducer Reducer[V], initial V) (result V)
 
 	// IsEmpty returns true if the collection is empty.
@@ -83,15 +83,15 @@ type Base[V any] interface {
 	Reduce(reducer Reducer[V]) (result V, err error)
 
 	// ToSlice returns a slice of all elements in the collection.
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	ToSlice() []V
 
 	// Values returns an iterator over all elements in the collection.
-	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// This method is implicitly ordered on all collections that also implement the Ordered interface.
 	// There is no guarantee that the order of elements will be preserved if the collection does not implement
-	// the Linear interface.
+	// the Ordered interface.
 	Values() iter.Seq[V]
 }
 
@@ -100,8 +100,8 @@ type BasePairs[K comparable, V any] interface {
 	Base[Pair[K, V]]
 }
 
-// Linear interface indicates that given collection preserves the order of elements.
-type Linear[V any] interface {
+// Ordered interface indicates that given collection preserves the order of elements.
+type Ordered[V any] interface {
 	Base[V]
 	EachRev(visit Visitor[V])
 	EachRevUntil(valid Predicate[V])
@@ -115,14 +115,13 @@ type Linear[V any] interface {
 	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
-	// LinearValues() iter.Seq2[int, V]  // TODO
+	// ValuesOrdered() iter.Seq2[int, V]  // TODO
 	// ValuesRev() iter.Seq[V] // TODO
 }
 
 // Indexed interface indicates that given collection can be accessed by index.
-// There is no need for separate OrderedCollection interface, as all Comfy collections are ordered.
 type Indexed[V any] interface {
-	Linear[V]
+	Ordered[V]
 	At(idx int) (V, bool)
 	AtOrDefault(idx int, defaultValue V) V
 	// SearchLastPos(predicate Predicate[V]) (val V, found bool) // TODO
@@ -173,12 +172,12 @@ type CmpMutable[V cmp.Ordered] interface {
 	SortDesc()
 }
 
-// LinearMutable is a mutable collection that can be modified by appending, prepending and inserting elements.
-type LinearMutable[V any] interface {
-	Linear[V]
+// OrderedMutable is a mutable collection that can be modified by appending, prepending and inserting elements.
+type OrderedMutable[V any] interface {
+	Ordered[V]
 	Mutable[V]
 	Append(v ...V)
-	AppendColl(c Linear[V])
+	AppendColl(c Ordered[V])
 	Prepend(v ...V)
 	Reverse()
 }
@@ -188,7 +187,7 @@ type LinearMutable[V any] interface {
 // Compared to a List, a Sequence allows for efficient O(1) access to arbitrary elements
 // but slower insertion and removal time, making it suitable for situations where fast random access is needed.
 type Sequence[V any] interface {
-	LinearMutable[V]
+	OrderedMutable[V]
 }
 
 // CmpSequence is a ordered collection of elements that can be compared.
@@ -199,13 +198,13 @@ type CmpSequence[V cmp.Ordered] interface {
 
 // List is a mutable collection of elements.
 type List[V any] interface {
-	LinearMutable[V]
+	OrderedMutable[V]
 	InsertAt(i int, val V) error
 }
 
-// CmpLinear is a list of elements of type cmp.Ordered
-type CmpLinear[V cmp.Ordered] interface {
-	LinearMutable[V]
+// CmpOrdered is a list of elements of type cmp.Ordered
+type CmpOrdered[V cmp.Ordered] interface {
+	OrderedMutable[V]
 	CmpMutable[V]
 }
 
@@ -213,7 +212,7 @@ type CmpLinear[V cmp.Ordered] interface {
 type Map[K comparable, V any] interface {
 	BasePairs[K, V]
 	IndexedMutable[Pair[K, V]]
-	LinearMutable[Pair[K, V]]
+	OrderedMutable[Pair[K, V]]
 	// FoldValues(reducer Reducer[V], initial V) V // TODO
 	Get(key K) (val V, ok bool)
 	GetOrDefault(k K, defaultValue V) V

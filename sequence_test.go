@@ -40,7 +40,7 @@ func (lcb *comfySeqIntBuilder[C]) FromValues(values []any) C {
 	return c.(C)
 }
 
-func (lcb *comfySeqIntBuilder[C]) make(items []int) linearMutableInternal[int] {
+func (lcb *comfySeqIntBuilder[C]) make(items []int) orderedMutableInternal[int] {
 	coll := &comfySeq[int]{
 		s: items,
 	}
@@ -133,12 +133,12 @@ func TestNewSequenceFrom(t *testing.T) {
 }
 
 func Test_comfySeq_Append(t *testing.T) {
-	testAppendOne(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
-	testAppendMany(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
+	testAppendOne(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
+	testAppendMany(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
 }
 
 func Test_comfySeq_AppendColl(t *testing.T) {
-	testAppendColl(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
+	testAppendColl(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
 }
 
 func Test_comfySeq_Apply(t *testing.T) {
@@ -170,11 +170,11 @@ func Test_comfySeq_Each(t *testing.T) {
 }
 
 func Test_comfySeq_EachRev(t *testing.T) {
-	testEachRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testEachRev(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_EachRevUntil(t *testing.T) {
-	testEachRevUntil(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testEachRevUntil(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_EachUntil(t *testing.T) {
@@ -187,8 +187,8 @@ func Test_comfySeq_Find(t *testing.T) {
 }
 
 func Test_comfySeq_FindLast(t *testing.T) {
-	testFindLast(t, &comfySeqIntBuilder[linearInternal[int]]{})
-	testFindLastWithDupes(t, &comfySeqPairBuilder[linearInternal[Pair[int, int]]]{})
+	testFindLast(t, &comfySeqIntBuilder[orderedInternal[int]]{})
+	testFindLastWithDupes(t, &comfySeqPairBuilder[orderedInternal[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_Fold(t *testing.T) {
@@ -196,15 +196,15 @@ func Test_comfySeq_Fold(t *testing.T) {
 }
 
 func Test_comfySeq_FoldRev(t *testing.T) {
-	testFoldRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testFoldRev(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_Head(t *testing.T) {
-	testHead(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testHead(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_HeadOrDefault(t *testing.T) {
-	testHeadOrDefault(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testHeadOrDefault(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_InsertAt(t *testing.T) {
@@ -220,8 +220,8 @@ func Test_comfySeq_Len(t *testing.T) {
 }
 
 func Test_comfySeq_Prepend(t *testing.T) {
-	testPrependOne(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
-	testPrependMany(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
+	testPrependOne(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
+	testPrependMany(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
 }
 
 func Test_comfySeq_Reduce(t *testing.T) {
@@ -229,7 +229,7 @@ func Test_comfySeq_Reduce(t *testing.T) {
 }
 
 func Test_comfySeq_ReduceRev(t *testing.T) {
-	testReduceRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testReduceRev(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_RemoveAt(t *testing.T) {
@@ -241,8 +241,8 @@ func Test_comfySeq_RemoveMatching(t *testing.T) {
 }
 
 func Test_comfySeq_Reverse(t *testing.T) {
-	testReverse(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
-	testReverseTwice(t, &comfySeqIntBuilder[linearMutableInternal[int]]{})
+	testReverse(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
+	testReverseTwice(t, &comfySeqIntBuilder[orderedMutableInternal[int]]{})
 }
 
 func Test_comfySeq_Search(t *testing.T) {
@@ -251,8 +251,8 @@ func Test_comfySeq_Search(t *testing.T) {
 }
 
 func Test_comfySeq_SearchRev(t *testing.T) {
-	testSearchRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
-	testSearchRevPair(t, &comfySeqPairBuilder[linearInternal[Pair[int, int]]]{})
+	testSearchRev(t, &comfySeqIntBuilder[orderedInternal[int]]{})
+	testSearchRevPair(t, &comfySeqPairBuilder[orderedInternal[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_Sort(t *testing.T) {
@@ -260,11 +260,11 @@ func Test_comfySeq_Sort(t *testing.T) {
 }
 
 func Test_comfySeq_Tail(t *testing.T) {
-	testTail(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testTail(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_TailOrDefault(t *testing.T) {
-	testTailOrDefault(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testTailOrDefault(t, &comfySeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfySeq_ToSlice(t *testing.T) {

@@ -41,7 +41,7 @@ func (c *comfyCmpSeq[V]) Append(v ...V) {
 	}
 }
 
-func (c *comfyCmpSeq[V]) AppendColl(coll Linear[V]) {
+func (c *comfyCmpSeq[V]) AppendColl(coll Ordered[V]) {
 	for v := range coll.Values() {
 		c.s = append(c.s, v)
 		c.vc.Increment(v)
