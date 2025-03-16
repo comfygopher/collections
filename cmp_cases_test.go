@@ -368,6 +368,11 @@ func getMinCases[C any](builder testCollectionBuilder[C]) []testCase[C, int] {
 			want1: 111,
 		},
 		{
+			name:  "Min() on three-item collection reversed",
+			coll:  builder.ThreeRev(),
+			want1: 111,
+		},
+		{
 			name:  "Min() on six-item collection",
 			coll:  builder.SixWithDuplicates(),
 			want1: 111,

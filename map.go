@@ -325,7 +325,7 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 // Private functions:
 
 //nolint:unused
-func (c *comfyMap[K, V]) copy() mapInternal[K, V] {
+func (c *comfyMap[K, V]) copy() baseInternal[Pair[K, V]] {
 	newCm := &comfyMap[K, V]{
 		s:  []Pair[K, V](nil),
 		m:  make(map[K]Pair[K, V]),

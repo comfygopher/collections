@@ -3,8 +3,12 @@ package coll
 // Public:
 
 // Copy creates a copy of the given collection.
-func Copy[C baseInternal[V], V any](c C) C {
-	return c.copy().(C)
+func Copy[C Base[V], V any](coll C) C {
+	// check if c is of type baseInternal[T]:
+	if c, ok := any(coll).(baseInternal[V]); ok {
+		return c.copy().(C)
+	}
+	panic("Copy() requires a collection that implements the baseInternal interface")
 }
 
 //// Filter creates a new, filtered collection from the given collection.

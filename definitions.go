@@ -34,15 +34,6 @@ type Comparator[V any] = func(a, b V) int
 // PairComparator is a comparator function for key-value pairs.
 type PairComparator[K comparable, V any] = Comparator[Pair[K, V]]
 
-// KKVistor is a visitor function for key-value pairs.
-type KVVistor[K comparable, V any] = func(i int, k K, val V)
-
-// KVPredicate is a predicate function for key-value pairs.
-type KVPredicate[K comparable, V any] = func(i int, k K, val V) (valid bool)
-
-// KVReducer is a reducer function for key-value pairs.
-type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, currentValue V) (K, V)
-
 // Base is the base interface for all collections.
 type Base[V any] interface {
 	// Contains returns true if the collection contains an element that matches the predicate.
