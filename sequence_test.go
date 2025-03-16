@@ -276,6 +276,11 @@ func Test_comfySeq_Values(t *testing.T) {
 	testValuesBreak(t, &comfySeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfySeq_ValuesRev(t *testing.T) {
+	testValuesRev(t, &comfySeqIntBuilder[orderedInternal[int]]{})
+	testValuesRevBreak(t, &comfySeqIntBuilder[orderedInternal[int]]{})
+}
+
 func Test_comfySeq_copy(t *testing.T) {
 	testCopy(t, &comfySeqIntBuilder[baseInternal[int]]{})
 }

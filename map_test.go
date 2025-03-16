@@ -328,6 +328,11 @@ func Test_comfyMap_Values(t *testing.T) {
 	testMapValuesRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
+func Test_comfyMap_ValuesRev(t *testing.T) {
+	testMapValuesRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+	testMapValuesRevBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
+}
+
 func Test_comfyMap_copy(t *testing.T) {
 	testMapCopy(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 	testMapCopyDontPreserveRef(t, &comfyMapIntBuilder[mapInternal[int, int]]{})

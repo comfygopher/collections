@@ -115,8 +115,7 @@ type Ordered[V any] interface {
 	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
-	// ValuesOrdered() iter.Seq2[int, V]  // TODO
-	// ValuesRev() iter.Seq[V] // TODO
+	ValuesRev() iter.Seq[V]
 }
 
 // Indexed interface indicates that given collection can be accessed by index.
