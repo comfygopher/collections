@@ -32,26 +32,6 @@ func comfyContains[C Base[V], V any](coll C, predicate Predicate[V]) bool {
 	return found
 }
 
-func comfyContainsValue[C Base[V], V cmp.Ordered](coll C, search V) bool {
-	return comfyContains(coll, func(_ int, v V) bool {
-		return v == search
-	})
-}
-
-func comfyContainsKV[M Map[K, V], K comparable, V any](m M, predicate KVPredicate[K, V]) bool {
-	found := false
-	m.EachUntil(func(i int, p Pair[K, V]) bool {
-		if predicate(i, p.Key(), p.Val()) {
-			found = true
-			return false
-		}
-
-		return true
-	})
-
-	return found
-}
-
 func comfyCount[C Base[V], V any](coll C, predicate Predicate[V]) int {
 	count := 0
 	coll.Each(func(i int, v V) {

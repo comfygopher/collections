@@ -349,7 +349,7 @@ func (c *comfyCmpSeq[V]) Values() iter.Seq[V] {
 }
 
 //nolint:unused
-func (c *comfyCmpSeq[V]) copy() Base[V] {
+func (c *comfyCmpSeq[V]) copy() baseInternal[V] {
 	ccl := &comfyCmpSeq[V]{
 		s:  []V(nil),
 		vc: newValuesCounter[V](),

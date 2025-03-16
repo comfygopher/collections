@@ -407,7 +407,7 @@ func (c *comfyCmpMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 
 // Private:
 
-func (c *comfyCmpMap[K, V]) copy() mapInternal[K, V] {
+func (c *comfyCmpMap[K, V]) copy() baseInternal[Pair[K, V]] {
 	newCm := NewCmpMap[K, V]().(*comfyCmpMap[K, V])
 	for _, pair := range c.s {
 		newCm.set(pair.copy())

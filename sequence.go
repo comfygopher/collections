@@ -12,7 +12,7 @@ type comfySeq[V any] struct {
 // NewSequence creates a new LinearMutable instance.
 func NewSequence[V any]() Sequence[V] {
 	return &comfySeq[V]{
-		s: make([]V, 0),
+		s: []V(nil),
 	}
 }
 
@@ -257,7 +257,7 @@ func (c *comfySeq[V]) Values() iter.Seq[V] {
 // Private:
 
 //nolint:unused
-func (c *comfySeq[V]) copy() Base[V] {
+func (c *comfySeq[V]) copy() baseInternal[V] {
 	newCl := &comfySeq[V]{
 		s: []V(nil),
 	}

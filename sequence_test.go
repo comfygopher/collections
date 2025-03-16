@@ -96,7 +96,7 @@ func TestNewSequence(t *testing.T) {
 		if intSeq == nil {
 			t.Error("NewSequence[int]() returned nil")
 		}
-		if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: make([]int, 0)}) {
+		if !reflect.DeepEqual(intSeq, &comfySeq[int]{s: []int(nil)}) {
 			t.Error("NewSequence[int]() did not return a comfySeq[int]")
 		}
 
@@ -104,7 +104,7 @@ func TestNewSequence(t *testing.T) {
 		if stringSeq == nil {
 			t.Error("NewSequence[string]() returned nil")
 		}
-		if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: make([]string, 0)}) {
+		if !reflect.DeepEqual(stringSeq, &comfySeq[string]{s: []string(nil)}) {
 			t.Error("NewSequence[int]() did not return a comfySeq[int]")
 		}
 	})
