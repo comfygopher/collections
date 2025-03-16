@@ -45,31 +45,64 @@ type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, c
 
 // Base is the base interface for all collections.
 type Base[V any] interface {
+
+	// Contains returns true if the collection contains an element that matches the predicate.
 	Contains(predicate Predicate[V]) bool
+
+	// Count returns the number of elements that match the predicate.
 	Count(predicate Predicate[V]) int
+
+	// Each iterates over the collection.
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
+	// See also: EachUntil
 	Each(visit Visitor[V])
-	EachRev(visit Visitor[V])
-	EachRevUntil(valid Predicate[V])
+
+	// EachUntil iterates over the collection until the predicate returns false.
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
+	// See also: Each
 	EachUntil(valid Predicate[V])
+
 	// Find returns the first element that matches the predicate, or the default value if no element matches.
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
 	// See: Search
 	Find(predicate Predicate[V], defaultValue V) V
-	// FindLast returns the last element that matches the predicate, or the default value if no element matches.
-	// See: SearchRev
-	FindLast(predicate Predicate[V], defaultValue V) V
+
+	// Fold helps to fold a collection into a single value.
+	// Eg: Fold(func(acc int, i int, current int) int { return acc + current }, 0) // sum of all elements
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
 	Fold(reducer Reducer[V], initial V) (result V)
-	FoldRev(reducer Reducer[V], initial V) (result V)
+
+	// IsEmpty returns true if the collection is empty.
 	IsEmpty() bool
+
+	// Len returns the number of elements in the collection.
 	Len() int
+
+	// Search returns the first element that matches the predicate, or the default value if no element matches.
 	Search(predicate Predicate[V]) (val V, found bool)
-	// SearchLastPos(predicate Predicate[V]) (val V, found bool) // TODO
-	// SearchPos(predicate Predicate[V]) (val V, found bool) // TODO
-	SearchRev(predicate Predicate[V]) (val V, found bool)
+
+	// Reduce helps to reduce a collection into a single value.
 	Reduce(reducer Reducer[V]) (result V, err error)
-	ReduceRev(reducer Reducer[V]) (result V, err error)
+
+	// ToSlice returns a slice of all elements in the collection.
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
 	ToSlice() []V
+
+	// Values returns an iterator over all elements in the collection.
+	// This method is implicitly linear on all collections that also implement the Linear interface.
+	// There is no guarantee that the order of elements will be preserved if the collection does not implement
+	// the Linear interface.
 	Values() iter.Seq[V]
-	// ValuesRev() iter.Seq[V] // TODO
 }
 
 // BasePairs is the base interface for all collections of key-value pairs.
@@ -80,11 +113,20 @@ type BasePairs[K comparable, V any] interface {
 // Linear interface indicates that given collection preserves the order of elements.
 type Linear[V any] interface {
 	Base[V]
+	EachRev(visit Visitor[V])
+	EachRevUntil(valid Predicate[V])
+	// FindLast returns the last element that matches the predicate, or the default value if no element matches.
+	// See: SearchRev
+	FindLast(predicate Predicate[V], defaultValue V) V
+	FoldRev(reducer Reducer[V], initial V) (result V)
 	Head() (head V, ok bool)
 	HeadOrDefault(defaultValue V) (head V)
+	ReduceRev(reducer Reducer[V]) (result V, err error)
+	SearchRev(predicate Predicate[V]) (val V, found bool)
 	Tail() (tail V, ok bool)
 	TailOrDefault(defaultValue V) (tail V)
 	// LinearValues() iter.Seq2[int, V]  // TODO
+	// ValuesRev() iter.Seq[V] // TODO
 }
 
 // Indexed interface indicates that given collection can be accessed by index.
@@ -93,15 +135,9 @@ type Indexed[V any] interface {
 	Linear[V]
 	At(idx int) (V, bool)
 	AtOrDefault(idx int, defaultValue V) V
+	// SearchLastPos(predicate Predicate[V]) (val V, found bool) // TODO
+	// SearchPos(predicate Predicate[V]) (val V, found bool) // TODO
 }
-
-// Sync is a thread-safe collection.
-// TODO: To implement in the future, or drop in favor of immutable collections
-//type Sync[V any] interface {
-//	Indexed[V]
-//	Lock()
-//	Unlock()
-//}
 
 // Mutable is a collection with methods that modify its contents.
 type Mutable[V any] interface {

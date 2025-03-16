@@ -170,11 +170,11 @@ func Test_comfySeq_Each(t *testing.T) {
 }
 
 func Test_comfySeq_EachRev(t *testing.T) {
-	testEachRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
+	testEachRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfySeq_EachRevUntil(t *testing.T) {
-	testEachRevUntil(t, &comfySeqIntBuilder[baseInternal[int]]{})
+	testEachRevUntil(t, &comfySeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfySeq_EachUntil(t *testing.T) {
@@ -187,8 +187,8 @@ func Test_comfySeq_Find(t *testing.T) {
 }
 
 func Test_comfySeq_FindLast(t *testing.T) {
-	testFindLast(t, &comfySeqIntBuilder[baseInternal[int]]{})
-	testFindLastWithDupes(t, &comfySeqPairBuilder[baseInternal[Pair[int, int]]]{})
+	testFindLast(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testFindLastWithDupes(t, &comfySeqPairBuilder[linearInternal[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_Fold(t *testing.T) {
@@ -196,7 +196,7 @@ func Test_comfySeq_Fold(t *testing.T) {
 }
 
 func Test_comfySeq_FoldRev(t *testing.T) {
-	testFoldRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
+	testFoldRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfySeq_Head(t *testing.T) {
@@ -229,7 +229,7 @@ func Test_comfySeq_Reduce(t *testing.T) {
 }
 
 func Test_comfySeq_ReduceRev(t *testing.T) {
-	testReduceRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
+	testReduceRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfySeq_RemoveAt(t *testing.T) {
@@ -251,8 +251,8 @@ func Test_comfySeq_Search(t *testing.T) {
 }
 
 func Test_comfySeq_SearchRev(t *testing.T) {
-	testSearchRev(t, &comfySeqIntBuilder[baseInternal[int]]{})
-	testSearchRevPair(t, &comfySeqPairBuilder[baseInternal[Pair[int, int]]]{})
+	testSearchRev(t, &comfySeqIntBuilder[linearInternal[int]]{})
+	testSearchRevPair(t, &comfySeqPairBuilder[linearInternal[Pair[int, int]]]{})
 }
 
 func Test_comfySeq_Sort(t *testing.T) {
