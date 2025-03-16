@@ -176,11 +176,11 @@ func Test_comfyCmpSeq_Each(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_EachRev(t *testing.T) {
-	testEachRev(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testEachRev(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_EachRevUntil(t *testing.T) {
-	testEachRevUntil(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testEachRevUntil(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_EachUntil(t *testing.T) {
@@ -192,7 +192,7 @@ func Test_comfyCmpSeq_Find(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_FindLast(t *testing.T) {
-	testFindLast(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testFindLast(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_Fold(t *testing.T) {
@@ -200,7 +200,7 @@ func Test_comfyCmpSeq_Fold(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_FoldRev(t *testing.T) {
-	testFoldRev(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testFoldRev(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_HasValue(t *testing.T) {
@@ -287,7 +287,7 @@ func Test_comfyCmpSeq_Reduce(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_ReduceRev(t *testing.T) {
-	testReduceRev(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testReduceRev(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_RemoveAt(t *testing.T) {
@@ -312,7 +312,7 @@ func Test_comfyCmpSeq_Search(t *testing.T) {
 }
 
 func Test_comfyCmpSeq_SearchRev(t *testing.T) {
-	testSearchRev(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
+	testSearchRev(t, &comfyCmpSeqIntBuilder[linearInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_Sort(t *testing.T) {
