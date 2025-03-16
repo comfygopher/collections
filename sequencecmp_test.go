@@ -348,6 +348,11 @@ func Test_comfyCmpSeq_Values(t *testing.T) {
 	testValuesBreak(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
+func Test_comfyCmpSeq_ValuesRev(t *testing.T) {
+	testValuesRev(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
+	testValuesRevBreak(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
+}
+
 func Test_comfyCmpSeq_copy(t *testing.T) {
 	testCopy(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }

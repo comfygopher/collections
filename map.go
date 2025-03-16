@@ -322,6 +322,16 @@ func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {
 	}
 }
 
+func (c *comfyMap[K, V]) ValuesRev() iter.Seq[Pair[K, V]] {
+	return func(yield func(Pair[K, V]) bool) {
+		for i := len(c.s) - 1; i >= 0; i-- {
+			if !yield(c.s[i]) {
+				break
+			}
+		}
+	}
+}
+
 // Private functions:
 
 //nolint:unused

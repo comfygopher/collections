@@ -3353,6 +3353,91 @@ func testMapValuesBreak(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
+func getMapValuesRevCases(builder baseMapCollIntBuilder) []baseMapTestCase {
+	return []baseMapTestCase{
+		{
+			name:  "ValuesRev() on empty collection",
+			coll:  builder.Empty(),
+			want1: []Pair[int, int](nil),
+		},
+		{
+			name:  "ValuesRev() on one-item collection",
+			coll:  builder.One(),
+			want1: []Pair[int, int]{NewPair(1, 111)},
+		},
+		{
+			name:  "ValuesRev() on three-item collection",
+			coll:  builder.Three(),
+			want1: []Pair[int, int]{NewPair(3, 333), NewPair(2, 222), NewPair(1, 111)},
+		},
+	}
+}
+
+func testMapValuesRev(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapValuesRevCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := slices.Collect(tt.coll.ValuesRev())
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("ValuesRev() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
+func getMapValuesRevBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
+	return []*baseMapTestCase{
+		{
+			name: "ValuesRev() on three-item collection, break immediately",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return false
+				},
+			},
+			want1: []Pair[int, int](nil),
+		},
+		{
+			name: "ValuesRev() on three-item collection, break at middle",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return p.Key() > 2
+				},
+			},
+			want1: []Pair[int, int]{NewPair(3, 333)},
+		},
+		{
+			name: "ValuesRev() on three-item collection, break after middle",
+			coll: builder.Three(),
+			args: baseMapIntArgs{
+				predicate: func(_ int, p Pair[int, int]) bool {
+					return p.Key() >= 2
+				},
+			},
+			want1: []Pair[int, int]{NewPair(3, 333), NewPair(2, 222)},
+		},
+	}
+}
+
+func testMapValuesRevBreak(t *testing.T, builder baseMapCollIntBuilder) {
+	cases := getMapValuesRevBreakCases(builder)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			got := []Pair[int, int](nil)
+			for v := range tt.coll.ValuesRev() {
+				if !tt.args.predicate(-1, v) {
+					break
+				}
+				got = append(got, v)
+			}
+			if !reflect.DeepEqual(got, tt.want1) {
+				t.Errorf("ValuesRev() = %v, want1 = %v", got, tt.want1)
+			}
+		})
+	}
+}
+
 func getMapCopyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{

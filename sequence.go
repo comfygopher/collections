@@ -254,6 +254,16 @@ func (c *comfySeq[V]) Values() iter.Seq[V] {
 	}
 }
 
+func (c *comfySeq[V]) ValuesRev() iter.Seq[V] {
+	return func(yield func(V) bool) {
+		for i := len(c.s) - 1; i >= 0; i-- {
+			if !yield(c.s[i]) {
+				break
+			}
+		}
+	}
+}
+
 // Private:
 
 //nolint:unused
