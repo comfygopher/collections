@@ -35,7 +35,7 @@ func (c *comfyMap[K, V]) Append(p ...Pair[K, V]) {
 	comfyAppendMap(c, p...)
 }
 
-func (c *comfyMap[K, V]) AppendColl(coll Linear[Pair[K, V]]) {
+func (c *comfyMap[K, V]) AppendColl(coll Ordered[Pair[K, V]]) {
 	c.Append(coll.ToSlice()...)
 }
 

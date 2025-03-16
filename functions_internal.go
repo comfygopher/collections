@@ -63,7 +63,7 @@ func comfyFind[C Base[V], V any](coll C, predicate Predicate[V], defaultValue V)
 	return defaultValue
 }
 
-func comfyFindLast[C Linear[V], V any](coll C, predicate Predicate[V], defaultValue V) V {
+func comfyFindLast[C Ordered[V], V any](coll C, predicate Predicate[V], defaultValue V) V {
 	found := false
 	var foundValue V
 	coll.EachRevUntil(func(i int, v V) bool {

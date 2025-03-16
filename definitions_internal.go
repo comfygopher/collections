@@ -13,8 +13,8 @@ type baseInternal[V any] interface {
 	// values() iter.Seq[V] // TODO
 }
 
-type linearInternal[V any] interface {
-	Linear[V]
+type orderedInternal[V any] interface {
+	Ordered[V]
 	baseInternal[V]
 	// valuesRev() iter.Seq[V] // TODO
 }
@@ -53,8 +53,8 @@ type cmpBaseMutableInternal[B any, V cmp.Ordered] interface {
 	CmpMutable[V]
 }
 
-type linearMutableInternal[V any] interface {
-	LinearMutable[V]
+type orderedMutableInternal[V any] interface {
+	OrderedMutable[V]
 	baseInternal[V]
 }
 

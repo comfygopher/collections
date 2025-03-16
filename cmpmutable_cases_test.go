@@ -5,79 +5,79 @@ import (
 	"testing"
 )
 
-type orderedMutableIntArgs = testArgs[CmpMutable[int], int]
-type orderedMutableTestCase = testCase[CmpMutable[int], int]
-type orderedMutableCollIntBuilder = testCollectionBuilder[CmpMutable[int]]
+type cmpMutableIntArgs = testArgs[CmpMutable[int], int]
+type cmpMutableTestCase = testCase[CmpMutable[int], int]
+type cmpMutableCollIntBuilder = testCollectionBuilder[CmpMutable[int]]
 
-func getRemoveValuesCases(builder orderedMutableCollIntBuilder) []orderedMutableTestCase {
-	return []orderedMutableTestCase{
+func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase {
+	return []cmpMutableTestCase{
 		{
 			name:  "RemoveValues() on empty collection",
 			coll:  builder.Empty(),
-			args:  orderedMutableIntArgs{value: 1},
+			args:  cmpMutableIntArgs{value: 1},
 			want1: []int(nil),
 			want2: map[int]int{},
 		},
 		{
 			name:  "RemoveValues() on one-item collection",
 			coll:  builder.One(),
-			args:  orderedMutableIntArgs{value: 111},
+			args:  cmpMutableIntArgs{value: 111},
 			want1: []int(nil),
 			want2: map[int]int{},
 		},
 		{
 			name:  "RemoveValues() on three-item collection - first item",
 			coll:  builder.Three(),
-			args:  orderedMutableIntArgs{value: 111},
+			args:  cmpMutableIntArgs{value: 111},
 			want1: []int{222, 333},
 			want2: map[int]int{222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveValues() on three-item collection - second item",
 			coll:  builder.Three(),
-			args:  orderedMutableIntArgs{value: 222},
+			args:  cmpMutableIntArgs{value: 222},
 			want1: []int{111, 333},
 			want2: map[int]int{111: 1, 333: 1},
 		},
 		{
 			name:  "RemoveValues() on three-item collection - third item",
 			coll:  builder.Three(),
-			args:  orderedMutableIntArgs{value: 333},
+			args:  cmpMutableIntArgs{value: 333},
 			want1: []int{111, 222},
 			want2: map[int]int{111: 1, 222: 1},
 		},
 		{
 			name:  "RemoveValues() on three-item collection, not found",
 			coll:  builder.Three(),
-			args:  orderedMutableIntArgs{value: 999},
+			args:  cmpMutableIntArgs{value: 999},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `111` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedMutableIntArgs{value: 111},
+			args:  cmpMutableIntArgs{value: 111},
 			want1: []int{222, 333, 222, 333},
 			want2: map[int]int{222: 2, 333: 2},
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `222` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedMutableIntArgs{value: 222},
+			args:  cmpMutableIntArgs{value: 222},
 			want1: []int{111, 333, 111, 333},
 			want2: map[int]int{111: 2, 333: 2},
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `333` found ",
 			coll:  builder.SixWithDuplicates(),
-			args:  orderedMutableIntArgs{value: 333},
+			args:  cmpMutableIntArgs{value: 333},
 			want1: []int{111, 222, 111, 222},
 			want2: map[int]int{111: 2, 222: 2},
 		},
 	}
 }
 
-func testRemoveValues(t *testing.T, builder orderedMutableCollIntBuilder) {
+func testRemoveValues(t *testing.T, builder cmpMutableCollIntBuilder) {
 	cases := getRemoveValuesCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
