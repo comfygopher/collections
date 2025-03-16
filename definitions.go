@@ -45,7 +45,6 @@ type KVReducer[K comparable, V any] = func(keyAcc K, valueAcc V, currentKey K, c
 
 // Base is the base interface for all collections.
 type Base[V any] interface {
-
 	// Contains returns true if the collection contains an element that matches the predicate.
 	Contains(predicate Predicate[V]) bool
 
