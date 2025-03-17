@@ -1538,7 +1538,7 @@ func testMapRemoveMatching(t *testing.T, builder baseMapCollIntBuilder) {
 	cases := getMapRemoveMatchingCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.RemoveMatching(tt.args.predicate)
+			count := tt.coll.RemoveMatching(tt.args.predicate)
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualMap := builder.extractUnderlyingMap(tt.coll)
 			actualKP := builder.extractUnderlyingKp(tt.coll)
@@ -1556,6 +1556,9 @@ func testMapRemoveMatching(t *testing.T, builder baseMapCollIntBuilder) {
 				if !reflect.DeepEqual(actualVC, tt.want4) {
 					t.Errorf("RemoveMatching() did not remove correctly from values counter")
 				}
+			}
+			if count != tt.want5 {
+				t.Errorf("RemoveMatching() returned wrong count: %v, but wanted = %v", count, tt.want5)
 			}
 		})
 	}
