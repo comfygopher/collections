@@ -2,7 +2,6 @@ package coll
 
 import (
 	"iter"
-	"maps"
 	"slices"
 )
 
@@ -36,7 +35,7 @@ func (c *comfyMap[K, V]) Append(p ...Pair[K, V]) {
 }
 
 func (c *comfyMap[K, V]) AppendColl(coll Ordered[Pair[K, V]]) {
-	c.Append(coll.ToSlice()...)
+	c.Append(slices.Collect(coll.Values())...)
 }
 
 func (c *comfyMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
@@ -45,8 +44,8 @@ func (c *comfyMap[K, V]) Apply(f Mapper[Pair[K, V]]) {
 	newKP := make(map[K]int)
 
 	idx := 0
-	for i, pair := range c.s {
-		mapped := f(i, pair)
+	for _, pair := range c.s {
+		mapped := f(pair)
 		newS = append(newS, mapped)
 		newM[mapped.Key()] = mapped
 		newKP[mapped.Key()] = idx
@@ -78,58 +77,6 @@ func (c *comfyMap[K, V]) Clear() {
 	c.kp = make(map[K]int)
 }
 
-func (c *comfyMap[K, V]) Contains(predicate Predicate[Pair[K, V]]) bool {
-	return comfyContains[Indexed[Pair[K, V]], Pair[K, V]](c, predicate)
-}
-
-func (c *comfyMap[K, V]) Count(predicate Predicate[Pair[K, V]]) int {
-	return comfyCount[Indexed[Pair[K, V]], Pair[K, V]](c, predicate)
-}
-
-func (c *comfyMap[K, V]) Each(f Visitor[Pair[K, V]]) {
-	for i, pair := range c.s {
-		f(i, pair)
-	}
-}
-
-func (c *comfyMap[K, V]) EachRev(f Visitor[Pair[K, V]]) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		f(i, c.s[i])
-	}
-}
-
-func (c *comfyMap[K, V]) EachRevUntil(f Predicate[Pair[K, V]]) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		if !f(i, c.s[i]) {
-			return
-		}
-	}
-}
-
-func (c *comfyMap[K, V]) EachUntil(f Predicate[Pair[K, V]]) {
-	for i, pair := range c.s {
-		if !f(i, pair) {
-			return
-		}
-	}
-}
-
-func (c *comfyMap[K, V]) Find(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	return comfyFind[Indexed[Pair[K, V]]](c, predicate, defaultValue)
-}
-
-func (c *comfyMap[K, V]) FindLast(predicate Predicate[Pair[K, V]], defaultValue Pair[K, V]) Pair[K, V] {
-	return comfyFindLast[Indexed[Pair[K, V]]](c, predicate, defaultValue)
-}
-
-func (c *comfyMap[K, V]) Fold(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
-	return comfyFoldSlice(c.s, reducer, initial)
-}
-
-func (c *comfyMap[K, V]) FoldRev(reducer Reducer[Pair[K, V]], initial Pair[K, V]) Pair[K, V] {
-	return comfyFoldSliceRev(c.s, reducer, initial)
-}
-
 func (c *comfyMap[K, V]) Get(k K) (V, bool) {
 	pair, ok := c.m[k]
 	if !ok {
@@ -152,20 +99,6 @@ func (c *comfyMap[K, V]) Has(k K) bool {
 	return ok
 }
 
-func (c *comfyMap[K, V]) Head() (Pair[K, V], bool) {
-	if len(c.s) == 0 {
-		return nil, false
-	}
-	return c.s[0], true
-}
-
-func (c *comfyMap[K, V]) HeadOrDefault(defaultValue Pair[K, V]) Pair[K, V] {
-	if len(c.s) == 0 {
-		return defaultValue
-	}
-	return c.s[0]
-}
-
 func (c *comfyMap[K, V]) IsEmpty() bool {
 	return len(c.s) == 0
 }
@@ -178,10 +111,6 @@ func (c *comfyMap[K, V]) Keys() iter.Seq[K] {
 			}
 		}
 	}
-}
-
-func (c *comfyMap[K, V]) KeysToSlice() []K {
-	return slices.Collect(c.Keys())
 }
 
 func (c *comfyMap[K, V]) KeyValues() iter.Seq2[K, V] {
@@ -200,14 +129,6 @@ func (c *comfyMap[K, V]) Len() int {
 
 func (c *comfyMap[K, V]) Prepend(p ...Pair[K, V]) {
 	c.prependAll(p)
-}
-
-func (c *comfyMap[K, V]) Reduce(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
-	return comfyReduceSlice(c.s, reducer)
-}
-
-func (c *comfyMap[K, V]) ReduceRev(reducer Reducer[Pair[K, V]]) (Pair[K, V], error) {
-	return comfyReduceSliceRev(c.s, reducer)
 }
 
 func (c *comfyMap[K, V]) Remove(k K) {
@@ -233,8 +154,8 @@ func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 	newKP := make(map[K]int)
 
 	idx := 0
-	for i, pair := range c.s {
-		if !predicate(i, pair) {
+	for _, pair := range c.s {
+		if !predicate(pair) {
 			newS = append(newS, pair)
 			newM[pair.Key()] = pair
 			newKP[pair.Key()] = idx
@@ -258,24 +179,6 @@ func (c *comfyMap[K, V]) Reverse() {
 	c.kp = newKP
 }
 
-func (c *comfyMap[K, V]) Search(predicate Predicate[Pair[K, V]]) (Pair[K, V], bool) {
-	for i, pair := range c.s {
-		if predicate(i, pair) {
-			return pair, true
-		}
-	}
-	return nil, false
-}
-
-func (c *comfyMap[K, V]) SearchRev(predicate Predicate[Pair[K, V]]) (Pair[K, V], bool) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		if predicate(i, c.s[i]) {
-			return c.s[i], true
-		}
-	}
-	return nil, false
-}
-
 func (c *comfyMap[K, V]) Set(k K, v V) {
 	c.set(NewPair(k, v))
 }
@@ -288,28 +191,6 @@ func (c *comfyMap[K, V]) SetMany(s []Pair[K, V]) {
 
 func (c *comfyMap[K, V]) Sort(compare PairComparator[K, V]) {
 	c.s, c.kp = comfySortSliceAndKP(c.s, compare)
-}
-
-func (c *comfyMap[K, V]) Tail() (Pair[K, V], bool) {
-	if len(c.s) == 0 {
-		return nil, false
-	}
-	return c.s[len(c.s)-1], true
-}
-
-func (c *comfyMap[K, V]) TailOrDefault(defaultValue Pair[K, V]) Pair[K, V] {
-	if len(c.s) == 0 {
-		return defaultValue
-	}
-	return c.s[len(c.s)-1]
-}
-
-func (c *comfyMap[K, V]) ToMap() map[K]V {
-	return maps.Collect(c.KeyValues())
-}
-
-func (c *comfyMap[K, V]) ToSlice() []Pair[K, V] {
-	return slices.Collect(c.Values())
 }
 
 func (c *comfyMap[K, V]) Values() iter.Seq[Pair[K, V]] {

@@ -155,64 +155,16 @@ func Test_comfyCmpSeq_Clear(t *testing.T) {
 	testClear(t, &comfyCmpSeqIntBuilder[mutableInternal[int]]{})
 }
 
-func Test_comfyCmpSeq_Contains(t *testing.T) {
-	testContains(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
 func Test_comfyCmpSeq_ContainsValue(t *testing.T) {
 	testContainsValue(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
-}
-
-func Test_comfyCmpSeq_Count(t *testing.T) {
-	testCount(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_CountValues(t *testing.T) {
 	testCountValues(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
 }
 
-func Test_comfyCmpSeq_Each(t *testing.T) {
-	testEach(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_EachRev(t *testing.T) {
-	testEachRev(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_EachRevUntil(t *testing.T) {
-	testEachRevUntil(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_EachUntil(t *testing.T) {
-	testEachUntil(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_Find(t *testing.T) {
-	testFind(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_FindLast(t *testing.T) {
-	testFindLast(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_Fold(t *testing.T) {
-	testFold(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_FoldRev(t *testing.T) {
-	testFoldRev(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
 func Test_comfyCmpSeq_HasValue(t *testing.T) {
 	testHasValue(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
-}
-
-func Test_comfyCmpSeq_Head(t *testing.T) {
-	testHead(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_HeadOrDefault(t *testing.T) {
-	testHeadOrDefault(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_IndexOf(t *testing.T) {
@@ -269,25 +221,9 @@ func Test_comfyCmpSeq_Len(t *testing.T) {
 	testLen(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
-func Test_comfyCmpSeq_Max(t *testing.T) {
-	testMax(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
-}
-
-func Test_comfyCmpSeq_Min(t *testing.T) {
-	testMin(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
-}
-
 func Test_comfyCmpSeq_Prepend(t *testing.T) {
 	testPrependOne(t, &comfyCmpSeqIntBuilder[orderedMutableInternal[int]]{})
 	testPrependMany(t, &comfyCmpSeqIntBuilder[orderedMutableInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_Reduce(t *testing.T) {
-	testReduce(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_ReduceRev(t *testing.T) {
-	testReduceRev(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_RemoveAt(t *testing.T) {
@@ -307,14 +243,6 @@ func Test_comfyCmpSeq_Reverse(t *testing.T) {
 	testReverseTwice(t, &comfyCmpSeqIntBuilder[orderedMutableInternal[int]]{})
 }
 
-func Test_comfyCmpSeq_Search(t *testing.T) {
-	testSearch(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_SearchRev(t *testing.T) {
-	testSearchRev(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
 func Test_comfyCmpSeq_Sort(t *testing.T) {
 	testSort(t, &comfyCmpSeqIntBuilder[indexedMutableInternal[int]]{})
 }
@@ -325,22 +253,6 @@ func Test_comfyCmpSeq_SortAsc(t *testing.T) {
 
 func Test_comfyCmpSeq_SortDesc(t *testing.T) {
 	testSortDesc(t, &comfyCmpSeqIntBuilder[CmpMutable[int]]{})
-}
-
-func Test_comfyCmpSeq_Sum(t *testing.T) {
-	testSum(t, &comfyCmpSeqIntBuilder[cmpBaseInternal[int, int]]{})
-}
-
-func Test_comfyCmpSeq_Tail(t *testing.T) {
-	testTail(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_TailOrDefault(t *testing.T) {
-	testTailOrDefault(t, &comfyCmpSeqIntBuilder[orderedInternal[int]]{})
-}
-
-func Test_comfyCmpSeq_ToSlice(t *testing.T) {
-	testToSlice(t, &comfyCmpSeqIntBuilder[baseInternal[int]]{})
 }
 
 func Test_comfyCmpSeq_Values(t *testing.T) {

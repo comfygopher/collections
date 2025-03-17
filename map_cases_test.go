@@ -248,7 +248,7 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 		{
 			name:  "Apply() on empty collection",
 			coll:  builder.Empty(),
-			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			args:  baseMapIntArgs{mapper: func(p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int](nil),
 			want2: map[int]Pair[int, int]{},
 			want3: map[int]int{},
@@ -257,7 +257,7 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 		{
 			name:  "Apply() on one-item collection",
 			coll:  builder.One(),
-			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			args:  baseMapIntArgs{mapper: func(p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112)},
 			want2: map[int]Pair[int, int]{11: NewPair(11, 112)},
 			want3: map[int]int{11: 0},
@@ -266,7 +266,7 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 		{
 			name:  "Apply() on three-item collection",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			args:  baseMapIntArgs{mapper: func(p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{NewPair(11, 112), NewPair(12, 223), NewPair(13, 334)},
 			want2: map[int]Pair[int, int]{11: NewPair(11, 112), 12: NewPair(12, 223), 13: NewPair(13, 334)},
 			want3: map[int]int{11: 0, 12: 1, 13: 2},
@@ -275,7 +275,7 @@ func getMapApplyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 		{
 			name: "Apply() on six-item collection with duplicates",
 			coll: builder.SixWithDuplicates(),
-			args: baseMapIntArgs{mapper: func(i int, p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
+			args: baseMapIntArgs{mapper: func(p Pair[int, int]) Pair[int, int] { return NewPair(p.Key()+10, p.Val()+1) }},
 			want1: []Pair[int, int]{
 				NewPair(11, 112),
 				NewPair(12, 223),
@@ -489,910 +489,6 @@ func testMapClear(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
-func getMapContainsCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "Contains() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 1 }},
-			want1: false,
-		},
-		{
-			name:  "Contains() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
-			want1: true,
-		},
-		{
-			name:  "Contains() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
-			want1: true,
-		},
-		{
-			name:  "Contains() on three-item collection, all false",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
-			want1: false,
-		},
-		{
-			name:  "Contains() on three-item collection, all true",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: true,
-		},
-	}
-}
-
-func testMapContains(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapContainsCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.coll.Contains(tt.args.predicate); got != tt.want1 {
-				t.Errorf("Contains() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapCountCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "Count() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 1 }},
-			want1: 0,
-		},
-		{
-			name:  "Count() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
-			want1: 1,
-		},
-		{
-			name:  "Count() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
-			want1: 1,
-		},
-		{
-			name:  "Count() on three-item collection, all false",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
-			want1: 0,
-		},
-		{
-			name:  "Count() on three-item collection, all true",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: 3,
-		},
-	}
-}
-
-func testMapCount(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapCountCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.Count(tt.args.predicate)
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("Count() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapEachCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-	// eachOnEmptyListCase:
-
-	eachOnEmptyListCase := &baseMapTestCase{
-		name: "Each() on empty collection",
-		coll: builder.Empty(),
-	}
-	eachOnEmptyListCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			t.Error("Each() called on empty collection")
-		},
-	}
-
-	// eachOnOneItemCase:
-
-	eachOnOneItemCase := &baseMapTestCase{
-		name:  "Each() on one-item collection",
-		coll:  builder.One(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0},
-		want2: []int{111},
-	}
-
-	eachOnOneItemCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			if i != 0 || p.Val() != 111 {
-				t.Error("Each() called with wrong values")
-			}
-			eachOnOneItemCase.got1 = append(eachOnOneItemCase.got1.([]int), i)
-			eachOnOneItemCase.got2 = append(eachOnOneItemCase.got2.([]int), p.Val())
-		},
-	}
-
-	// eachOnEmptyListCase:
-
-	eachOnThreeCase := &baseMapTestCase{
-		name:  "Each() on three-item collection",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0, 1, 2},
-		want2: []int{111, 222, 333},
-	}
-
-	eachOnThreeCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("Each() called with wrong values")
-			}
-			eachOnThreeCase.got1 = append(eachOnThreeCase.got1.([]int), i)
-			eachOnThreeCase.got2 = append(eachOnThreeCase.got2.([]int), p.Val())
-		},
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		eachOnEmptyListCase,
-		eachOnOneItemCase,
-		eachOnThreeCase,
-	}
-}
-
-func testMapEach(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapEachCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.Each(tt.args.visit)
-			if tt.got1 != nil && !reflect.DeepEqual(tt.got1, tt.want1) {
-				t.Errorf("Each() called with wrong indices: %v, want1 = %v", tt.got1, tt.want1)
-			}
-			if tt.got2 != nil && !reflect.DeepEqual(tt.got2, tt.want2) {
-				t.Errorf("Each() called with wrong values: %v, want1 = %v", tt.got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapEachRevCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-
-	// eachRevOnEmptyListCase:
-
-	eachRevOnEmptyListCase := &baseMapTestCase{
-		name: "EachRev() on empty collection",
-		coll: builder.Empty(),
-	}
-	eachRevOnEmptyListCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			t.Error("EachRev() called on empty collection")
-		},
-	}
-
-	// eachRevOnOneItemCase:
-
-	eachRevOnOneItemCase := &baseMapTestCase{
-		name:  "EachRev() on one-item collection",
-		coll:  builder.One(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0},
-		want2: []int{111},
-	}
-
-	eachRevOnOneItemCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			if i != 0 || p.Val() != 111 {
-				t.Error("EachRev() called with wrong values")
-			}
-			eachRevOnOneItemCase.got1 = append(eachRevOnOneItemCase.got1.([]int), i)
-			eachRevOnOneItemCase.got2 = append(eachRevOnOneItemCase.got2.([]int), p.Val())
-		},
-	}
-
-	// eachRevOnThreeCase:
-
-	eachRevOnThreeCase := &baseMapTestCase{
-		name:  "EachRev() on three-item collection",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{2, 1, 0},
-		want2: []int{333, 222, 111},
-	}
-
-	eachRevOnThreeCase.args = baseMapIntArgs{
-		visit: func(i int, p Pair[int, int]) {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("EachRev() called with wrong values")
-			}
-			eachRevOnThreeCase.got1 = append(eachRevOnThreeCase.got1.([]int), i)
-			eachRevOnThreeCase.got2 = append(eachRevOnThreeCase.got2.([]int), p.Val())
-		},
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		eachRevOnEmptyListCase,
-		eachRevOnOneItemCase,
-		eachRevOnThreeCase,
-	}
-}
-
-func testMapEachRev(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapEachRevCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.EachRev(tt.args.visit)
-			if tt.got1 != nil && !reflect.DeepEqual(tt.got1, tt.want1) {
-				t.Errorf("EachRev() called with wrong indices: %v, want1 = %v", tt.got1, tt.want1)
-			}
-			if tt.got2 != nil && !reflect.DeepEqual(tt.got2, tt.want2) {
-				t.Errorf("EachRev() called with wrong values: %v, want1 = %v", tt.got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapEachUntilCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-
-	// eachUntilOnEmptyListCase:
-
-	eachUntilOnEmptyListCase := &baseMapTestCase{
-		name: "EachUntil() on empty collection",
-		coll: builder.Empty(),
-	}
-
-	eachUntilOnEmptyListCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			t.Error("EachUntil() called on empty collection")
-			return true
-		},
-	}
-
-	// eachUntilOnOneItemCase:
-
-	eachUntilOnOneItemCase := &baseMapTestCase{
-		name:  "EachUntil() on one-item collection",
-		coll:  builder.One(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0},
-		want2: []int{111},
-	}
-
-	eachUntilOnOneItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i != 0 || p.Val() != 111 {
-				t.Error("EachUntil() called with wrong values")
-			}
-			eachUntilOnOneItemCase.got1 = append(eachUntilOnOneItemCase.got1.([]int), i)
-			eachUntilOnOneItemCase.got2 = append(eachUntilOnOneItemCase.got2.([]int), p.Val())
-			return true
-		},
-	}
-
-	// eachUntilFinishMiddleCase:
-
-	eachUntilFinishMiddleCase := &baseMapTestCase{
-		name:  "EachUntil() finish in middle",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0, 1},
-		want2: []int{111, 222},
-	}
-
-	eachUntilFinishMiddleCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("EachUntil() called with wrong values")
-			}
-			eachUntilFinishMiddleCase.got1 = append(eachUntilFinishMiddleCase.got1.([]int), i)
-			eachUntilFinishMiddleCase.got2 = append(eachUntilFinishMiddleCase.got2.([]int), p.Val())
-			stop := i >= 1 && p.Val() >= 222
-			cont := !stop
-			return cont
-		},
-	}
-
-	// eachUntilAllThreeCase:
-
-	eachUntilAllThreeCase := &baseMapTestCase{
-		name:  "EachUntil() on three-item collection",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0, 1, 2},
-		want2: []int{111, 222, 333},
-	}
-
-	eachUntilAllThreeCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("EachUntil() called with wrong values")
-			}
-			eachUntilAllThreeCase.got1 = append(eachUntilAllThreeCase.got1.([]int), i)
-			eachUntilAllThreeCase.got2 = append(eachUntilAllThreeCase.got2.([]int), p.Val())
-			return true
-		},
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		eachUntilOnEmptyListCase,
-		eachUntilOnOneItemCase,
-		eachUntilFinishMiddleCase,
-		eachUntilAllThreeCase,
-	}
-}
-
-func testMapEachUntil(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapEachUntilCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.EachUntil(tt.args.predicate)
-			if tt.got1 != nil && !reflect.DeepEqual(tt.got1, tt.want1) {
-				t.Errorf("EachUntil() called with wrong indices: %v, want1 = %v", tt.got1, tt.want1)
-			}
-			if tt.got2 != nil && !reflect.DeepEqual(tt.got2, tt.want2) {
-				t.Errorf("EachUntil() called with wrong values: %v, want1 = %v", tt.got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapEachRevUntilCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-
-	// eachRevUntilOnEmptyListCase:
-
-	eachRevUntilOnEmptyListCase := &baseMapTestCase{
-		name: "EachRevUntil() on empty collection",
-		coll: builder.Empty(),
-	}
-
-	eachRevUntilOnEmptyListCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			t.Error("EachRevUntil() called on empty collection")
-			return true
-		},
-	}
-
-	// eachRevUntilOnOneItemCase:
-
-	eachRevUntilOnOneItemCase := &baseMapTestCase{
-		name:  "EachRevUntil() on one-item collection",
-		coll:  builder.One(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{0},
-		want2: []int{111},
-	}
-
-	eachRevUntilOnOneItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i != 0 || p.Val() != 111 {
-				t.Error("EachRevUntil() called with wrong values")
-			}
-			eachRevUntilOnOneItemCase.got1 = append(eachRevUntilOnOneItemCase.got1.([]int), i)
-			eachRevUntilOnOneItemCase.got2 = append(eachRevUntilOnOneItemCase.got2.([]int), p.Val())
-			return true
-		},
-	}
-
-	// eachRevUntilFinishMiddleCase:
-
-	eachRevUntilFinishMiddleCase := &baseMapTestCase{
-		name:  "EachRevUntil() finish in middle",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{2, 1},
-		want2: []int{333, 222},
-	}
-
-	eachRevUntilFinishMiddleCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("EachRevUntil() called with wrong values")
-			}
-			eachRevUntilFinishMiddleCase.got1 = append(eachRevUntilFinishMiddleCase.got1.([]int), i)
-			eachRevUntilFinishMiddleCase.got2 = append(eachRevUntilFinishMiddleCase.got2.([]int), p.Val())
-			stop := i <= 1 && p.Val() <= 222
-			cont := !stop
-			return cont
-		},
-	}
-
-	// eachRevUntilAllThreeCase:
-
-	eachRevUntilAllThreeCase := &baseMapTestCase{
-		name:  "EachRevUntil() on three-item collection",
-		coll:  builder.Three(),
-		got1:  []int{},
-		got2:  []int{},
-		want1: []int{2, 1, 0},
-		want2: []int{333, 222, 111},
-	}
-
-	eachRevUntilAllThreeCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if i < 0 || i > 2 || p.Val() < 111 || p.Val() > 333 {
-				t.Error("EachRevUntil() called with wrong values")
-			}
-			eachRevUntilAllThreeCase.got1 = append(eachRevUntilAllThreeCase.got1.([]int), i)
-			eachRevUntilAllThreeCase.got2 = append(eachRevUntilAllThreeCase.got2.([]int), p.Val())
-			return true
-		},
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		eachRevUntilOnEmptyListCase,
-		eachRevUntilOnOneItemCase,
-		eachRevUntilFinishMiddleCase,
-		eachRevUntilAllThreeCase,
-	}
-}
-
-func testMapEachRevUntil(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapEachRevUntilCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.EachRevUntil(tt.args.predicate)
-			if tt.got1 != nil && !reflect.DeepEqual(tt.got1, tt.want1) {
-				t.Errorf("EachRevUntil() called with wrong indices: %v, want1 = %v", tt.got1, tt.want1)
-			}
-			if tt.got2 != nil && !reflect.DeepEqual(tt.got2, tt.want2) {
-				t.Errorf("EachRevUntil() called with wrong values: %v, want1 = %v", tt.got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapFindCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-
-	// findOnEmptyListCase:
-	findOnEmptyListCase := &baseMapTestCase{
-		name:  "Find() on empty collection",
-		coll:  builder.Empty(),
-		want1: nil,
-	}
-
-	findOnEmptyListCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findOnEmptyListCase.want1 = p
-				findOnEmptyListCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findOnOneItemCase:
-	findOnOneItemCase := &baseMapTestCase{
-		name:  "Find() on one-item collection",
-		coll:  builder.One(),
-		want1: NewPair(1, 111),
-	}
-
-	findOnOneItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findOnOneItemCase.want1 = p
-				findOnOneItemCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findOnThreeItemCase:
-	findOnThreeItemCase := &baseMapTestCase{
-		name:  "Find() on three-item collection",
-		coll:  builder.Three(),
-		want1: NewPair(2, 333),
-	}
-
-	findOnThreeItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 333 {
-				findOnThreeItemCase.want1 = p
-				findOnThreeItemCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findFirstOnSixWithDupes:
-	findFirstOnSixWithDupes := &baseMapTestCase{
-		name:  "Find() first on six-item collection",
-		coll:  builder.SixWithDuplicates(),
-		want1: NewPair(0, 111),
-	}
-	findFirstOnSixWithDupes.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findFirstOnSixWithDupes.want1 = p
-				findFirstOnSixWithDupes.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findSecondOnSixWithDupes:
-	findSecondOnSixWithDupes := &baseMapTestCase{
-		name:  "Find() second on six-item collection",
-		coll:  builder.SixWithDuplicates(),
-		want1: NewPair(1, 222),
-	}
-	findSecondOnSixWithDupes.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 222 {
-				findSecondOnSixWithDupes.want1 = p
-				findSecondOnSixWithDupes.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		findOnEmptyListCase,
-		findOnOneItemCase,
-		findOnThreeItemCase,
-		findFirstOnSixWithDupes,
-		findSecondOnSixWithDupes,
-	}
-}
-
-func testMapFind(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapFindCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.Find(tt.args.predicate, tt.args.defaultValue)
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("Find() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapFindLastCases(t *testing.T, builder baseMapCollIntBuilder) []*baseMapTestCase {
-
-	// findLastOnEmptyListCase:
-	findLastOnEmptyListCase := &baseMapTestCase{
-		name:  "FindLast() on empty collection",
-		coll:  builder.Empty(),
-		want1: nil,
-	}
-
-	findLastOnEmptyListCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findLastOnEmptyListCase.want1 = p
-				findLastOnEmptyListCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findLastOnOneItemCase:
-	findLastOnOneItemCase := &baseMapTestCase{
-		name:  "FindLast() on one-item collection",
-		coll:  builder.One(),
-		want1: NewPair(1, 111),
-	}
-
-	findLastOnOneItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findLastOnOneItemCase.want1 = p
-				findLastOnOneItemCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findLastOnThreeItemCase:
-	findLastOnThreeItemCase := &baseMapTestCase{
-		name:  "FindLast() on three-item collection",
-		coll:  builder.Three(),
-		want1: NewPair(3, 333),
-	}
-
-	findLastOnThreeItemCase.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 333 {
-				findLastOnThreeItemCase.want1 = p
-				findLastOnThreeItemCase.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findFirstOnSixWithDupes:
-	findFirstOnSixWithDupes := &baseMapTestCase{
-		name:  "FindLast() first on six-item collection",
-		coll:  builder.SixWithDuplicates(),
-		want1: NewPair(3, 111),
-	}
-	findFirstOnSixWithDupes.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 111 {
-				findFirstOnSixWithDupes.want1 = p
-				findFirstOnSixWithDupes.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// findSecondOnSixWithDupes:
-	findSecondOnSixWithDupes := &baseMapTestCase{
-		name:  "FindLast() second on six-item collection",
-		coll:  builder.SixWithDuplicates(),
-		want1: NewPair(4, 222),
-	}
-	findSecondOnSixWithDupes.args = baseMapIntArgs{
-		predicate: func(i int, p Pair[int, int]) bool {
-			if p.Val() == 222 {
-				findSecondOnSixWithDupes.want1 = p
-				findSecondOnSixWithDupes.want2 = true
-				return true
-			}
-			return false
-		},
-		defaultValue: nil,
-	}
-
-	// put the cases together:
-
-	return []*baseMapTestCase{
-		findLastOnEmptyListCase,
-		findLastOnOneItemCase,
-		findLastOnThreeItemCase,
-		findFirstOnSixWithDupes,
-		findSecondOnSixWithDupes,
-	}
-}
-
-func testMapFindLast(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapFindLastCases(t, builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.FindLast(tt.args.predicate, tt.args.defaultValue)
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("FindLast() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapFoldCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name: "Fold() on empty collection",
-			coll: builder.Empty(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return acc
-				},
-				initial: nil,
-			},
-			want1: nil,
-		},
-		{
-			name: "Fold() on empty collection with initial",
-			coll: builder.Empty(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return acc
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(10, 100),
-		},
-		{
-			name: "Fold() on one-item collection",
-			coll: builder.One(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return current
-				},
-				initial: nil,
-			},
-			want1: NewPair(1, 111),
-		},
-		{
-			name: "Fold() on one-item collection with non-nil initial",
-			coll: builder.One(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(11, 211),
-		},
-		{
-			name: "Fold() on three-item collection",
-			coll: builder.Three(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					if acc == nil {
-						return current
-					}
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: nil,
-			},
-			want1: NewPair(6, 666),
-		},
-		{
-			name: "Fold() on three-item collection with non-nil initial",
-			coll: builder.Three(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					newKey := acc.Key() + current.Key()
-					newVal := acc.Val()*10 + current.Val()
-					return NewPair(newKey, newVal)
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(16, 113653),
-		},
-		{
-			name: "Fold() on six-item collection",
-			coll: builder.SixWithDuplicates(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: NewPair(0, 0),
-			},
-			want1: NewPair(21, 1332),
-		},
-	}
-}
-
-func testMapFold(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapFoldCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.Fold(tt.args.reducer, tt.args.initial)
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("Fold() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapFoldRevCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name: "Fold() on empty collection",
-			coll: builder.Empty(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return acc
-				},
-				initial: nil,
-			},
-			want1: nil,
-		},
-		{
-			name: "Fold() on empty collection with initial",
-			coll: builder.Empty(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return acc
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(10, 100),
-		},
-		{
-			name: "Fold() on one-item collection",
-			coll: builder.One(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return current
-				},
-				initial: nil,
-			},
-			want1: NewPair(1, 111),
-		},
-		{
-			name: "Fold() on one-item collection with non-nil initial",
-			coll: builder.One(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(11, 211),
-		},
-		{
-			name: "Fold() on three-item collection",
-			coll: builder.Three(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					if acc == nil {
-						return current
-					}
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: nil,
-			},
-			want1: NewPair(6, 666),
-		},
-		{
-			name: "Fold() on three-item collection with non-nil initial",
-			coll: builder.Three(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					newKey := acc.Key() + current.Key()
-					newVal := acc.Val()*10 + current.Val()
-					return NewPair(newKey, newVal)
-				},
-				initial: NewPair(10, 100),
-			},
-			want1: NewPair(16, 135631),
-		},
-		{
-			name: "Fold() on six-item collection",
-			coll: builder.SixWithDuplicates(),
-			args: baseMapIntArgs{
-				reducer: func(acc Pair[int, int], _ int, current Pair[int, int]) Pair[int, int] {
-					return NewPair(acc.Key()+current.Key(), acc.Val()+current.Val())
-				},
-				initial: NewPair(0, 0),
-			},
-			want1: NewPair(21, 1332),
-		},
-	}
-}
-
-func testMapFoldRev(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapFoldRevCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.FoldRev(tt.args.reducer, tt.args.initial)
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("FoldRev() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
 func getMapGetCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1523,79 +619,6 @@ func testMapHas(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
-func getMapHeadCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "Head() on empty collection",
-			coll:  builder.Empty(),
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "Head() on one-item collection",
-			coll:  builder.One(),
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-		{
-			name:  "Head() on three-item collection",
-			coll:  builder.Three(),
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-	}
-}
-
-func testMapHead(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapHeadCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.coll.Head()
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Head() got1 = %v, want1 = %v", got1, tt.want1)
-			}
-			if !reflect.DeepEqual(got2, tt.want2) {
-				t.Errorf("Head() got2 = %v, want2 = %v", got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapHeadOrDefaultCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "HeadOrDefault() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(999, 999),
-		},
-		{
-			name:  "HeadOrDefault() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(1, 111),
-		},
-		{
-			name:  "HeadOrDefault() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(1, 111),
-		},
-	}
-}
-
-func testMapHeadOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapHeadOrDefaultCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1 := tt.coll.HeadOrDefault(tt.args.defaultValue)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("HeadOrDefault() got1 = %v, want1 = %v", got1, tt.want1)
-			}
-		})
-	}
-}
-
 func getMapIsEmptyCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -1711,21 +734,6 @@ func testMapKeysBreak(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 			if !reflect.DeepEqual(got, tt.want1) {
 				t.Errorf("Keys() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func testMapKeysToSlice(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapKeysCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := []int{}
-			for _, k := range tt.coll.KeysToSlice() {
-				got = append(got, k)
-			}
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("KeysToSlice() = %v, want1 = %v", got, tt.want1)
 			}
 		})
 	}
@@ -2045,96 +1053,6 @@ func testMapPrepend(t *testing.T, builder baseMapCollIntBuilder) {
 				if !reflect.DeepEqual(actualVC, tt.want4) {
 					t.Errorf("Prepend() did not prepend correctly to values counter")
 				}
-			}
-		})
-	}
-}
-
-func getMapReduceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	reducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
-		return NewPair(acc.Key()+current.Key(), acc.Val()*10+current.Val())
-	}
-
-	return []baseMapTestCase{
-		{
-			name:  "Reduce() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: nil,
-			want2: ErrEmptyCollection,
-		},
-		{
-			name:  "Reduce() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: NewPair(1, 111),
-			want2: nil,
-		},
-		{
-			name:  "Reduce() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: NewPair(6, 13653),
-			want2: nil,
-		},
-	}
-}
-
-func testMapReduce(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapReduceCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.coll.Reduce(tt.args.reducer)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Reduce() got1 = %v, want1 = %v", got1, tt.want1)
-			}
-			if !reflect.DeepEqual(got2, tt.want2) {
-				t.Errorf("Reduce() got2 = %v, want2 = %v", got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapReduceRevCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	reducer := func(acc Pair[int, int], i int, current Pair[int, int]) Pair[int, int] {
-		return NewPair(acc.Key()+current.Key(), acc.Val()*10+current.Val())
-	}
-
-	return []baseMapTestCase{
-		{
-			name:  "Reduce() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: nil,
-			want2: ErrEmptyCollection,
-		},
-		{
-			name:  "Reduce() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: NewPair(1, 111),
-			want2: nil,
-		},
-		{
-			name:  "Reduce() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{reducer: reducer},
-			want1: NewPair(6, 35631),
-			want2: nil,
-		},
-	}
-}
-
-func testMapReduceRev(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapReduceRevCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.coll.ReduceRev(tt.args.reducer)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Reduce() got1 = %v, want1 = %v", got1, tt.want1)
-			}
-			if !reflect.DeepEqual(got2, tt.want2) {
-				t.Errorf("Reduce() got2 = %v, want2 = %v", got2, tt.want2)
 			}
 		})
 	}
@@ -2526,7 +1444,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on empty collection",
 			coll:  builder.Empty(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return true }},
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
@@ -2535,7 +1453,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on one-item collection, found",
 			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val() == 111 }},
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
@@ -2544,7 +1462,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on one-item collection, not found",
 			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val() == 222 }},
 			want1: []Pair[int, int]{NewPair(1, 111)},
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
@@ -2553,7 +1471,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on three-item collection, found all",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return true }},
 			want1: []Pair[int, int](nil),
 			want2: map[int]int{},
 			want3: map[int]int{},
@@ -2562,7 +1480,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on three-item collection, found none",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return false }},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
@@ -2571,7 +1489,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on three-item collection, found first",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val() == 111 }},
 			want1: []Pair[int, int]{NewPair(2, 222), NewPair(3, 333)},
 			want2: map[int]int{2: 222, 3: 333},
 			want3: map[int]int{2: 0, 3: 1},
@@ -2580,7 +1498,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on three-item collection, found middle",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val() == 222 }},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(3, 333)},
 			want2: map[int]int{1: 111, 3: 333},
 			want3: map[int]int{1: 0, 3: 1},
@@ -2589,7 +1507,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 		{
 			name:  "RemoveMatching() on three-item collection, found last",
 			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 333 }},
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val() == 333 }},
 			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222)},
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
@@ -2699,130 +1617,6 @@ func testMapReverse(t *testing.T, builder baseMapCollIntBuilder) {
 				if !reflect.DeepEqual(actualVC, tt.want4) {
 					t.Errorf("Reverse() did not reverse correctly from values counter")
 				}
-			}
-		})
-	}
-}
-
-func getMapSearchCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
-	return []*baseMapTestCase{
-		{
-			name:  "Search() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "Search() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-		{
-			name:  "Search() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-		{
-			name:  "Search() on three-item collection, not found",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "Search() on three-item collection, found middle",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
-			want1: NewPair(2, 222),
-			want2: true,
-		},
-		{
-			name:  "Search() on six-item collection, found first occurrence",
-			coll:  builder.SixWithDuplicates(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-	}
-}
-
-func testMapSearch(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapSearchCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.coll.Search(tt.args.predicate)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Search() got1 = %v, want1 %v", got1, tt.want1)
-			}
-			if got2 != tt.want2 {
-				t.Errorf("Search() got2 = %v, want1 %v", got2, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapSearchRevCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
-	return []*baseMapTestCase{
-		{
-			name:  "SearchRev() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "SearchRev() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-		{
-			name:  "SearchRev() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return true }},
-			want1: NewPair(3, 333),
-			want2: true,
-		},
-		{
-			name:  "SearchRev() on three-item collection, not found",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return false }},
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "SearchRev() on three-item collection, found middle",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 222 }},
-			want1: NewPair(2, 222),
-			want2: true,
-		},
-		{
-			name:  "SearchRev() on six-item collection, found last occurrence",
-			coll:  builder.SixWithDuplicates(),
-			args:  baseMapIntArgs{predicate: func(i int, p Pair[int, int]) bool { return p.Val() == 111 }},
-			want1: NewPair(4, 111),
-			want2: true,
-		},
-	}
-}
-
-func testMapSearchRev(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapSearchRevCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.coll.SearchRev(tt.args.predicate)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("SearchRev() got1 = %v, want1 %v", got1, tt.want1)
-			}
-			if got2 != tt.want2 {
-				t.Errorf("SearchRev() got2 = %v, want1 %v", got2, tt.want2)
 			}
 		})
 	}
@@ -3121,153 +1915,6 @@ func testMapSort(t *testing.T, builder baseMapCollIntBuilder) {
 	}
 }
 
-func getMapTailCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "Tail() on empty collection",
-			coll:  builder.Empty(),
-			want1: nil,
-			want2: false,
-		},
-		{
-			name:  "Tail() on one-item collection",
-			coll:  builder.One(),
-			want1: NewPair(1, 111),
-			want2: true,
-		},
-		{
-			name:  "Tail() on three-item collection",
-			coll:  builder.Three(),
-			want1: NewPair(3, 333),
-			want2: true,
-		},
-	}
-}
-
-func testMapTail(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapTailCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got, ok := tt.coll.Tail()
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("Tail() = %v, want1 = %v", got, tt.want1)
-			}
-			if !reflect.DeepEqual(ok, tt.want2) {
-				t.Errorf("Tail() = %v, want2 = %v", ok, tt.want2)
-			}
-		})
-	}
-}
-
-func getMapTailOrDefaultCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "TailOrDefault() on empty collection",
-			coll:  builder.Empty(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(999, 999),
-		},
-		{
-			name:  "TailOrDefault() on one-item collection",
-			coll:  builder.One(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(1, 111),
-		},
-		{
-			name:  "TailOrDefault() on three-item collection",
-			coll:  builder.Three(),
-			args:  baseMapIntArgs{defaultValue: NewPair(999, 999)},
-			want1: NewPair(3, 333),
-		},
-	}
-}
-
-func testMapTailOrDefault(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapTailOrDefaultCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got1 := tt.coll.TailOrDefault(tt.args.defaultValue)
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("TailOrDefault() got1 = %v, want1 = %v", got1, tt.want1)
-			}
-		})
-	}
-}
-
-func getToMapCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "ToMap() on empty collection",
-			coll:  builder.Empty(),
-			want1: map[int]int{},
-		},
-		{
-			name:  "ToMap() on one-item collection",
-			coll:  builder.One(),
-			want1: map[int]int{1: 111},
-		},
-		{
-			name:  "ToMap() on three-item collection",
-			coll:  builder.Three(),
-			want1: map[int]int{1: 111, 2: 222, 3: 333},
-		},
-		{
-			name:  "ToMap() on six-item collection",
-			coll:  builder.SixWithDuplicates(),
-			want1: map[int]int{1: 111, 2: 222, 3: 333, 4: 111, 5: 222, 6: 333},
-		},
-	}
-}
-
-func testMapToMap(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getToMapCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.ToMap()
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("ToMap() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
-func getMapToSliceCases(builder baseMapCollIntBuilder) []baseMapTestCase {
-	return []baseMapTestCase{
-		{
-			name:  "ToSlice() on empty collection",
-			coll:  builder.Empty(),
-			want1: []Pair[int, int](nil),
-		},
-		{
-			name:  "ToSlice() on one-item collection",
-			coll:  builder.One(),
-			want1: []Pair[int, int]{NewPair(1, 111)},
-		},
-		{
-			name:  "ToSlice() on three-item collection",
-			coll:  builder.Three(),
-			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333)},
-		},
-		{
-			name:  "ToSlice() on six-item collection",
-			coll:  builder.SixWithDuplicates(),
-			want1: []Pair[int, int]{NewPair(1, 111), NewPair(2, 222), NewPair(3, 333), NewPair(4, 111), NewPair(5, 222), NewPair(6, 333)},
-		},
-	}
-}
-
-func testMapToSlice(t *testing.T, builder baseMapCollIntBuilder) {
-	cases := getMapToSliceCases(builder)
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.coll.ToSlice()
-			if !reflect.DeepEqual(got, tt.want1) {
-				t.Errorf("ToSlice() = %v, want1 = %v", got, tt.want1)
-			}
-		})
-	}
-}
-
 func getMapValuesCases(builder baseMapCollIntBuilder) []baseMapTestCase {
 	return []baseMapTestCase{
 		{
@@ -3306,7 +1953,7 @@ func getMapValuesWithBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCas
 			name: "Values() on three-item collection, break immediately",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return false
 				},
 			},
@@ -3316,7 +1963,7 @@ func getMapValuesWithBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCas
 			name: "Values() on three-item collection, break at middle",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return p.Key() < 2
 				},
 			},
@@ -3326,7 +1973,7 @@ func getMapValuesWithBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCas
 			name: "Values() on three-item collection, break after middle",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return p.Key() <= 2
 				},
 			},
@@ -3341,7 +1988,7 @@ func testMapValuesBreak(t *testing.T, builder baseMapCollIntBuilder) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := []Pair[int, int](nil)
 			for v := range tt.coll.Values() {
-				if !tt.args.predicate(-1, v) {
+				if !tt.args.predicate(v) {
 					break
 				}
 				got = append(got, v)
@@ -3391,7 +2038,7 @@ func getMapValuesRevBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCase
 			name: "ValuesRev() on three-item collection, break immediately",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return false
 				},
 			},
@@ -3401,7 +2048,7 @@ func getMapValuesRevBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCase
 			name: "ValuesRev() on three-item collection, break at middle",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return p.Key() > 2
 				},
 			},
@@ -3411,7 +2058,7 @@ func getMapValuesRevBreakCases(builder baseMapCollIntBuilder) []*baseMapTestCase
 			name: "ValuesRev() on three-item collection, break after middle",
 			coll: builder.Three(),
 			args: baseMapIntArgs{
-				predicate: func(_ int, p Pair[int, int]) bool {
+				predicate: func(p Pair[int, int]) bool {
 					return p.Key() >= 2
 				},
 			},
@@ -3426,7 +2073,7 @@ func testMapValuesRevBreak(t *testing.T, builder baseMapCollIntBuilder) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := []Pair[int, int](nil)
 			for v := range tt.coll.ValuesRev() {
-				if !tt.args.predicate(-1, v) {
+				if !tt.args.predicate(v) {
 					break
 				}
 				got = append(got, v)

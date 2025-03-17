@@ -29,7 +29,7 @@ type comfyCmpSeq[V cmp.Ordered] struct {
 func (c *comfyCmpSeq[V]) Apply(f Mapper[V]) {
 	for i, v := range c.s {
 		c.vc.Decrement(v)
-		c.s[i] = f(i, v)
+		c.s[i] = f(v)
 		c.vc.Increment(c.s[i])
 	}
 }
@@ -68,99 +68,16 @@ func (c *comfyCmpSeq[V]) Clear() {
 	c.vc = newValuesCounter[V]()
 }
 
-func (c *comfyCmpSeq[V]) Contains(predicate Predicate[V]) bool {
-	return comfyContains(c, predicate)
-}
-
 func (c *comfyCmpSeq[V]) ContainsValue(v V) bool {
 	return c.vc.Count(v) > 0
-}
-
-func (c *comfyCmpSeq[V]) Count(predicate Predicate[V]) int {
-	var count int
-	for i, v := range c.s {
-		if predicate(i, v) {
-			count++
-		}
-	}
-	return count
 }
 
 func (c *comfyCmpSeq[V]) CountValues(v V) int {
 	return c.vc.Count(v)
 }
 
-func (c *comfyCmpSeq[V]) Each(f Visitor[V]) {
-	for i, v := range c.s {
-		f(i, v)
-	}
-}
-
-func (c *comfyCmpSeq[V]) EachRev(f Visitor[V]) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		f(i, c.s[i])
-	}
-}
-
-func (c *comfyCmpSeq[V]) EachRevUntil(f Predicate[V]) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		if !f(i, c.s[i]) {
-			return
-		}
-	}
-}
-
-func (c *comfyCmpSeq[V]) EachUntil(f Predicate[V]) {
-	for i, v := range c.s {
-		if !f(i, v) {
-			return
-		}
-	}
-}
-
-func (c *comfyCmpSeq[V]) Find(predicate Predicate[V], defaultValue V) V {
-	for i, v := range c.s {
-		if predicate(i, v) {
-			return v
-		}
-	}
-	return defaultValue
-}
-
-func (c *comfyCmpSeq[V]) FindLast(predicate Predicate[V], defaultValue V) V {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		if predicate(i, c.s[i]) {
-			return c.s[i]
-		}
-	}
-	return defaultValue
-}
-
-func (c *comfyCmpSeq[V]) Fold(reducer Reducer[V], initial V) V {
-	return comfyFoldSlice(c.s, reducer, initial)
-}
-
-func (c *comfyCmpSeq[V]) FoldRev(reducer Reducer[V], initial V) V {
-	return comfyFoldSliceRev(c.s, reducer, initial)
-}
-
 func (c *comfyCmpSeq[V]) HasValue(v V) bool {
 	return c.ContainsValue(v)
-}
-
-func (c *comfyCmpSeq[V]) Head() (V, bool) {
-	if len(c.s) == 0 {
-		var v V
-		return v, false
-	}
-	return c.s[0], true
-}
-
-func (c *comfyCmpSeq[V]) HeadOrDefault(defaultValue V) V {
-	if len(c.s) == 0 {
-		return defaultValue
-	}
-	return c.s[0]
 }
 
 func (c *comfyCmpSeq[V]) IndexOf(v V) (i int, found bool) {
@@ -204,14 +121,6 @@ func (c *comfyCmpSeq[V]) Len() int {
 	return len(c.s)
 }
 
-func (c *comfyCmpSeq[V]) Max() (V, error) {
-	return comfyMax[CmpSequence[V], V](c)
-}
-
-func (c *comfyCmpSeq[V]) Min() (V, error) {
-	return comfyMin[CmpSequence[V], V](c)
-}
-
 func (c *comfyCmpSeq[V]) Prepend(v ...V) {
 	if len(v) == 0 {
 		return
@@ -220,14 +129,6 @@ func (c *comfyCmpSeq[V]) Prepend(v ...V) {
 	for _, v := range v {
 		c.vc.Increment(v)
 	}
-}
-
-func (c *comfyCmpSeq[V]) Reduce(reducer Reducer[V]) (V, error) {
-	return comfyReduceSlice(c.s, reducer)
-}
-
-func (c *comfyCmpSeq[V]) ReduceRev(reducer Reducer[V]) (V, error) {
-	return comfyReduceSliceRev(c.s, reducer)
 }
 
 func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
@@ -242,8 +143,8 @@ func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
 func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) {
 	newS := []V(nil)
 	newVC := newValuesCounter[V]()
-	for i, v := range c.s {
-		if !predicate(i, v) {
+	for _, v := range c.s {
+		if !predicate(v) {
 			newS = append(newS, v)
 			newVC.Increment(v)
 		}
@@ -267,26 +168,6 @@ func (c *comfyCmpSeq[V]) RemoveValues(v V) {
 
 func (c *comfyCmpSeq[V]) Reverse() {
 	slices.Reverse(c.s)
-}
-
-func (c *comfyCmpSeq[V]) Search(predicate Predicate[V]) (V, bool) {
-	for i, v := range c.s {
-		if predicate(i, v) {
-			return v, true
-		}
-	}
-	var v V
-	return v, false
-}
-
-func (c *comfyCmpSeq[V]) SearchRev(predicate Predicate[V]) (V, bool) {
-	for i := len(c.s) - 1; i >= 0; i-- {
-		if predicate(i, c.s[i]) {
-			return c.s[i], true
-		}
-	}
-	var v V
-	return v, false
 }
 
 func (c *comfyCmpSeq[V]) Sort(cmp func(a, b V) int) {
@@ -313,29 +194,6 @@ func (c *comfyCmpSeq[V]) SortDesc() {
 		}
 		return 0
 	})
-}
-
-func (c *comfyCmpSeq[V]) Sum() V {
-	return comfySum[CmpSequence[V], V](c)
-}
-
-func (c *comfyCmpSeq[V]) Tail() (V, bool) {
-	if len(c.s) == 0 {
-		var v V
-		return v, false
-	}
-	return c.s[len(c.s)-1], true
-}
-
-func (c *comfyCmpSeq[V]) TailOrDefault(defaultValue V) V {
-	if len(c.s) == 0 {
-		return defaultValue
-	}
-	return c.s[len(c.s)-1]
-}
-
-func (c *comfyCmpSeq[V]) ToSlice() []V {
-	return append([]V{}, c.s...)
 }
 
 func (c *comfyCmpSeq[V]) Values() iter.Seq[V] {

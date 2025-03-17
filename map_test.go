@@ -173,46 +173,6 @@ func Test_comfyMap_Clear(t *testing.T) {
 	testMapClear(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
-func Test_comfyMap_Contains(t *testing.T) {
-	testMapContains(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Count(t *testing.T) {
-	testMapCount(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Each(t *testing.T) {
-	testMapEach(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_EachRev(t *testing.T) {
-	testMapEachRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_EachRevUntil(t *testing.T) {
-	testMapEachRevUntil(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_EachUntil(t *testing.T) {
-	testMapEachUntil(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Find(t *testing.T) {
-	testMapFind(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_FindLast(t *testing.T) {
-	testMapFindLast(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Fold(t *testing.T) {
-	testMapFold(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_FoldRev(t *testing.T) {
-	testMapFoldRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
 func Test_comfyMap_Get(t *testing.T) {
 	testMapGet(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -225,14 +185,6 @@ func Test_comfyMap_Has(t *testing.T) {
 	testMapHas(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
-func Test_comfyMap_Head(t *testing.T) {
-	testMapHead(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_HeadOrDefault(t *testing.T) {
-	testMapHeadOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
 func Test_comfyMap_IsEmpty(t *testing.T) {
 	testMapIsEmpty(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -240,10 +192,6 @@ func Test_comfyMap_IsEmpty(t *testing.T) {
 func Test_comfyMap_Keys(t *testing.T) {
 	testMapKeys(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 	testMapKeysBreak(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_KeysToSlice(t *testing.T) {
-	testMapKeysToSlice(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_KeyValues(t *testing.T) {
@@ -256,14 +204,6 @@ func Test_comfyMap_Len(t *testing.T) {
 
 func Test_comfyMap_Prepend(t *testing.T) {
 	testMapPrepend(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Reduce(t *testing.T) {
-	testMapReduce(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_ReduceRev(t *testing.T) {
-	testMapReduceRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Remove(t *testing.T) {
@@ -286,14 +226,6 @@ func Test_comfyMap_Reverse(t *testing.T) {
 	testMapReverse(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
-func Test_comfyMap_Search(t *testing.T) {
-	testMapSearch(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_SearchRev(t *testing.T) {
-	testMapSearchRev(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
 func Test_comfyMap_Set(t *testing.T) {
 	testMapSet(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
@@ -304,22 +236,6 @@ func Test_comfyMap_SetMany(t *testing.T) {
 
 func Test_comfyMap_Sort(t *testing.T) {
 	testMapSort(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_Tail(t *testing.T) {
-	testMapTail(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_TailOrDefault(t *testing.T) {
-	testMapTailOrDefault(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_ToMap(t *testing.T) {
-	testMapToMap(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
-}
-
-func Test_comfyMap_ToSlice(t *testing.T) {
-	testMapToSlice(t, &comfyMapIntBuilder[mapInternal[int, int]]{})
 }
 
 func Test_comfyMap_Values(t *testing.T) {
