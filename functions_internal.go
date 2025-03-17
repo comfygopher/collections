@@ -57,6 +57,7 @@ func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
 	return removed, append(s[:i], s[i+1:]...), nil
 }
 
+// sliceRemoveMatching removes all elements for which the predicate returns true.
 func sliceRemoveMatching[V any](s []V, predicate Predicate[V]) []V {
 	newS := []V(nil)
 	for _, v := range s {
