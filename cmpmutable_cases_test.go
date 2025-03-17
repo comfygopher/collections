@@ -130,7 +130,7 @@ func testRemoveValues(t *testing.T, builder cmpMutableCollIntBuilder) {
 	cases := getRemoveValuesCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			count := -1
+			var count int
 			if tt.args.values != nil {
 				count = tt.coll.RemoveValues(tt.args.values...)
 			} else {

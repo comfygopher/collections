@@ -163,7 +163,7 @@ func (c *comfyCmpSeq[V]) RemoveValues(v ...V) (count int) {
 	toRemove := newValuesCounter[V]()
 	for _, v := range v {
 		if c.vc.Count(v) > 0 {
-			toRemove.counter[v] = c.vc.Count(v)
+			toRemove.Set(v, c.vc.Count(v))
 		}
 	}
 
