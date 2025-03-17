@@ -1,6 +1,8 @@
 package coll
 
-import "cmp"
+import (
+	"cmp"
+)
 
 type valuesCounter[V cmp.Ordered] struct {
 	counter map[V]int
@@ -30,4 +32,16 @@ func (c *valuesCounter[V]) Decrement(v V) {
 	} else {
 		c.counter[v]--
 	}
+}
+
+func (c *valuesCounter[V]) Set(v V, count int) {
+	if count < 1 {
+		delete(c.counter, v)
+	} else {
+		c.counter[v] = count
+	}
+}
+
+func (c *valuesCounter[V]) IsEmpty() bool {
+	return len(c.counter) == 0
 }

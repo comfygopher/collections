@@ -18,7 +18,7 @@ making them well suited for rapid prototyping.
 
 1. Provide convenient abstraction for collection data structures
 1. Focus on developer experience
-1. Reduce repetition in day-to-day collections operations
+1. Reduce repetition of common collections operations
 1. Address the missing ordered map data structure
 1. Provide API for in-place modifications of collections
 1. Reduce strain of juggling between empty slice pointers `[]V(nil) vs []V{}`

@@ -17,6 +17,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 1},
 			want1: []int(nil),
 			want2: map[int]int{},
+			want3: 0,
 		},
 		{
 			name:  "RemoveValues() on one-item collection",
@@ -24,6 +25,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 111},
 			want1: []int(nil),
 			want2: map[int]int{},
+			want3: 1,
 		},
 		{
 			name:  "RemoveValues() on three-item collection - first item",
@@ -31,6 +33,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 111},
 			want1: []int{222, 333},
 			want2: map[int]int{222: 1, 333: 1},
+			want3: 1,
 		},
 		{
 			name:  "RemoveValues() on three-item collection - second item",
@@ -38,6 +41,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 222},
 			want1: []int{111, 333},
 			want2: map[int]int{111: 1, 333: 1},
+			want3: 1,
 		},
 		{
 			name:  "RemoveValues() on three-item collection - third item",
@@ -45,6 +49,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 333},
 			want1: []int{111, 222},
 			want2: map[int]int{111: 1, 222: 1},
+			want3: 1,
 		},
 		{
 			name:  "RemoveValues() on three-item collection, not found",
@@ -52,6 +57,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 999},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
+			want3: 0,
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `111` found ",
@@ -59,6 +65,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 111},
 			want1: []int{222, 333, 222, 333},
 			want2: map[int]int{222: 2, 333: 2},
+			want3: 2,
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `222` found ",
@@ -66,6 +73,7 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 222},
 			want1: []int{111, 333, 111, 333},
 			want2: map[int]int{111: 2, 333: 2},
+			want3: 2,
 		},
 		{
 			name:  "RemoveValues() on six-item collection, 2 `333` found ",
@@ -73,6 +81,47 @@ func getRemoveValuesCases(builder cmpMutableCollIntBuilder) []cmpMutableTestCase
 			args:  cmpMutableIntArgs{value: 333},
 			want1: []int{111, 222, 111, 222},
 			want2: map[int]int{111: 2, 222: 2},
+			want3: 2,
+		},
+		{
+			name:  "RemoveValues() on six-item collection, one found",
+			coll:  builder.SixWithDuplicates(),
+			args:  cmpMutableIntArgs{values: []int{111}},
+			want1: []int{222, 333, 222, 333},
+			want2: map[int]int{222: 2, 333: 2},
+			want3: 2,
+		},
+		{
+			name:  "RemoveValues() on six-item collection, two found",
+			coll:  builder.SixWithDuplicates(),
+			args:  cmpMutableIntArgs{values: []int{111, 222}},
+			want1: []int{333, 333},
+			want2: map[int]int{333: 2},
+			want3: 4,
+		},
+		{
+			name:  "RemoveValues() on six-item collection, three found",
+			coll:  builder.SixWithDuplicates(),
+			args:  cmpMutableIntArgs{values: []int{111, 222, 333}},
+			want1: []int(nil),
+			want2: map[int]int{},
+			want3: 6,
+		},
+		{
+			name:  "RemoveValues() on six-item collection, none found",
+			coll:  builder.SixWithDuplicates(),
+			args:  cmpMutableIntArgs{values: []int{999, 888, 777}},
+			want1: []int{111, 222, 333, 111, 222, 333},
+			want2: map[int]int{111: 2, 222: 2, 333: 2},
+			want3: 0,
+		},
+		{
+			name:  "RemoveValues() on six-item collection, empty values",
+			coll:  builder.SixWithDuplicates(),
+			args:  cmpMutableIntArgs{values: []int{}},
+			want1: []int{111, 222, 333, 111, 222, 333},
+			want2: map[int]int{111: 2, 222: 2, 333: 2},
+			want3: 0,
 		},
 	}
 }
@@ -81,7 +130,12 @@ func testRemoveValues(t *testing.T, builder cmpMutableCollIntBuilder) {
 	cases := getRemoveValuesCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.RemoveValues(tt.args.value)
+			var count int
+			if tt.args.values != nil {
+				count = tt.coll.RemoveValues(tt.args.values...)
+			} else {
+				count = tt.coll.RemoveValues(tt.args.value)
+			}
 			actualSlice := builder.extractRawValues(tt.coll)
 			actualVC := builder.extractUnderlyingValsCount(tt.coll)
 			if !reflect.DeepEqual(actualSlice, tt.want1) {
@@ -89,6 +143,9 @@ func testRemoveValues(t *testing.T, builder cmpMutableCollIntBuilder) {
 			}
 			if !reflect.DeepEqual(actualVC, tt.want2) {
 				t.Errorf("RemoveValues() did not remove correctly from values counter")
+			}
+			if count != tt.want3 {
+				t.Errorf("RemoveValues() returned wrong count: %v, but wanted %v", count, tt.want3)
 			}
 		})
 	}

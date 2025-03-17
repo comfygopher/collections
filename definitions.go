@@ -89,6 +89,7 @@ type Mutable[V any] interface {
 	Clear()
 
 	// RemoveMatching removes all elements that match the given predicate.
+	// Returns the number of removed items.
 	RemoveMatching(predicate Predicate[V]) (count int)
 }
 
@@ -135,7 +136,8 @@ type CmpMutable[V cmp.Ordered] interface {
 	Cmp[V]
 
 	// RemoveValues removes all occurrences of the given value.
-	RemoveValues(v V) // TODO: replace with multiple values (v ...V)
+	// Returns the number of removed items.
+	RemoveValues(v ...V) (count int)
 
 	// SortAsc sorts the collection in ascending order.
 	SortAsc()
