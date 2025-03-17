@@ -148,7 +148,7 @@ func (c *comfyMap[K, V]) RemoveMany(keys []K) {
 	c.removeMany(keys)
 }
 
-func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
+func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) (count int) {
 	newS := []Pair[K, V](nil)
 	newM := make(map[K]Pair[K, V])
 	newKP := make(map[K]int)
@@ -160,12 +160,15 @@ func (c *comfyMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 			newM[pair.Key()] = pair
 			newKP[pair.Key()] = idx
 			idx++
+		} else {
+			count++
 		}
 	}
 
 	c.s = newS
 	c.m = newM
 	c.kp = newKP
+	return count
 }
 
 func (c *comfyMap[K, V]) Reverse() {

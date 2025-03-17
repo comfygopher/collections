@@ -1449,6 +1449,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{},
 			want3: map[int]int{},
 			want4: map[int]int{},
+			want5: 0,
 		},
 		{
 			name:  "RemoveMatching() on one-item collection, found",
@@ -1458,6 +1459,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{},
 			want3: map[int]int{},
 			want4: map[int]int{},
+			want5: 1,
 		},
 		{
 			name:  "RemoveMatching() on one-item collection, not found",
@@ -1467,6 +1469,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{1: 111},
 			want3: map[int]int{1: 0},
 			want4: map[int]int{111: 1},
+			want5: 0,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found all",
@@ -1476,6 +1479,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{},
 			want3: map[int]int{},
 			want4: map[int]int{},
+			want5: 3,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found none",
@@ -1485,6 +1489,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{1: 111, 2: 222, 3: 333},
 			want3: map[int]int{1: 0, 2: 1, 3: 2},
 			want4: map[int]int{111: 1, 222: 1, 333: 1},
+			want5: 0,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found first",
@@ -1494,6 +1499,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{2: 222, 3: 333},
 			want3: map[int]int{2: 0, 3: 1},
 			want4: map[int]int{222: 1, 333: 1},
+			want5: 1,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found middle",
@@ -1503,6 +1509,7 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{1: 111, 3: 333},
 			want3: map[int]int{1: 0, 3: 1},
 			want4: map[int]int{111: 1, 333: 1},
+			want5: 1,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, found last",
@@ -1512,6 +1519,17 @@ func getMapRemoveMatchingCases(builder baseMapCollIntBuilder) []baseMapTestCase 
 			want2: map[int]int{1: 111, 2: 222},
 			want3: map[int]int{1: 0, 2: 1},
 			want4: map[int]int{111: 1, 222: 1},
+			want5: 1,
+		},
+		{
+			name:  "RemoveMatching() on three-item collection, found even",
+			coll:  builder.Three(),
+			args:  baseMapIntArgs{predicate: func(p Pair[int, int]) bool { return p.Val()%2 != 0 }},
+			want1: []Pair[int, int]{NewPair(2, 222)},
+			want2: map[int]int{2: 222},
+			want3: map[int]int{2: 0},
+			want4: map[int]int{222: 1},
+			want5: 2,
 		},
 	}
 }

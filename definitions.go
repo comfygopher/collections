@@ -89,7 +89,7 @@ type Mutable[V any] interface {
 	Clear()
 
 	// RemoveMatching removes all elements that match the given predicate.
-	RemoveMatching(predicate Predicate[V]) // TODO: return count of removed items
+	RemoveMatching(predicate Predicate[V]) (count int)
 }
 
 // IndexedMutable is a mutable collection that can be modified based on the indexes.

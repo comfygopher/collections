@@ -111,6 +111,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return true }},
 			want1: []int(nil),
 			want2: map[int]int{},
+			want3: 0,
 		},
 		{
 			name:  "RemoveMatching() on one-item collection",
@@ -118,6 +119,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return v == 111 }},
 			want1: []int(nil),
 			want2: map[int]int{},
+			want3: 1,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection",
@@ -125,6 +127,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return v == 222 }},
 			want1: []int{111, 333},
 			want2: map[int]int{111: 1, 333: 1},
+			want3: 1,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, all false",
@@ -132,6 +135,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return false }},
 			want1: []int{111, 222, 333},
 			want2: map[int]int{111: 1, 222: 1, 333: 1},
+			want3: 0,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, all true",
@@ -139,6 +143,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return true }},
 			want1: []int(nil),
 			want2: map[int]int{},
+			want3: 3,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, some mod 2",
@@ -146,6 +151,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return v%2 == 0 }},
 			want1: []int{111, 333},
 			want2: map[int]int{111: 1, 333: 1},
+			want3: 1,
 		},
 		{
 			name:  "RemoveMatching() on three-item collection, some not mod 2",
@@ -153,6 +159,7 @@ func getRemoveMatchingCases(builder mutableIntTestBuilder) []mutableIntTestCase 
 			args:  mutableIntTestArgs{predicate: func(v int) bool { return v%2 != 0 }},
 			want1: []int{222},
 			want2: map[int]int{222: 1},
+			want3: 2,
 		},
 	}
 }
@@ -161,7 +168,7 @@ func testRemoveMatching(t *testing.T, builder mutableIntTestBuilder) {
 	cases := getRemoveMatchingCases(builder)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.coll.RemoveMatching(tt.args.predicate)
+			count := tt.coll.RemoveMatching(tt.args.predicate)
 
 			actualSlice := builder.extractUnderlyingSlice(tt.coll)
 			actualVC := builder.extractUnderlyingValsCount(tt.coll)
@@ -171,6 +178,9 @@ func testRemoveMatching(t *testing.T, builder mutableIntTestBuilder) {
 			}
 			if actualVC != nil && !reflect.DeepEqual(actualVC, tt.want2) {
 				t.Errorf("RemoveMatching() did not remove correctly from values counter")
+			}
+			if count != tt.want3 {
+				t.Errorf("RemoveMatching() returned wrong count: %v, but wanted = %v", count, tt.want3)
 			}
 		})
 	}

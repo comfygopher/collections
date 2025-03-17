@@ -34,6 +34,7 @@ type testCase[C any, V any] struct {
 	want2       any
 	want3       any
 	want4       any
+	want5       any
 	got1        any
 	got2        any
 	got3        any
