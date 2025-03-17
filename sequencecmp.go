@@ -156,17 +156,35 @@ func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) (count int) {
 	return count
 }
 
-func (c *comfyCmpSeq[V]) RemoveValues(v V) {
+func (c *comfyCmpSeq[V]) RemoveValues(v ...V) (count int) {
 	newS := []V(nil)
 	newVC := newValuesCounter[V]()
-	for _, current := range c.s {
-		if current != v {
-			newS = append(newS, current)
-			newVC.Increment(current)
+
+	toRemove := newValuesCounter[V]()
+	for _, v := range v {
+		if c.vc.Count(v) > 0 {
+			toRemove.counter[v] = c.vc.Count(v)
 		}
 	}
+
+	if toRemove.IsEmpty() {
+		return 0
+	}
+
+	for _, current := range c.s {
+		if toRemove.Count(current) == 0 {
+			newS = append(newS, current)
+			newVC.Increment(current)
+		} else {
+			count++
+			toRemove.Decrement(current)
+		}
+	}
+
 	c.s = newS
 	c.vc = newVC
+
+	return count
 }
 
 func (c *comfyCmpSeq[V]) Reverse() {

@@ -216,9 +216,20 @@ func (c *comfyCmpMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) (cou
 	return count
 }
 
-func (c *comfyCmpMap[K, V]) RemoveValues(v V) {
-	c.RemoveMatching(func(pair Pair[K, V]) bool {
-		return pair.Val() == v
+func (c *comfyCmpMap[K, V]) RemoveValues(v ...V) (count int) {
+	toRemove := newValuesCounter[V]()
+	for _, v := range v {
+		if c.vc.Count(v) > 0 {
+			toRemove.counter[v] = c.vc.Count(v)
+		}
+	}
+
+	return c.RemoveMatching(func(pair Pair[K, V]) bool {
+		doRemove := toRemove.Count(pair.Val()) > 0
+		if doRemove {
+			toRemove.Decrement(pair.Val())
+		}
+		return doRemove
 	})
 }
 
