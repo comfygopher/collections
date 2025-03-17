@@ -140,17 +140,20 @@ func (c *comfyCmpSeq[V]) RemoveAt(i int) (removed V, err error) {
 	return removed, nil
 }
 
-func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) {
+func (c *comfyCmpSeq[V]) RemoveMatching(predicate Predicate[V]) (count int) {
 	newS := []V(nil)
 	newVC := newValuesCounter[V]()
 	for _, v := range c.s {
 		if !predicate(v) {
 			newS = append(newS, v)
 			newVC.Increment(v)
+		} else {
+			count++
 		}
 	}
 	c.s = newS
 	c.vc = newVC
+	return count
 }
 
 func (c *comfyCmpSeq[V]) RemoveValues(v V) {

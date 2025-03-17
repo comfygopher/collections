@@ -190,7 +190,7 @@ func (c *comfyCmpMap[K, V]) RemoveMany(keys []K) {
 	c.removeMany(keys)
 }
 
-func (c *comfyCmpMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
+func (c *comfyCmpMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) (count int) {
 	newS := []Pair[K, V](nil)
 	newM := make(map[K]Pair[K, V])
 	newKP := make(map[K]int)
@@ -204,6 +204,8 @@ func (c *comfyCmpMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 			newKP[pair.Key()] = idx
 			newVC.Increment(pair.Val())
 			idx++
+		} else {
+			count++
 		}
 	}
 
@@ -211,6 +213,7 @@ func (c *comfyCmpMap[K, V]) RemoveMatching(predicate Predicate[Pair[K, V]]) {
 	c.m = newM
 	c.kp = newKP
 	c.vc = newVC
+	return count
 }
 
 func (c *comfyCmpMap[K, V]) RemoveValues(v V) {

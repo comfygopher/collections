@@ -93,8 +93,9 @@ func (c *comfySeq[V]) RemoveAt(i int) (removed V, err error) {
 	return removed, nil
 }
 
-func (c *comfySeq[V]) RemoveMatching(predicate Predicate[V]) {
-	c.s = sliceRemoveMatching(c.s, predicate)
+func (c *comfySeq[V]) RemoveMatching(predicate Predicate[V]) (count int) {
+	c.s, count = sliceRemoveMatching(c.s, predicate)
+	return count
 }
 
 func (c *comfySeq[V]) Reverse() {
