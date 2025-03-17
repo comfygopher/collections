@@ -8,26 +8,12 @@ import (
 
 type baseFakeWithoutInternal[V any] struct{}
 
-func (*baseFakeWithoutInternal[V]) Contains(_ Predicate[V]) bool {
+func (*baseFakeWithoutInternal[V]) Contains(_ IndexedPredicate[V]) bool {
 	return false
 }
 
-func (*baseFakeWithoutInternal[V]) Count(_ Predicate[V]) int {
+func (*baseFakeWithoutInternal[V]) Count(_ IndexedPredicate[V]) int {
 	return 0
-}
-
-func (*baseFakeWithoutInternal[V]) Each(_ Visitor[V]) {
-}
-
-func (*baseFakeWithoutInternal[V]) EachUntil(_ Predicate[V]) {
-}
-
-func (*baseFakeWithoutInternal[V]) Find(_ Predicate[V], defaultValue V) V {
-	return defaultValue
-}
-
-func (*baseFakeWithoutInternal[V]) Fold(_ Reducer[V], initial V) (result V) {
-	return initial
 }
 
 func (*baseFakeWithoutInternal[V]) IsEmpty() bool {
@@ -36,18 +22,6 @@ func (*baseFakeWithoutInternal[V]) IsEmpty() bool {
 
 func (*baseFakeWithoutInternal[V]) Len() int {
 	return 0
-}
-
-func (*baseFakeWithoutInternal[V]) Search(_ Predicate[V]) (val V, found bool) {
-	return val, false
-}
-
-func (*baseFakeWithoutInternal[V]) Reduce(_ Reducer[V]) (result V, err error) {
-	return result, nil
-}
-
-func (*baseFakeWithoutInternal[V]) ToSlice() []V {
-	return nil
 }
 
 func (*baseFakeWithoutInternal[V]) Values() iter.Seq[V] {

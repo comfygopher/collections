@@ -8,11 +8,10 @@ type testArgs[C any, V any] struct {
 	values          []V
 	defaultValue    V
 	defaultRawValue any
-	visit           Visitor[V]
-	predicate       Predicate[V]
+	visit           func(v V)
+	predicate       func(v V) bool
 	intPredicate    func(i int) bool
-	reducer         Reducer[V]
-	mapper          Mapper[V]
+	mapper          func(val V) V
 	comparer        func(a, b V) int
 	initial         V
 	coll            C

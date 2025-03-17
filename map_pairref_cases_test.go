@@ -72,7 +72,7 @@ func getMapValuesRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
 		return builder.FromValues(threeItemModifyValuesCase.args.valuesAsAnySlice())
 	}
-	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
+	threeItemModifyValuesCase.args.visit = func(p Pair[int, int]) {
 		p.SetVal(p.Val() + 1000)
 	}
 
@@ -94,7 +94,7 @@ func testMapValuesRef(t *testing.T, builder baseMapCollIntBuilder) {
 			}
 
 			for v := range tt.coll.Values() {
-				tt.args.visit(-1, v)
+				tt.args.visit(v)
 			}
 
 			actualSliceAfterModification := builder.extractUnderlyingSlice(tt.coll)
@@ -116,7 +116,7 @@ func getMapCopyRefCases(builder baseMapCollIntBuilder) []*baseMapTestCase {
 	threeItemModifyValuesCase.collBuilder = func() mapInternal[int, int] {
 		return builder.FromValues(threeItemModifyValuesCase.args.valuesAsAnySlice())
 	}
-	threeItemModifyValuesCase.args.visit = func(_ int, p Pair[int, int]) {
+	threeItemModifyValuesCase.args.visit = func(p Pair[int, int]) {
 		p.SetVal(p.Val() + 1000)
 	}
 
@@ -140,7 +140,7 @@ func testMapCopyDontPreserveRef(t *testing.T, builder baseMapCollIntBuilder) {
 
 			copiedMap := tt.coll.copy().(mapInternal[int, int])
 			for v := range copiedMap.Values() {
-				tt.args.visit(-1, v)
+				tt.args.visit(v)
 			}
 
 			actualSliceAfterModification := builder.extractUnderlyingSlice(tt.coll)
