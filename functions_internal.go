@@ -7,7 +7,7 @@ import (
 )
 
 func comfyAppendMap[K comparable, V any](c mapInternal[K, V], p ...Pair[K, V]) {
-	keys := []K(nil)
+	keys := make([]K, 0, len(p))
 	for _, pair := range p {
 		keys = append(keys, pair.Key())
 	}
@@ -27,7 +27,7 @@ func comfyMakeKeyPosMap[K comparable](s []K) map[K]int {
 }
 
 func comfySortSliceAndKP[K comparable, V any](s []Pair[K, V], compare PairComparator[K, V]) ([]Pair[K, V], map[K]int) {
-	kp := make(map[K]int)
+	kp := make(map[K]int, len(s))
 	if s == nil {
 		return s, kp
 	}
@@ -59,11 +59,15 @@ func sliceRemoveAt[V any](s []V, i int) (removed V, newSLice []V, err error) {
 
 // sliceRemoveMatching removes all elements for which the predicate returns true.
 func sliceRemoveMatching[V any](s []V, predicate Predicate[V]) []V {
-	newS := []V(nil)
+	newS := make([]V, 0, len(s))
 	for _, v := range s {
 		if !predicate(v) {
 			newS = append(newS, v)
 		}
+	}
+
+	if len(newS) == 0 {
+		return []V(nil)
 	}
 
 	return newS
