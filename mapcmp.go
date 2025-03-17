@@ -224,6 +224,10 @@ func (c *comfyCmpMap[K, V]) RemoveValues(v ...V) (count int) {
 		}
 	}
 
+	if toRemove.IsEmpty() {
+		return 0
+	}
+
 	return c.RemoveMatching(func(pair Pair[K, V]) bool {
 		doRemove := toRemove.Count(pair.Val()) > 0
 		if doRemove {
